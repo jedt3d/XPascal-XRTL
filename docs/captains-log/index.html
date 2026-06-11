@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Captain's Log - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 980px; padding: 0 1rem; color: #202124; }
+    header, section { margin-bottom: 2rem; }
+    h1, h2, h3 { line-height: 1.25; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    .entry { border-top: 1px solid #d8dee4; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p><a href="../">Documentation Home</a></p>
+    <h1>Captain's Log</h1>
+    <p>A human-readable journal of XPascal/XRTL bootstrap work, decisions, platform findings, and validation results.</p>
+  </header>
+
+  <section>
+    <h2>System Configuration Seen So Far</h2>
+    <ul>
+      <li>Primary local workspace: <code>C:\Users\sjedt\GitHub\XPascal - XRTL Platform</code></li>
+      <li>Repository: <code>jedt3d/XPascal-XRTL</code></li>
+      <li>Branch: <code>codex/bootstrap-xpascal-foundation</code></li>
+      <li>Draft PR: <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a></li>
+      <li>Required compiler: FreePascal <code>3.3.1</code></li>
+      <li>Supported bootstrap targets: Windows x86_64, macOS Apple Silicon aarch64, Linux x86_64 / Ubuntu 26.04</li>
+      <li>Unsupported by decision: macOS Intel x86_64</li>
+      <li>Tested Windows host: Windows with Git 2.54.0, GitHub CLI 2.94.0 installed, FPC snapshot compiler <code>ppcrossx64.exe</code></li>
+      <li>Tested Mac host: macOS 26.5.1 on Apple Silicon M2, Darwin arm64</li>
+      <li>Linux validation: pending Side Chat on Linux x86_64 / Ubuntu 26.04</li>
+    </ul>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 - Bootstrap Plan Becomes a Branch</h2>
+    <p>The project began from a local planning folder containing only <code>proposal.md</code>. The remote repository existed with a minimal <code>main</code> branch containing the license. We created the feature branch <code>codex/bootstrap-xpascal-foundation</code>, moved the proposal into <code>docs/proposal.md</code>, and opened GitHub issues for traceability.</p>
+    <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1</a> as the bootstrap epic, plus child issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/2">#2</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7</a>. Opened draft PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 - Windows Toolchain Lessons</h2>
+    <p>The Windows FPC 3.3.1 snapshot did not behave like a normal installed <code>fpc.exe</code>. The archive exposed a compiler named <code>ppcrossx64.exe</code>. The initial build created extensionless output files, which is confusing on Windows and can collide with command resolution if someone runs bare <code>xpc</code>.</p>
+    <p>Fixes applied:</p>
+    <ul>
+      <li>Scripts discover both <code>fpc.exe</code> and <code>ppc*.exe</code>.</li>
+      <li><code>tools/build-xpc.ps1</code> renames Windows build outputs to <code>xpc.exe</code> and <code>hello_xpc.exe</code>.</li>
+      <li><code>tools/run-xpc.ps1</code> provides an unambiguous launcher.</li>
+      <li>The launcher sets <code>FPC_BIN</code> and <code>FPC_VERSION</code>.</li>
+    </ul>
+    <p>Windows validation passed: install, toolchain check, build, <code>xpc version</code>, <code>xpc doctor</code>, and <code>hello_xpc</code>.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 - macOS Apple Silicon Lessons</h2>
+    <p>The Mac test machine was reached over SSH at <code>172.20.10.4</code>. It reported macOS 26.5.1, Darwin arm64, on an Apple Silicon M2 system. This confirmed the required profile is <code>macos-aarch64</code>.</p>
+    <p>Findings:</p>
+    <ul>
+      <li>The snapshot's <code>bin/fpc</code> driver is arm64 but fails because it cannot execute <code>ppca64</code> from its expected path.</li>
+      <li>The real compiler is <code>lib/fpc/3.3.1/ppca64</code>, and it reports version <code>3.3.1</code>.</li>
+      <li>Calling <code>ppca64</code> directly requires explicit unit paths, otherwise <code>system</code> cannot be found.</li>
+      <li>macOS linking requires SDK flags: <code>-syslibroot</code> and <code>-lSystem</code>.</li>
+      <li>The first <code>xpc doctor</code> implementation spawned <code>/bin/sh</code> through Pascal runtime APIs and crashed on macOS, so bootstrap verification moved to shell launchers that pass <code>FPC_VERSION</code> into the CLI.</li>
+    </ul>
+    <p>macOS Apple Silicon validation passed after these fixes: install, toolchain check, build, <code>xpc version</code>, <code>xpc doctor</code>, and <code>hello_xpc</code>.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 - Documentation And GLM Workflow Starts</h2>
+    <p>The project now has two documentation streams: this Captain's Log and developer documentation in English and Thai. A GLM Coordinator subagent was started to prepare task packets and cadence notes so GLM can help draft and review docs while Codex remains responsible for source-of-truth verification, edits, testing, and PR integration.</p>
+  </section>
+</body>
+</html>

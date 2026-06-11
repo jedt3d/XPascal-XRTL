@@ -83,3 +83,14 @@ Codex and GLM collaboration artifacts live under:
 - `ai/reviews/`
 
 Use [ai/briefs/README.md](ai/briefs/README.md) for task packet rules.
+
+## Human Documentation
+
+Project documentation starts as static HTML:
+
+- [Documentation Home](docs/index.html)
+- [Captain's Log](docs/captains-log/index.html)
+- [Developer Docs EN](docs/en/index.html)
+- [Developer Docs TH](docs/th/index.html)
+
+The long-term docs pipeline may move to Hugo or another static-site generator, but checked-in HTML keeps early links reviewable immediately.

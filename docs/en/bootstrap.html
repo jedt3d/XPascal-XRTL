@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap Toolchain - XPascal</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 980px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <p><a href="./">Developer Docs</a></p>
+  <h1>Bootstrap Toolchain</h1>
+  <p>The first XPascal/XRTL slice focuses on a reproducible CLI-first foundation using FreePascal 3.3.1.</p>
+
+  <h2>Supported Platforms</h2>
+  <ul>
+    <li>Windows x86_64</li>
+    <li>macOS Apple Silicon aarch64</li>
+    <li>Linux x86_64 / Ubuntu 26.04</li>
+  </ul>
+  <p>macOS Intel x86_64 is intentionally not supported.</p>
+
+  <h2>Windows</h2>
+  <pre><code>./tools/install-fpc.ps1
+./tools/check-toolchain.ps1
+./tools/build-xpc.ps1
+./tools/run-xpc.ps1 version
+./tools/run-xpc.ps1 doctor
+./build/hello_xpc.exe</code></pre>
+
+  <h2>macOS Apple Silicon And Linux</h2>
+  <pre><code>bash ./tools/install-fpc.sh
+bash ./tools/check-toolchain.sh
+bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh version
+bash ./tools/run-xpc.sh doctor
+./build/hello_xpc</code></pre>
+
+  <h2>What The Scripts Do</h2>
+  <ul>
+    <li><code>install-fpc</code> downloads and extracts the locked FPC 3.3.1 snapshot for the current platform.</li>
+    <li><code>check-toolchain</code> verifies that the selected compiler reports <code>3.3.1</code>.</li>
+    <li><code>build-xpc</code> builds the bootstrap CLI and smoke executable.</li>
+    <li><code>run-xpc</code> launches the CLI with verified compiler metadata.</li>
+  </ul>
+</body>
+</html>
