@@ -85,8 +85,9 @@ Known validated platforms:
 - Windows x86_64 with FPC 3.3.1 snapshot via `ppcrossx64.exe`.
 - macOS Apple Silicon M2 / macOS 26.5.1 using `ppca64`, explicit unit path, and macOS SDK link flags.
 
-Known pending platform:
-- Linux x86_64 / Ubuntu 26.04 LTS, pending Side Chat validation.
+Known validated platform:
+- Linux x86_64 / Ubuntu 26.04 LTS, validated by Side Chat.
+- Commit `09b76e6 Fix Linux FPC bootstrap` pinned the Linux snapshot SHA256 and changed Linux compiler selection to prefer `ppcx64` before `fpc`.
 
 Known unsupported platform:
 - macOS Intel, intentionally unsupported.

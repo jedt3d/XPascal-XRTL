@@ -51,12 +51,15 @@ The bootstrap implementation has refined several planning assumptions:
 - FreePascal is pinned to version `3.3.1`.
 - The first supported bootstrap targets are Windows x86_64, macOS Apple Silicon aarch64, and Linux x86_64 / Ubuntu 26.04 LTS.
 - macOS Intel x86_64 is intentionally not supported.
+- Windows, macOS Apple Silicon, and Linux x86_64 bootstrap validation have passed.
+- Linux x86_64 uses the direct compiler `ppcx64` before the `fpc` driver, and the Linux FPC snapshot SHA256 is pinned.
 - Documentation is split into three early streams:
   - Captain's Log: a timestamped human-readable work journal.
   - Developer Docs EN/TH: HTML-oriented developer documentation, English first and Thai alongside it.
-  - Proposal HTML: this proposal should be generated as linkable HTML in addition to the Markdown source.
+- Proposal HTML: this proposal should be generated as linkable HTML in addition to the Markdown source.
 - Codex remains responsible for source-of-truth verification, edits, tests, issues, branches, commits, and PRs.
 - GLM should assist as a documentation drafter/reviewer through task packets saved under `ai/briefs/`, with raw outputs and Codex review notes preserved under `ai/glm-outputs/` and `ai/reviews/`.
+- GitHub issues are treated as project planning artifacts, not throwaway task notes. Each issue should reference relevant proposal sections, define scope and acceptance criteria, and be kept in sync with PR evidence and documentation.
 
 ## 2. Product Vision
 

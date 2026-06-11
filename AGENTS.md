@@ -25,6 +25,15 @@
 6. Open a draft PR until validation is complete.
 7. Record GLM suggestions and Codex review decisions when GLM contributes.
 
+## Issue Discipline
+
+- Every non-trivial change must map to one GitHub issue.
+- Each issue must explain the relevant proposal section, problem, scope, acceptance criteria, implementation evidence, and validation status.
+- Commits and PR descriptions should reference the issue numbers they advance.
+- Keep issue status current: `planned`, `in progress`, `implemented in PR`, `blocked`, or `done after merge`.
+- Do not close bootstrap issues until the implementing PR is merged unless the issue is explicitly marked `not planned`.
+- Update `docs/issues/index.html` when issue scope, status, or relationships change.
+
 ## Quality Bar
 
 - Scripts must fail loudly with actionable messages.

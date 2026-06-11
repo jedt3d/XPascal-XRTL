@@ -33,7 +33,7 @@
       <li>Unsupported by decision: macOS Intel x86_64</li>
       <li>Tested Windows host: Windows with Git 2.54.0, GitHub CLI 2.94.0 installed, FPC snapshot compiler <code>ppcrossx64.exe</code></li>
       <li>Tested Mac host: macOS 26.5.1 on Apple Silicon M2, Darwin arm64</li>
-      <li>Linux validation: pending Side Chat on Linux x86_64 / Ubuntu 26.04</li>
+      <li>Linux validation: passed via Side Chat on Linux x86_64 / Ubuntu 26.04; exact host details still need to be copied into this log when available</li>
     </ul>
   </section>
 
@@ -73,6 +73,29 @@
   <section class="entry">
     <h2>2026-06-12 06:10 ICT - Documentation And GLM Workflow Starts</h2>
     <p>The project now has two documentation streams: this Captain's Log and developer documentation in English and Thai. A GLM Coordinator subagent was started to prepare task packets and cadence notes so GLM can help draft and review docs while Codex remains responsible for source-of-truth verification, edits, testing, and PR integration.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 06:25 ICT - Linux Bootstrap Fix Lands</h2>
+    <p>Side Chat validated the Linux bootstrap path and pushed commit <code>09b76e6 Fix Linux FPC bootstrap</code> to the feature branch. No new branch was created; the work landed on <code>codex/bootstrap-xpascal-foundation</code>.</p>
+    <p>The Linux fix changed two concrete things:</p>
+    <ul>
+      <li>The Linux x86_64 FPC snapshot SHA256 was pinned to <code>b275cb2b1604c79d70c210e3a2360efdc6e0caac0aa6e763f93ff1b5249788bc</code>.</li>
+      <li>The Linux compiler candidate order now prefers <code>ppcx64</code> before <code>fpc</code>, matching the direct-compiler approach used on macOS Apple Silicon.</li>
+    </ul>
+    <p>Follow-up: copy the exact Linux host configuration and command output into this log once Side Chat provides it.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 06:35 ICT - Issue Workflow Cleanup</h2>
+    <p>The project identified a workflow problem: GitHub issues had been opened, but implementation, documentation, commits, and proposal sections were not consistently mapped back to those issues. This would not meet the standard expected in mature open-source projects.</p>
+    <p>Fixes started in this session:</p>
+    <ul>
+      <li>Added issue discipline rules to <code>AGENTS.md</code>.</li>
+      <li>Added <code>docs/issues/index.html</code> as a repository-owned issue map.</li>
+      <li>Updated the proposal addendum to state that GitHub issues are project planning artifacts, not throwaway task notes.</li>
+      <li>Updated GitHub issue bodies for issues #1 through #7 so each issue has proposal references, scope, acceptance criteria, implementation evidence, and validation status.</li>
+    </ul>
   </section>
 </body>
 </html>

@@ -15,6 +15,12 @@ The current bootstrap focuses on:
 - GitHub issue, branch, and draft PR workflow
 - file-based Codex + GLM review records
 
+Validated so far:
+
+- Windows x86_64
+- macOS Apple Silicon aarch64
+- Linux x86_64 / Ubuntu 26.04 LTS
+
 ## Requirements
 
 - Git
@@ -90,6 +96,7 @@ Project documentation starts as static HTML:
 
 - [Documentation Home](docs/index.html)
 - [Captain's Log](docs/captains-log/index.html)
+- [Issue Map](docs/issues/index.html)
 - [Developer Docs EN](docs/en/index.html)
 - [Developer Docs TH](docs/th/index.html)
 

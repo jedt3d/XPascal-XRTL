@@ -19,6 +19,7 @@
   <nav>
     <a href="./index.html">Documentation Home</a>
     <a href="./captains-log/">Captain's Log</a>
+    <a href="./issues/">Issue Map</a>
     <a href="./en/">Developer Docs EN</a>
     <a href="./th/">Developer Docs TH</a>
     <a href="./proposal.md">Markdown Source</a>
@@ -59,12 +60,15 @@
 <li>FreePascal is pinned to version <code>3.3.1</code>.</li>
 <li>The first supported bootstrap targets are Windows x86_64, macOS Apple Silicon aarch64, and Linux x86_64 / Ubuntu 26.04 LTS.</li>
 <li>macOS Intel x86_64 is intentionally not supported.</li>
+<li>Windows, macOS Apple Silicon, and Linux x86_64 bootstrap validation have passed.</li>
+<li>Linux x86_64 uses the direct compiler <code>ppcx64</code> before the <code>fpc</code> driver, and the Linux FPC snapshot SHA256 is pinned.</li>
 <li>Documentation is split into three early streams:</li>
 <li>Captain&#x27;s Log: a timestamped human-readable work journal.</li>
 <li>Developer Docs EN/TH: HTML-oriented developer documentation, English first and Thai alongside it.</li>
 <li>Proposal HTML: this proposal should be generated as linkable HTML in addition to the Markdown source.</li>
 <li>Codex remains responsible for source-of-truth verification, edits, tests, issues, branches, commits, and PRs.</li>
 <li>GLM should assist as a documentation drafter/reviewer through task packets saved under <code>ai/briefs/</code>, with raw outputs and Codex review notes preserved under <code>ai/glm-outputs/</code> and <code>ai/reviews/</code>.</li>
+<li>GitHub issues are treated as project planning artifacts, not throwaway task notes. Each issue should reference relevant proposal sections, define scope and acceptance criteria, and be kept in sync with PR evidence and documentation.</li>
 </ul>
 <h2 id="2-product-vision"><a class="anchor" href="#2-product-vision">#</a> 2. Product Vision</h2>
 <p>XPascal is a modern app platform where developers can build:</p>

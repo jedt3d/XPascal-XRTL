@@ -35,7 +35,8 @@ Project context:
   - The bootstrap needed explicit unit paths and macOS SDK link flags.
   - `tools/install-fpc.sh`, `tools/check-toolchain.sh`, `tools/build-xpc.sh`, `tools/run-xpc.sh version`, `tools/run-xpc.sh doctor`, and `build/hello_xpc` have passed.
 - macOS Intel is intentionally unsupported.
-- Linux x86_64, especially Ubuntu 26.04 LTS, is pending Side Chat validation.
+- Linux x86_64, especially Ubuntu 26.04 LTS, has passed Side Chat validation.
+  - Commit `09b76e6 Fix Linux FPC bootstrap` pinned the Linux snapshot SHA256 and changed Linux compiler selection to prefer `ppcx64` before `fpc`.
 - POSIX shell scripts should be invoked as `bash ./tools/<script>.sh` unless executable bits are known to be present.
 - The GLM collaboration workflow exists structurally under:
   - `ai/briefs/`
@@ -86,7 +87,7 @@ Create first-pass drafts for:
   - FPC 3.3.1 requirement
   - Windows quickstart
   - macOS Apple Silicon quickstart
-  - Linux pending status
+  - Linux validation status
   - safe launcher usage
 - A Thai translation draft of the same developer docs content.
 
@@ -95,7 +96,7 @@ Create first-pass drafts for:
 - Mark pending or unverified items explicitly.
 - Keep Captain's Log human and chronological.
 - Keep developer docs practical, linkable, and suitable for HTML output.
-- Do not claim Linux validation has passed until Codex provides evidence.
+- Linux validation may now be documented as passed, but do not invent missing host configuration details.
 - Do not document macOS Intel setup steps; state that it is intentionally unsupported.
 - Do not modify source code, README, CI, or project docs directly. Return drafts for Codex to review and apply.
 
