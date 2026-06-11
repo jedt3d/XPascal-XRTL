@@ -21,8 +21,9 @@
 2. Use a feature branch named `codex/<short-description>`.
 3. Keep changes scoped to the issue.
 4. Run the relevant toolchain, build, and smoke checks.
-5. Open a draft PR until validation is complete.
-6. Record GLM suggestions and Codex review decisions when GLM contributes.
+5. On macOS/Linux, prefer `bash ./tools/<script>.sh` unless executable bits are known to be preserved.
+6. Open a draft PR until validation is complete.
+7. Record GLM suggestions and Codex review decisions when GLM contributes.
 
 ## Quality Bar
 

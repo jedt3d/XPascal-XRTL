@@ -38,11 +38,17 @@ Windows:
 macOS / Ubuntu:
 
 ```bash
-./tools/install-fpc.sh
-./tools/check-toolchain.sh
-./tools/build-xpc.sh
-./tools/run-xpc.sh version
-./tools/run-xpc.sh doctor
+bash ./tools/install-fpc.sh
+bash ./tools/check-toolchain.sh
+bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh version
+bash ./tools/run-xpc.sh doctor
+```
+
+If your checkout preserved executable bits, you can also run the shell scripts directly as `./tools/*.sh`. If not, either keep using `bash ./tools/<script>.sh` or run:
+
+```bash
+chmod +x ./tools/*.sh
 ```
 
 ## Collaboration Records
