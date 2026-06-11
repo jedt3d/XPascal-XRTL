@@ -11,6 +11,7 @@ if [[ -z "${archive_url}" ]]; then
 case "${platform}" in
     linux-x86_64)
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/x86_64-linux/fpc-3.3.1.x86_64-linux.tar.gz"
+      sha256="${sha256:-b275cb2b1604c79d70c210e3a2360efdc6e0caac0aa6e763f93ff1b5249788bc}"
       ;;
     macos-aarch64)
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
@@ -64,7 +65,7 @@ find "${install_dir}" -type f \( -name fpc -o -name 'ppc*' \) -exec chmod +x {} 
     compiler_candidates=("ppca64" "fpc")
     ;;
   linux-x86_64)
-    compiler_candidates=("fpc" "ppcx64")
+    compiler_candidates=("ppcx64" "fpc")
     ;;
   *)
     compiler_candidates=("fpc" "ppc*")

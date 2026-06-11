@@ -14,7 +14,7 @@ sha256 = "PENDING"
 [[artifact]]
 platform = "linux-x86_64"
 url = "https://downloads.freepascal.org/fpc/snapshot/v33/x86_64-linux/fpc-3.3.1.x86_64-linux.tar.gz"
-sha256 = "PENDING"
+sha256 = "b275cb2b1604c79d70c210e3a2360efdc6e0caac0aa6e763f93ff1b5249788bc"
 
 [[artifact]]
 platform = "macos-aarch64"
