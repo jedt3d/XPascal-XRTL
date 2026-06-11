@@ -56,7 +56,7 @@
         <td>Proposal 1.1, 14.1, 14.2</td>
         <td>Implemented in PR #8; checksums partially pinned.</td>
         <td><code>toolchains/fpc-3.3.1.lock</code>; installer scripts choose platform-specific compiler binaries.</td>
-        <td>Linux SHA256 pinned; Windows and macOS SHA256 still pending before release packaging.</td>
+        <td>Linux SHA256 pinned; Windows and macOS SHA256 finalization is tracked in follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> before release packaging.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/4">#4 Initial xpc CLI skeleton</a></td>
@@ -75,9 +75,9 @@
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/6">#6 Windows bootstrap CI workflow</a></td>
         <td>Proposal 14.2, 19</td>
-        <td>Implemented in PR #8; CI result required before merge.</td>
-        <td><code>.github/workflows/ci.yml</code>.</td>
-        <td>Workflow installs FPC 3.3.1, checks toolchain, builds CLI and smoke test, then runs launcher smoke checks.</td>
+        <td>Implemented in PR #8; latest CI passed.</td>
+        <td><code>.github/workflows/ci.yml</code>; GitHub Actions CI run #10.</td>
+        <td>CI run #10 passed for commit <code>e4f9d858a7cccd37eef742ea4635fd5c1fd1c838</code>. Workflow installs FPC 3.3.1, checks toolchain, builds CLI and smoke test, then runs launcher smoke checks.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7 Codex and GLM cooperation workflow</a></td>
@@ -85,6 +85,32 @@
         <td>Implemented in PR #8; keep open until merge.</td>
         <td><code>ai/briefs/</code>, <code>ai/glm-outputs/</code>, <code>ai/reviews/</code>, GLM coordinator packet, Captain's Log and developer docs.</td>
         <td>Codex remains source-of-truth owner; GLM drafts/reviews docs through auditable packets.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Follow-up Issues</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Issue</th>
+        <th>Parent</th>
+        <th>Purpose</th>
+        <th>Merge Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9 Finalize Windows and macOS FPC 3.3.1 snapshot checksums</a></td>
+        <td>#3</td>
+        <td>Replace remaining <code>PENDING</code> checksum values before release packaging.</td>
+        <td>Not a blocker for bootstrap PR #8 because the pending status is explicit and release packaging is non-scope.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10 Capture exact Linux validation host report</a></td>
+        <td>#1</td>
+        <td>Copy exact Linux host configuration and command output into Captain's Log.</td>
+        <td>Not a blocker for bootstrap PR #8 because Linux validation is passed and implementation evidence is recorded in commit <code>09b76e6</code>.</td>
       </tr>
     </tbody>
   </table>
