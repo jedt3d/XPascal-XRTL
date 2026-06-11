@@ -14,7 +14,12 @@ if [[ -z "${FPC_BIN:-}" ]]; then
     # shellcheck disable=SC1091
     source "${repo_root}/.toolchains/current.env"
     export FPC_BIN
+    export FPC_VERSION
   fi
+fi
+
+if [[ -z "${FPC_VERSION:-}" && -n "${FPC_BIN:-}" && -x "${FPC_BIN}" ]]; then
+  export FPC_VERSION="$("${FPC_BIN}" -iV | tr -d '[:space:]')"
 fi
 
 exec "${xpc}" "$@"

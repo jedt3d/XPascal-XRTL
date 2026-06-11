@@ -8,7 +8,7 @@ archive_url="${FPC_ARCHIVE_URL:-}"
 sha256="${FPC_ARCHIVE_SHA256:-}"
 
 if [[ -z "${archive_url}" ]]; then
-  case "${platform}" in
+case "${platform}" in
     linux-x86_64)
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/x86_64-linux/fpc-3.3.1.x86_64-linux.tar.gz"
       ;;
@@ -59,9 +59,9 @@ echo "Extracting ${archive_path}"
 tar -xzf "${archive_path}" -C "${install_dir}"
 find "${install_dir}" -type f \( -name fpc -o -name 'ppc*' \) -exec chmod +x {} \; 2>/dev/null || true
 
-case "${platform}" in
+  case "${platform}" in
   macos-aarch64)
-    compiler_candidates=("fpc" "ppca64")
+    compiler_candidates=("ppca64" "fpc")
     ;;
   linux-x86_64)
     compiler_candidates=("fpc" "ppcx64")
@@ -108,6 +108,12 @@ fi
   printf 'XP_PLATFORM=%q\n' "${platform}"
   printf 'FPC_BIN=%q\n' "${fpc_bin}"
   printf 'FPC_DIR=%q\n' "${fpc_dir}"
+  printf 'FPC_VERSION=%q\n' "$("${fpc_bin}" -iV | tr -d '[:space:]')"
+  system_ppu="$(find "${install_dir}" -type f -path '*/units/*/rtl/system.ppu' 2>/dev/null | sort | head -n 1 || true)"
+  if [[ -n "${system_ppu}" ]]; then
+    unit_dir="$(dirname "$(dirname "${system_ppu}")")"
+    printf 'FPC_UNIT_DIR=%q\n' "${unit_dir}"
+  fi
 } > "${repo_root}/.toolchains/current.env"
 echo "wrote: ${repo_root}/.toolchains/current.env"
 

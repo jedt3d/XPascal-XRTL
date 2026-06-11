@@ -19,8 +19,19 @@ else
 fi
 
 mkdir -p "${repo_root}/build"
-"${fpc_bin}" -Mobjfpc -Sh -Fu"${repo_root}" -FE"${repo_root}/build" -o"${repo_root}/build/xpc" "${repo_root}/src/xpc/xpc.pas"
-"${fpc_bin}" -Mobjfpc -Sh -FE"${repo_root}/build" -o"${repo_root}/build/hello_xpc" "${repo_root}/tests/smoke/hello_xpc.pas"
+compiler_args=(-Mobjfpc -Sh)
+
+if [[ -n "${FPC_UNIT_DIR:-}" ]]; then
+  compiler_args+=(-Fu"${FPC_UNIT_DIR}"/*)
+fi
+
+if [[ "$(bash "${repo_root}/tools/platform-id.sh")" == macos-* ]]; then
+  sdk_path="$(xcrun --show-sdk-path)"
+  compiler_args+=(-k"-syslibroot" -k"${sdk_path}" -k"-lSystem")
+fi
+
+"${fpc_bin}" "${compiler_args[@]}" -Fu"${repo_root}" -FE"${repo_root}/build" -o"${repo_root}/build/xpc" "${repo_root}/src/xpc/xpc.pas"
+"${fpc_bin}" "${compiler_args[@]}" -FE"${repo_root}/build" -o"${repo_root}/build/hello_xpc" "${repo_root}/tests/smoke/hello_xpc.pas"
 
 echo "built: build/xpc"
 echo "built: build/hello_xpc"

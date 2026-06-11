@@ -3,7 +3,6 @@ program xpc;
 {$mode objfpc}{$H+}
 
 uses
-  Classes,
   SysUtils;
 
 const
@@ -36,67 +35,17 @@ begin
   {$ENDIF}
 end;
 
-function ShellQuote(const Value: string): string;
-begin
-  {$IFDEF WINDOWS}
-  Result := '"' + StringReplace(Value, '"', '\"', [rfReplaceAll]) + '"';
-  {$ELSE}
-  Result := '''' + StringReplace(Value, '''', '''"''"''', [rfReplaceAll]) + '''';
-  {$ENDIF}
-end;
-
-function CaptureCompilerVersion(out VersionText: string): Boolean;
-var
-  CompilerPath: string;
-  CommandLine: string;
-  ExitCode: LongInt;
-  OutputPath: string;
-  Lines: TStringList;
-begin
-  VersionText := '';
-  CompilerPath := GetEnvironmentVariable('FPC_BIN');
-  if CompilerPath = '' then
-    CompilerPath := 'fpc';
-
-  OutputPath := IncludeTrailingPathDelimiter(GetTempDir) +
-    'xpc-fpc-version-' + IntToStr(GetProcessID) + '.txt';
-
-  {$IFDEF WINDOWS}
-  CommandLine := ShellQuote(CompilerPath) + ' -iV > ' + ShellQuote(OutputPath) + ' 2> nul';
-  ExitCode := ExecuteProcess('cmd.exe', ['/C', CommandLine]);
-  {$ELSE}
-  CommandLine := ShellQuote(CompilerPath) + ' -iV > ' + ShellQuote(OutputPath) + ' 2> /dev/null';
-  ExitCode := ExecuteProcess('/bin/sh', ['-c', CommandLine]);
-  {$ENDIF}
-
-  Result := (ExitCode = 0) and FileExists(OutputPath);
-  if Result then
-  begin
-    Lines := TStringList.Create;
-    try
-      Lines.LoadFromFile(OutputPath);
-      if Lines.Count > 0 then
-        VersionText := Trim(Lines[0]);
-    finally
-      Lines.Free;
-    end;
-    Result := VersionText <> '';
-  end;
-
-  if FileExists(OutputPath) then
-    DeleteFile(OutputPath);
-end;
-
 procedure PrintVersion;
 var
   FpcVersion: string;
 begin
   WriteLn('XPascal/XRTL ', XPascalVersion);
   WriteLn('target: ', TargetOs, '-', TargetCpu);
-  if CaptureCompilerVersion(FpcVersion) then
+  FpcVersion := GetEnvironmentVariable('FPC_VERSION');
+  if FpcVersion <> '' then
     WriteLn('fpc: ', FpcVersion)
   else
-    WriteLn('fpc: not found');
+    WriteLn('fpc: not verified');
 end;
 
 function Doctor: Integer;
@@ -106,10 +55,11 @@ begin
   WriteLn('xpc doctor');
   WriteLn('target: ', TargetOs, '-', TargetCpu);
 
-  if not CaptureCompilerVersion(FpcVersion) then
+  FpcVersion := GetEnvironmentVariable('FPC_VERSION');
+  if FpcVersion = '' then
   begin
-    WriteLn('fail: FreePascal was not found');
-    WriteLn('hint: run tools/install-fpc for your platform or set FPC_BIN, then retry');
+    WriteLn('fail: FreePascal version was not verified');
+    WriteLn('hint: run xpc through tools/run-xpc after tools/check-toolchain');
     Exit(1);
   end;
 

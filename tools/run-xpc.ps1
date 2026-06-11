@@ -15,5 +15,9 @@ if (-not $env:FPC_BIN) {
     }
 }
 
+if (-not $env:FPC_VERSION -and $env:FPC_BIN -and (Test-Path $env:FPC_BIN)) {
+    $env:FPC_VERSION = (& $env:FPC_BIN -iV).Trim()
+}
+
 & $xpc @args
 exit $LASTEXITCODE
