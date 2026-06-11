@@ -59,8 +59,9 @@ The bootstrap scripts detect and isolate toolchains by platform:
 | --- | --- | --- |
 | Windows x86_64 | `windows-x86_64` | Supported by `tools/*.ps1` |
 | macOS Apple Silicon M1/M2/M3/M4 | `macos-aarch64` | Supported by `tools/*.sh` |
-| macOS Intel x86_64 | `macos-x86_64` | Not locked yet; provide `FPC_ARCHIVE_URL` manually if needed |
 | Linux x86_64 / Ubuntu 26.04 | `linux-x86_64` | Supported by `tools/*.sh` |
+
+macOS Intel x86_64 is intentionally not supported.
 
 After `install-fpc.sh` runs, it writes `.toolchains/current.env`. The check, build, and run scripts read this file so `FPC_BIN` does not need to be exported manually between commands.
 

@@ -25,7 +25,7 @@ sha256 = "PENDING"
 platform = "macos-x86_64"
 url = "UNSUPPORTED"
 sha256 = "UNSUPPORTED"
-note = "No locked FPC 3.3.1 snapshot was found under the v33 x86_64-darwin directory during bootstrap."
+note = "macOS Intel x86_64 is intentionally not supported by XPascal/XRTL bootstrap."
 
 # Checksum policy:
 # - PENDING is allowed during bootstrap only.

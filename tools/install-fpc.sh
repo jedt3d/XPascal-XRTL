@@ -16,8 +16,8 @@ case "${platform}" in
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
       ;;
     macos-x86_64)
-      echo "No locked FPC 3.3.1 snapshot is currently available for macOS Intel x86_64." >&2
-      echo "Set FPC_ARCHIVE_URL and FPC_ARCHIVE_SHA256 if you have a trusted artifact." >&2
+      echo "macOS Intel x86_64 is intentionally not supported by XPascal/XRTL bootstrap." >&2
+      echo "Supported macOS target: Apple Silicon aarch64." >&2
       exit 1
       ;;
     *)
