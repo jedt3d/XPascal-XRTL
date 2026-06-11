@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  windows-bootstrap:
+    name: Windows bootstrap
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install FreePascal 3.3.1
+        shell: pwsh
+        run: ./tools/install-fpc.ps1
+
+      - name: Check toolchain
+        shell: pwsh
+        run: ./tools/check-toolchain.ps1
+
+      - name: Build CLI and smoke test
+        shell: pwsh
+        run: ./tools/build-xpc.ps1
+
+      - name: Run CLI smoke checks
+        shell: pwsh
+        run: |
+          ./build/xpc.exe version
+          ./build/xpc.exe doctor
+          ./build/hello_xpc.exe
