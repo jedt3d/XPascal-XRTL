@@ -1,26 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-install_dir="${INSTALL_DIR:-.toolchains/fpc-3.3.1}"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+platform="${XP_PLATFORM:-$(bash "${repo_root}/tools/platform-id.sh")}"
+install_dir="${INSTALL_DIR:-${repo_root}/.toolchains/fpc-3.3.1/${platform}}"
 archive_url="${FPC_ARCHIVE_URL:-}"
 sha256="${FPC_ARCHIVE_SHA256:-}"
 
-os="$(uname -s)"
-arch="$(uname -m)"
-
 if [[ -z "${archive_url}" ]]; then
-  case "${os}-${arch}" in
-    Linux-x86_64)
+  case "${platform}" in
+    linux-x86_64)
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/x86_64-linux/fpc-3.3.1.x86_64-linux.tar.gz"
       ;;
-    Darwin-arm64)
+    macos-aarch64)
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
       ;;
-    Darwin-aarch64)
-      archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
+    macos-x86_64)
+      echo "No locked FPC 3.3.1 snapshot is currently available for macOS Intel x86_64." >&2
+      echo "Set FPC_ARCHIVE_URL and FPC_ARCHIVE_SHA256 if you have a trusted artifact." >&2
+      exit 1
       ;;
     *)
-      echo "No default FPC 3.3.1 snapshot is locked for ${os}-${arch}." >&2
+      echo "No default FPC 3.3.1 snapshot is locked for ${platform}." >&2
       echo "Set FPC_ARCHIVE_URL and optionally FPC_ARCHIVE_SHA256." >&2
       exit 1
       ;;
@@ -56,8 +57,28 @@ fi
 
 echo "Extracting ${archive_path}"
 tar -xzf "${archive_path}" -C "${install_dir}"
+find "${install_dir}" -type f \( -name fpc -o -name 'ppc*' \) -exec chmod +x {} \; 2>/dev/null || true
 
-fpc_bin="$(find "${install_dir}" -type f \( -name fpc -o -name 'ppc*' \) -perm -111 | sort | head -n 1 || true)"
+case "${platform}" in
+  macos-aarch64)
+    compiler_candidates=("fpc" "ppca64")
+    ;;
+  linux-x86_64)
+    compiler_candidates=("fpc" "ppcx64")
+    ;;
+  *)
+    compiler_candidates=("fpc" "ppc*")
+    ;;
+esac
+
+fpc_bin=""
+for candidate in "${compiler_candidates[@]}"; do
+  fpc_bin="$(find "${install_dir}" -type f -name "${candidate}" -perm -111 2>/dev/null | sort | head -n 1 || true)"
+  if [[ -n "${fpc_bin}" ]]; then
+    break
+  fi
+done
+
 if [[ -z "${fpc_bin}" ]]; then
   echo "Archive extracted, but no fpc or ppc* compiler was found under ${install_dir}." >&2
   exit 1
@@ -73,6 +94,22 @@ EOF
   echo "created wrapper: ${fpc_dir}/fpc"
 fi
 echo "fpc: ${fpc_bin}"
+
+if ! "${fpc_bin}" -iV >/dev/null 2>&1; then
+  echo "The selected compiler cannot execute on this machine: ${fpc_bin}" >&2
+  echo "platform: ${platform}" >&2
+  if command -v file >/dev/null 2>&1; then
+    file "${fpc_bin}" >&2 || true
+  fi
+  exit 1
+fi
+
+{
+  printf 'XP_PLATFORM=%q\n' "${platform}"
+  printf 'FPC_BIN=%q\n' "${fpc_bin}"
+  printf 'FPC_DIR=%q\n' "${fpc_dir}"
+} > "${repo_root}/.toolchains/current.env"
+echo "wrote: ${repo_root}/.toolchains/current.env"
 
 if [[ -n "${GITHUB_PATH:-}" ]]; then
   echo "${fpc_dir}" >> "${GITHUB_PATH}"

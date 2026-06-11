@@ -51,6 +51,28 @@ If your checkout preserved executable bits, you can also run the shell scripts d
 chmod +x ./tools/*.sh
 ```
 
+## Platform Profiles
+
+The bootstrap scripts detect and isolate toolchains by platform:
+
+| Platform | Script profile | Status |
+| --- | --- | --- |
+| Windows x86_64 | `windows-x86_64` | Supported by `tools/*.ps1` |
+| macOS Apple Silicon M1/M2/M3/M4 | `macos-aarch64` | Supported by `tools/*.sh` |
+| macOS Intel x86_64 | `macos-x86_64` | Not locked yet; provide `FPC_ARCHIVE_URL` manually if needed |
+| Linux x86_64 / Ubuntu 26.04 | `linux-x86_64` | Supported by `tools/*.sh` |
+
+After `install-fpc.sh` runs, it writes `.toolchains/current.env`. The check, build, and run scripts read this file so `FPC_BIN` does not need to be exported manually between commands.
+
+For Apple Silicon Macs, the selected compiler should be the aarch64 Darwin compiler, usually named `ppca64` inside the snapshot. If the script says that compiler cannot be executed, run:
+
+```bash
+uname -m
+find .toolchains/fpc-3.3.1/macos-aarch64 -name ppca64 -exec file {} \;
+```
+
+and paste the output into the PR or issue.
+
 ## Collaboration Records
 
 Codex and GLM collaboration artifacts live under:

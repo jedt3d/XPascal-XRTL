@@ -21,6 +21,12 @@ platform = "macos-aarch64"
 url = "https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
 sha256 = "PENDING"
 
+[[artifact]]
+platform = "macos-x86_64"
+url = "UNSUPPORTED"
+sha256 = "UNSUPPORTED"
+note = "No locked FPC 3.3.1 snapshot was found under the v33 x86_64-darwin directory during bootstrap."
+
 # Checksum policy:
 # - PENDING is allowed during bootstrap only.
 # - Before release packaging, every artifact must have a SHA256 and installer scripts must verify it.
