@@ -44,6 +44,20 @@ Runtime/library codename:
 XRTL
 ```
 
+### 1.1 Bootstrap Addendum
+
+The bootstrap implementation has refined several planning assumptions:
+
+- FreePascal is pinned to version `3.3.1`.
+- The first supported bootstrap targets are Windows x86_64, macOS Apple Silicon aarch64, and Linux x86_64 / Ubuntu 26.04 LTS.
+- macOS Intel x86_64 is intentionally not supported.
+- Documentation is split into three early streams:
+  - Captain's Log: a timestamped human-readable work journal.
+  - Developer Docs EN/TH: HTML-oriented developer documentation, English first and Thai alongside it.
+  - Proposal HTML: this proposal should be generated as linkable HTML in addition to the Markdown source.
+- Codex remains responsible for source-of-truth verification, edits, tests, issues, branches, commits, and PRs.
+- GLM should assist as a documentation drafter/reviewer through task packets saved under `ai/briefs/`, with raw outputs and Codex review notes preserved under `ai/glm-outputs/` and `ai/reviews/`.
+
 ## 2. Product Vision
 
 XPascal is a modern app platform where developers can build:

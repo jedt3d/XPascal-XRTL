@@ -18,7 +18,7 @@
   <header>
     <p><a href="../">Documentation Home</a></p>
     <h1>Captain's Log</h1>
-    <p>A human-readable journal of XPascal/XRTL bootstrap work, decisions, platform findings, and validation results.</p>
+    <p>A human-readable journal of XPascal/XRTL bootstrap work, decisions, platform findings, and validation results. Times are recorded in ICT (UTC+07:00) unless noted otherwise; early entries use the closest known session, issue, PR, or validation timestamps.</p>
   </header>
 
   <section>
@@ -38,13 +38,13 @@
   </section>
 
   <section class="entry">
-    <h2>2026-06-12 - Bootstrap Plan Becomes a Branch</h2>
+    <h2>2026-06-12 05:26-05:38 ICT - Bootstrap Plan Becomes a Branch</h2>
     <p>The project began from a local planning folder containing only <code>proposal.md</code>. The remote repository existed with a minimal <code>main</code> branch containing the license. We created the feature branch <code>codex/bootstrap-xpascal-foundation</code>, moved the proposal into <code>docs/proposal.md</code>, and opened GitHub issues for traceability.</p>
     <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1</a> as the bootstrap epic, plus child issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/2">#2</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7</a>. Opened draft PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>.</p>
   </section>
 
   <section class="entry">
-    <h2>2026-06-12 - Windows Toolchain Lessons</h2>
+    <h2>2026-06-12 05:30-05:42 ICT - Windows Toolchain Lessons</h2>
     <p>The Windows FPC 3.3.1 snapshot did not behave like a normal installed <code>fpc.exe</code>. The archive exposed a compiler named <code>ppcrossx64.exe</code>. The initial build created extensionless output files, which is confusing on Windows and can collide with command resolution if someone runs bare <code>xpc</code>.</p>
     <p>Fixes applied:</p>
     <ul>
@@ -57,7 +57,7 @@
   </section>
 
   <section class="entry">
-    <h2>2026-06-12 - macOS Apple Silicon Lessons</h2>
+    <h2>2026-06-12 05:57-06:08 ICT - macOS Apple Silicon Lessons</h2>
     <p>The Mac test machine was reached over SSH at <code>172.20.10.4</code>. It reported macOS 26.5.1, Darwin arm64, on an Apple Silicon M2 system. This confirmed the required profile is <code>macos-aarch64</code>.</p>
     <p>Findings:</p>
     <ul>
@@ -71,7 +71,7 @@
   </section>
 
   <section class="entry">
-    <h2>2026-06-12 - Documentation And GLM Workflow Starts</h2>
+    <h2>2026-06-12 06:10 ICT - Documentation And GLM Workflow Starts</h2>
     <p>The project now has two documentation streams: this Captain's Log and developer documentation in English and Thai. A GLM Coordinator subagent was started to prepare task packets and cadence notes so GLM can help draft and review docs while Codex remains responsible for source-of-truth verification, edits, testing, and PR integration.</p>
   </section>
 </body>

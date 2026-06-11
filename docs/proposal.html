@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XPascal / XRTL Proposal</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; color: #202124; }
+    h1, h2, h3, h4 { line-height: 1.25; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    blockquote { border-left: 4px solid #d8dee4; margin-left: 0; padding-left: 1rem; color: #57606a; }
+    .anchor { color: #8c959f; text-decoration: none; font-size: 0.85em; }
+    nav a { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="./index.html">Documentation Home</a>
+    <a href="./captains-log/">Captain's Log</a>
+    <a href="./en/">Developer Docs EN</a>
+    <a href="./th/">Developer Docs TH</a>
+    <a href="./proposal.md">Markdown Source</a>
+  </nav>
+<h1 id="proposal-xpascal-xrtl-platform"><a class="anchor" href="#proposal-xpascal-xrtl-platform">#</a> Proposal: XPascal / XRTL Platform</h1>
+<blockquote>
+<p>A modern FreePascal-powered application platform for desktop, web, and server development.</p>
+<p>Tauri-like mental model, HTML component UI, MVVM, batteries included, CLI-first, CI/CD-first, AI-agent-friendly.</p>
+</blockquote>
+<h2 id="1-executive-summary"><a class="anchor" href="#1-executive-summary">#</a> 1. Executive Summary</h2>
+<p>This proposal defines a new software development platform built on top of FreePascal, but intentionally not compatible with Delphi or Lazarus at the framework/IDE level.</p>
+<p>The goal is not to create another Lazarus IDE, another Delphi clone, or a nostalgic Pascal toolkit. The goal is to create a modern, approachable, productive application platform for building beautiful cross-platform desktop apps, web apps, and server-side services using FreePascal as the compiler and Pascal as the core language.</p>
+<p>One important lesson from Delphi and Lazarus should be preserved: their DataSource/Data Binding model is extremely strong for business applications. XPascal should not be Delphi/Lazarus compatible, but it should learn from the productivity of data-aware components, master-detail binding, grids, forms, and rapid database application development.</p>
+<p>The platform should feel closer in spirit to:</p>
+<ul>
+<li>Tauri for desktop architecture</li>
+<li>Ruby on Rails / Django for batteries-included productivity</li>
+<li>FastAPI for simple server-side ergonomics</li>
+<li>Flutter + Serverpod for full-stack app/platform thinking</li>
+<li>Hotwire Native for web-first app delivery</li>
+<li>Xojo for beginner-friendly documentation and approachable app-building workflow</li>
+</ul>
+<p>But it should avoid the weaknesses the user has suffered from:</p>
+<ul>
+<li>Lazarus/FPC old-school documentation and fragmented tooling</li>
+<li>Xojo’s weak command-line, CI/CD, and AI-agent story</li>
+<li>Binary or opaque project formats</li>
+<li>IDE-first workflows that trap the developer</li>
+<li>Frameworks that are powerful but unfriendly to new developers and AI agents</li>
+</ul>
+<p>Working codename:</p>
+<pre><code>XPascal</code></pre>
+<p>Runtime/library codename:</p>
+<pre><code>XRTL</code></pre>
+<h3 id="1-1-bootstrap-addendum"><a class="anchor" href="#1-1-bootstrap-addendum">#</a> 1.1 Bootstrap Addendum</h3>
+<p>The bootstrap implementation has refined several planning assumptions:</p>
+<ul>
+<li>FreePascal is pinned to version <code>3.3.1</code>.</li>
+<li>The first supported bootstrap targets are Windows x86_64, macOS Apple Silicon aarch64, and Linux x86_64 / Ubuntu 26.04 LTS.</li>
+<li>macOS Intel x86_64 is intentionally not supported.</li>
+<li>Documentation is split into three early streams:</li>
+<li>Captain&#x27;s Log: a timestamped human-readable work journal.</li>
+<li>Developer Docs EN/TH: HTML-oriented developer documentation, English first and Thai alongside it.</li>
+<li>Proposal HTML: this proposal should be generated as linkable HTML in addition to the Markdown source.</li>
+<li>Codex remains responsible for source-of-truth verification, edits, tests, issues, branches, commits, and PRs.</li>
+<li>GLM should assist as a documentation drafter/reviewer through task packets saved under <code>ai/briefs/</code>, with raw outputs and Codex review notes preserved under <code>ai/glm-outputs/</code> and <code>ai/reviews/</code>.</li>
+</ul>
+<h2 id="2-product-vision"><a class="anchor" href="#2-product-vision">#</a> 2. Product Vision</h2>
+<p>XPascal is a modern app platform where developers can build:</p>
+<ul>
+<li>desktop apps</li>
+<li>local-first apps</li>
+<li>web apps</li>
+<li>server APIs</li>
+<li>internal tools</li>
+<li>SaaS backends</li>
+<li>future mobile shells</li>
+</ul>
+<p>using:</p>
+<ul>
+<li>FreePascal compiler</li>
+<li>XRTL runtime libraries</li>
+<li>MVVM architecture</li>
+<li>DataSource/Data Binding for business applications</li>
+<li>HTML-compatible component UI</li>
+<li>a Tauri-like desktop shell</li>
+<li>CLI-first tooling</li>
+<li>structured project files</li>
+<li>excellent English and Thai documentation</li>
+<li>workflows designed from day one for Codex, GLM, CI/CD, and human developers</li>
+</ul>
+<p>The developer should be able to start with:</p>
+<pre><code>xpc new app mycrm
+cd mycrm
+xpc run desktop</code></pre>
+<p>and later:</p>
+<pre><code>xpc run web
+xpc test
+xpc build
+xpc package</code></pre>
+<p>The IDE should eventually be a first-class product, but the platform must not depend on the IDE. The CLI and project format are the foundation. The IDE is a visual frontend over the same open structure.</p>
+<h2 id="3-core-principles"><a class="anchor" href="#3-core-principles">#</a> 3. Core Principles</h2>
+<h3 id="3-1-cli-first-ide-friendly"><a class="anchor" href="#3-1-cli-first-ide-friendly">#</a> 3.1 CLI First, IDE Friendly</h3>
+<p>Everything must work from the command line:</p>
+<pre><code>xpc new
+xpc build
+xpc run
+xpc test
+xpc format
+xpc lint
+xpc package
+xpc generate
+xpc doctor</code></pre>
+<p>The IDE should call the same tools internally. This avoids the Xojo problem where the IDE becomes a closed universe.</p>
+<h3 id="3-2-html-ui-first"><a class="anchor" href="#3-2-html-ui-first">#</a> 3.2 HTML UI First</h3>
+<p>The UI layer should use HTML-like tags as the primary format.</p>
+<p>Reasons:</p>
+<ul>
+<li>compatible with existing HTML/CSS mental models</li>
+<li>friendlier to new developers</li>
+<li>easier for designers to inspect</li>
+<li>easier for AI agents to edit</li>
+<li>easy to diff in Git</li>
+<li>works with existing HTML tooling where possible</li>
+<li>easier to render in WebView desktop, browser web, docs, preview, and tests</li>
+</ul>
+<p>Example:</p>
+<pre><code>&lt;x-page title=&quot;Customers&quot;&gt;
+  &lt;x-stack gap=&quot;md&quot;&gt;
+    &lt;x-heading level=&quot;1&quot;&gt;Customers&lt;/x-heading&gt;
+
+    &lt;x-form bind:submit=&quot;SaveCustomer&quot;&gt;
+      &lt;x-input label=&quot;Name&quot; bind:value=&quot;Customer.Name&quot; required /&gt;
+      &lt;x-input label=&quot;Email&quot; bind:value=&quot;Customer.Email&quot; type=&quot;email&quot; /&gt;
+      &lt;x-button command=&quot;SaveCustomer&quot; variant=&quot;primary&quot;&gt;
+        Save
+      &lt;/x-button&gt;
+    &lt;/x-form&gt;
+  &lt;/x-stack&gt;
+&lt;/x-page&gt;</code></pre>
+<h3 id="3-3-pascal-core-logic"><a class="anchor" href="#3-3-pascal-core-logic">#</a> 3.3 Pascal Core Logic</h3>
+<p>Business logic, ViewModels, validation, services, database access, jobs, and system APIs should live in Pascal.</p>
+<p>Example:</p>
+<pre><code>type
+  TCustomerViewModel = class(TViewModel)
+  private
+    FCustomer: TCustomer;
+  published
+    property Customer: TCustomer read FCustomer write FCustomer;
+    function CanSave: Boolean;
+    procedure SaveCustomer;
+  end;</code></pre>
+<p>This keeps the app strongly typed while leaving UI expression approachable.</p>
+<h3 id="3-4-mvvm-by-default"><a class="anchor" href="#3-4-mvvm-by-default">#</a> 3.4 MVVM by Default</h3>
+<p>The default architecture is MVVM:</p>
+<pre><code>Model      = domain/data
+View       = HTML component template
+ViewModel  = state, commands, validation, presentation logic
+Binding    = View &lt;-&gt; ViewModel sync</code></pre>
+<p>This is essential because:</p>
+<ul>
+<li>ViewModels are unit-testable</li>
+<li>UI can be generated/rendered in desktop and web</li>
+<li>AI agents can reason about separated responsibilities</li>
+<li>designers can work on view files</li>
+<li>backend and frontend can share typed domain concepts</li>
+</ul>
+<h3 id="3-5-datasource-and-data-binding-as-a-first-class-feature"><a class="anchor" href="#3-5-datasource-and-data-binding-as-a-first-class-feature">#</a> 3.5 DataSource And Data Binding As A First-Class Feature</h3>
+<p>Delphi VCL and Lazarus LCL did something extremely well: data-aware components.</p>
+<p>For business applications, the ability to bind a grid, form, navigator, lookup, master-detail view, or editor directly to structured data is a superpower.</p>
+<p>XPascal should keep the spirit of that model, but redesign it for:</p>
+<ul>
+<li>MVVM</li>
+<li>HTML component UI</li>
+<li>testability</li>
+<li>async data loading</li>
+<li>web/desktop shared rendering</li>
+<li>AI-readable project files</li>
+<li>modern API/data sources</li>
+</ul>
+<p>This means XPascal needs a modern data binding layer, not just simple property binding.</p>
+<p>Core concepts:</p>
+<pre><code>DataSource
+DataSet / Query
+CollectionView
+CurrentRecord
+SelectedRecord
+MasterDetailLink
+LookupSource
+CommandBinding
+ValidationBinding
+ChangeTracking</code></pre>
+<p>Example:</p>
+<pre><code>&lt;x-data-source id=&quot;customers&quot; bind:source=&quot;Customers&quot; key=&quot;Id&quot; /&gt;
+
+&lt;x-data-grid datasource=&quot;customers&quot; selected.bind=&quot;SelectedCustomer&quot;&gt;
+  &lt;x-column field=&quot;Name&quot; title=&quot;Name&quot; /&gt;
+  &lt;x-column field=&quot;Email&quot; title=&quot;Email&quot; /&gt;
+&lt;/x-data-grid&gt;
+
+&lt;x-form datasource=&quot;customers&quot; record.bind=&quot;SelectedCustomer&quot;&gt;
+  &lt;x-input field=&quot;Name&quot; label=&quot;Name&quot; /&gt;
+  &lt;x-input field=&quot;Email&quot; label=&quot;Email&quot; /&gt;
+&lt;/x-form&gt;</code></pre>
+<p>Master-detail:</p>
+<pre><code>&lt;x-data-source id=&quot;customers&quot; bind:source=&quot;Customers&quot; key=&quot;Id&quot; /&gt;
+&lt;x-data-source
+  id=&quot;orders&quot;
+  bind:source=&quot;Orders&quot;
+  master=&quot;customers&quot;
+  master-field=&quot;Id&quot;
+  detail-field=&quot;CustomerId&quot; /&gt;
+
+&lt;x-data-grid datasource=&quot;customers&quot; selected.bind=&quot;SelectedCustomer&quot; /&gt;
+&lt;x-data-grid datasource=&quot;orders&quot; /&gt;</code></pre>
+<p>The developer should feel the same productivity magic as Delphi/Lazarus DataSource, but with modern architecture and web-ready UI.</p>
+<h4 id="3-5-1-non-negotiable-data-binding-requirement"><a class="anchor" href="#3-5-1-non-negotiable-data-binding-requirement">#</a> 3.5.1 Non-Negotiable Data Binding Requirement</h4>
+<p>This is not a later convenience feature.</p>
+<p>For XPascal to become a serious business application platform, the first real version must prove that developers can build database-heavy screens quickly.</p>
+<p>The platform is not considered successful until it can comfortably build:</p>
+<ul>
+<li>customer/order master-detail screens</li>
+<li>invoice or quotation forms with line-item grids</li>
+<li>searchable data tables</li>
+<li>editable grids with validation</li>
+<li>lookup fields backed by another data source</li>
+<li>record navigation</li>
+<li>dirty state and change tracking</li>
+<li>save/cancel workflows</li>
+<li>server-backed pagination</li>
+<li>local SQLite-backed CRUD screens</li>
+<li>REST-backed CRUD screens</li>
+</ul>
+<p>The target feeling:</p>
+<pre><code>Delphi/Lazarus speed for business forms,
+modern HTML UI flexibility,
+testable MVVM architecture,
+CLI/CI/AI-friendly source files.</code></pre>
+<p>If this part is weak, XPascal becomes only another Pascal webview framework. If this part is strong, XPascal has a real reason to exist.</p>
+<h3 id="3-6-batteries-included-escape-hatches-allowed"><a class="anchor" href="#3-6-batteries-included-escape-hatches-allowed">#</a> 3.6 Batteries Included, Escape Hatches Allowed</h3>
+<p>The platform should be opinionated enough to be productive:</p>
+<ul>
+<li>routing</li>
+<li>components</li>
+<li>validation</li>
+<li>forms</li>
+<li>logging</li>
+<li>config/env</li>
+<li>database</li>
+<li>REST client/server</li>
+<li>auth/session</li>
+<li>jobs</li>
+<li>tests</li>
+<li>packaging</li>
+<li>docs generator</li>
+</ul>
+<p>But advanced users must be able to override lower levels.</p>
+<p>This is “convention over configuration,” not “locked down forever.”</p>
+<h3 id="3-7-ai-agent-friendly-from-day-one"><a class="anchor" href="#3-7-ai-agent-friendly-from-day-one">#</a> 3.7 AI-Agent Friendly From Day One</h3>
+<p>Every source artifact should be plain text, structured, and stable:</p>
+<pre><code>xproject.toml
+app/viewmodels/*.pas
+app/views/*.xui.html
+app/routes/*.pas
+app/models/*.pas
+assets/theme/*.css
+tests/*.pas</code></pre>
+<p>AI agents must be able to:</p>
+<ul>
+<li>inspect project structure</li>
+<li>modify a view without breaking binary IDE state</li>
+<li>run tests</li>
+<li>generate components</li>
+<li>review diffs</li>
+<li>update docs</li>
+<li>run CLI build</li>
+<li>understand conventions from <code>AGENTS.md</code></li>
+</ul>
+<h2 id="4-what-this-is-not"><a class="anchor" href="#4-what-this-is-not">#</a> 4. What This Is Not</h2>
+<p>XPascal is not:</p>
+<ul>
+<li>a Lazarus fork</li>
+<li>a Delphi clone</li>
+<li>an LCL compatibility layer</li>
+<li>a VCL compatibility layer</li>
+<li>a PureBasic replacement</li>
+<li>a React Native clone</li>
+<li>an Electron clone</li>
+<li>a web framework only</li>
+<li>an IDE-only product</li>
+</ul>
+<p>Compatibility with Delphi/Lazarus is intentionally not a goal.</p>
+<p>The goal is a clean modern platform powered by FreePascal.</p>
+<h2 id="5-architecture-overview"><a class="anchor" href="#5-architecture-overview">#</a> 5. Architecture Overview</h2>
+<pre><code>XPascal Platform
+├─ XCLI
+│  ├─ project creation
+│  ├─ build/run/test/package
+│  ├─ code generation
+│  ├─ diagnostics
+│  └─ CI/CD integration
+│
+├─ XRTL
+│  ├─ HTTP client/server
+│  ├─ JSON
+│  ├─ database
+│  ├─ data sources
+│  ├─ collection views
+│  ├─ data binding primitives
+│  ├─ config/env
+│  ├─ logging
+│  ├─ validation
+│  ├─ jobs
+│  ├─ auth/session
+│  ├─ file/process/platform APIs
+│  └─ testing utilities
+│
+├─ XMVVM
+│  ├─ ViewModel base classes
+│  ├─ observable state
+│  ├─ commands
+│  ├─ validation
+│  ├─ data-source aware ViewModels
+│  ├─ master-detail state
+│  ├─ binding engine
+│  └─ ViewModel testing
+│
+├─ XUI
+│  ├─ HTML-compatible component templates
+│  ├─ component library
+│  ├─ data-aware components
+│  ├─ theme tokens
+│  ├─ partial update protocol
+│  ├─ accessibility helpers
+│  └─ preview renderer
+│
+├─ XDesktop
+│  ├─ WebView shell
+│  ├─ native bridge
+│  ├─ native menus
+│  ├─ file dialogs
+│  ├─ notifications
+│  ├─ tray
+│  └─ packaging
+│
+├─ XServer
+│  ├─ routing
+│  ├─ typed request/response
+│  ├─ middleware
+│  ├─ OpenAPI-style metadata
+│  ├─ background jobs
+│  └─ deployment helpers
+│
+└─ XIDE
+   ├─ project explorer
+   ├─ code editor
+   ├─ visual component designer
+   ├─ property inspector
+   ├─ ViewModel binding picker
+   ├─ build/test/debug panel
+   └─ docs/tutorial browser</code></pre>
+<h2 id="6-desktop-architecture"><a class="anchor" href="#6-desktop-architecture">#</a> 6. Desktop Architecture</h2>
+<p>The desktop runtime should follow the Tauri mental model:</p>
+<pre><code>Trusted native backend
+  = FreePascal app runtime
+
+Untrusted frontend
+  = WebView-rendered HTML/CSS/JS
+
+Communication
+  = explicit command/message bridge</code></pre>
+<h3 id="6-1-why-tauri-mental-model-fits"><a class="anchor" href="#6-1-why-tauri-mental-model-fits">#</a> 6.1 Why Tauri Mental Model Fits</h3>
+<p>Tauri uses a native backend plus system WebView model, with frontend-to-backend communication through explicit commands/message passing. This matches the desired architecture better than Electron because:</p>
+<ul>
+<li>smaller footprint than bundling full Chromium</li>
+<li>clearer security boundary</li>
+<li>web UI flexibility</li>
+<li>native platform APIs exposed only through explicit bridge commands</li>
+<li>good mental model for desktop + web shared UI</li>
+</ul>
+<p>XPascal should follow this model, but with FreePascal instead of Rust.</p>
+<h3 id="6-2-webview-strategy"><a class="anchor" href="#6-2-webview-strategy">#</a> 6.2 WebView Strategy</h3>
+<p>Initial target:</p>
+<pre><code>Windows: WebView2
+macOS: WKWebView
+Linux: WebKitGTK</code></pre>
+<p>Phase 1 may target Windows first if necessary.</p>
+<p>The platform should hide WebView details behind:</p>
+<pre><code>XDesktop.Window
+XDesktop.Bridge
+XDesktop.Dialogs
+XDesktop.Notifications
+XDesktop.Clipboard</code></pre>
+<h3 id="6-3-native-bridge"><a class="anchor" href="#6-3-native-bridge">#</a> 6.3 Native Bridge</h3>
+<p>JavaScript must not directly access filesystem, process, network, or OS features.</p>
+<p>Use an allowlisted command bridge:</p>
+<pre><code>{
+  &quot;command&quot;: &quot;dialog.openFile&quot;,
+  &quot;payload&quot;: {
+    &quot;filters&quot;: [&quot;*.png&quot;, &quot;*.jpg&quot;]
+  }
+}</code></pre>
+<p>Pascal side:</p>
+<pre><code>XBridge.Register(&#x27;dialog.openFile&#x27;, TOpenFileCommand);</code></pre>
+<p>Bridge commands should be:</p>
+<ul>
+<li>typed</li>
+<li>documented</li>
+<li>testable</li>
+<li>permissioned</li>
+<li>loggable</li>
+</ul>
+<h2 id="7-html-tag-ui-vs-pascal-first-ui"><a class="anchor" href="#7-html-tag-ui-vs-pascal-first-ui">#</a> 7. HTML Tag UI vs Pascal-First UI</h2>
+<p>The preferred UI format is HTML-compatible tags.</p>
+<p>However, Pascal-first UI also has real advantages. The platform should support HTML-first as default and optionally allow Pascal-first construction for special cases.</p>
+<h3 id="7-1-html-tag-ui-advantages"><a class="anchor" href="#7-1-html-tag-ui-advantages">#</a> 7.1 HTML Tag UI Advantages</h3>
+<p>HTML tag UI wins for:</p>
+<ul>
+<li>designer friendliness</li>
+<li>compatibility with existing HTML/CSS tools</li>
+<li>AI editing</li>
+<li>Git diff readability</li>
+<li>documentation examples</li>
+<li>visual preview</li>
+<li>web target reuse</li>
+<li>approachable learning curve</li>
+<li>easier theming</li>
+<li>easier integration with browser accessibility tooling</li>
+</ul>
+<p>Example:</p>
+<pre><code>&lt;x-card&gt;
+  &lt;x-heading level=&quot;2&quot;&gt;Customer&lt;/x-heading&gt;
+  &lt;x-input label=&quot;Email&quot; bind:value=&quot;Email&quot; /&gt;
+&lt;/x-card&gt;</code></pre>
+<h3 id="7-2-pascal-first-ui-advantages"><a class="anchor" href="#7-2-pascal-first-ui-advantages">#</a> 7.2 Pascal-First UI Advantages</h3>
+<p>Pascal-first UI can be better for:</p>
+<ol>
+<li><strong>Autocomplete and type safety</strong></li>
+</ol>
+<p>IDE can complete component APIs directly:</p>
+<pre><code>   Page
+     .Card
+     .Input(&#x27;Email&#x27;)
+     .Required
+     .Validate(TEmailValidator.Create);</code></pre>
+<ol>
+<li><strong>Refactoring</strong></li>
+</ol>
+<p>Renaming methods/properties/classes is easier in Pascal code than in string-based templates.</p>
+<ol>
+<li><strong>Debugging</strong></li>
+</ol>
+<p>Pascal-first UI can be debugged step-by-step like normal code.</p>
+<ol>
+<li><strong>Dynamic UI</strong></li>
+</ol>
+<p>Complex generated forms, dynamic dashboards, schema-driven admin pages, and deeply conditional layouts can be easier in Pascal.</p>
+<ol>
+<li><strong>Static analysis</strong></li>
+</ol>
+<p>The compiler can catch mistakes earlier if components are strongly typed.</p>
+<ol>
+<li><strong>No template parser edge cases</strong></li>
+</ol>
+<p>Some errors become Pascal compiler errors rather than runtime template errors.</p>
+<h3 id="7-3-recommended-position"><a class="anchor" href="#7-3-recommended-position">#</a> 7.3 Recommended Position</h3>
+<p>Default:</p>
+<pre><code>HTML tag UI</code></pre>
+<p>Advanced escape hatch:</p>
+<pre><code>Pascal-first UI builder</code></pre>
+<p>The two should compile into the same internal component tree:</p>
+<pre><code>HTML template -&gt; XUI AST -&gt; render/bind
+Pascal builder -&gt; XUI AST -&gt; render/bind</code></pre>
+<p>This gives the best of both worlds.</p>
+<h2 id="8-ui-component-system"><a class="anchor" href="#8-ui-component-system">#</a> 8. UI Component System</h2>
+<p>XUI should provide a fixed, themed component library.</p>
+<p>Initial components:</p>
+<pre><code>x-page
+x-layout
+x-stack
+x-grid
+x-card
+x-heading
+x-text
+x-button
+x-link
+x-form
+x-input
+x-textarea
+x-select
+x-checkbox
+x-radio
+x-table
+x-list
+x-modal
+x-tabs
+x-alert
+x-badge
+x-menu
+x-toolbar
+x-sidebar
+x-dialog</code></pre>
+<p>Business/data-aware components must be first-class, not optional add-ons:</p>
+<pre><code>x-data-source
+x-data-grid
+x-data-table
+x-data-form
+x-data-navigator
+x-lookup
+x-master-detail
+x-pagination
+x-filter-bar
+x-search-box
+x-sort-header
+x-record-editor
+x-record-actions</code></pre>
+<h3 id="8-1-data-grid-table-requirements"><a class="anchor" href="#8-1-data-grid-table-requirements">#</a> 8.1 Data Grid / Table Requirements</h3>
+<p>The grid/table component is critical for business applications.</p>
+<p>It must support:</p>
+<ul>
+<li>binding to DataSource / CollectionView</li>
+<li>selected row binding</li>
+<li>master-detail links</li>
+<li>editable and read-only modes</li>
+<li>sorting</li>
+<li>filtering</li>
+<li>pagination</li>
+<li>virtual scrolling for large datasets</li>
+<li>column resizing</li>
+<li>column visibility</li>
+<li>custom cell templates</li>
+<li>lookup columns</li>
+<li>validation states</li>
+<li>keyboard navigation</li>
+<li>accessible table semantics</li>
+<li>export hooks</li>
+<li>row actions</li>
+<li>optimistic update states</li>
+</ul>
+<p>Example:</p>
+<pre><code>&lt;x-data-grid
+  datasource=&quot;customers&quot;
+  selected.bind=&quot;SelectedCustomer&quot;
+  mode=&quot;editable&quot;&gt;
+
+  &lt;x-column field=&quot;Name&quot; title=&quot;Customer&quot; sortable /&gt;
+  &lt;x-column field=&quot;Email&quot; title=&quot;Email&quot; /&gt;
+  &lt;x-column field=&quot;Status&quot; title=&quot;Status&quot; lookup=&quot;customerStatus&quot; /&gt;
+  &lt;x-actions&gt;
+    &lt;x-button command=&quot;EditCustomer&quot;&gt;Edit&lt;/x-button&gt;
+    &lt;x-button command=&quot;DeleteCustomer&quot; variant=&quot;danger&quot;&gt;Delete&lt;/x-button&gt;
+  &lt;/x-actions&gt;
+&lt;/x-data-grid&gt;</code></pre>
+<p>Master-detail example:</p>
+<pre><code>&lt;x-master-detail&gt;
+  &lt;x-data-grid datasource=&quot;customers&quot; selected.bind=&quot;SelectedCustomer&quot; /&gt;
+  &lt;x-data-grid datasource=&quot;orders&quot; master=&quot;customers&quot; /&gt;
+&lt;/x-master-detail&gt;</code></pre>
+<p>The goal is business-app productivity comparable to Delphi/Lazarus, but with a modern HTML component model.</p>
+<p>The component system should be:</p>
+<ul>
+<li>themeable</li>
+<li>accessible by default</li>
+<li>keyboard friendly</li>
+<li>responsive</li>
+<li>documented with examples</li>
+<li>usable in desktop and web</li>
+</ul>
+<h2 id="9-binding-syntax"><a class="anchor" href="#9-binding-syntax">#</a> 9. Binding Syntax</h2>
+<p>Recommended template syntax:</p>
+<pre><code>&lt;x-input label=&quot;Email&quot; bind:value=&quot;Customer.Email&quot; /&gt;
+&lt;x-button command=&quot;SaveCustomer&quot; disabled.bind=&quot;!CanSave&quot;&gt;
+  Save
+&lt;/x-button&gt;</code></pre>
+<p>Principles:</p>
+<ul>
+<li>bindings should reference ViewModel properties</li>
+<li>commands should map to ViewModel methods</li>
+<li>validation should be declarative where possible</li>
+<li>events should be explicit</li>
+<li>string magic should be minimized</li>
+</ul>
+<p>Possible syntax:</p>
+<pre><code>bind:value=&quot;Email&quot;
+on:click=&quot;Save&quot;
+if=&quot;CanShowAdvanced&quot;
+repeat:item=&quot;Customers&quot;</code></pre>
+<p>The exact syntax needs design, but it should stay close enough to HTML conventions to feel natural.</p>
+<h3 id="9-1-data-binding-syntax"><a class="anchor" href="#9-1-data-binding-syntax">#</a> 9.1 Data Binding Syntax</h3>
+<p>Data binding must support both simple form binding and business application binding.</p>
+<p>Form binding:</p>
+<pre><code>&lt;x-input label=&quot;Name&quot; bind:value=&quot;Customer.Name&quot; /&gt;
+&lt;x-input label=&quot;Email&quot; bind:value=&quot;Customer.Email&quot; /&gt;</code></pre>
+<p>Collection binding:</p>
+<pre><code>&lt;x-data-grid datasource=&quot;Customers&quot; selected.bind=&quot;SelectedCustomer&quot; /&gt;</code></pre>
+<p>Master-detail binding:</p>
+<pre><code>&lt;x-data-grid datasource=&quot;Customers&quot; selected.bind=&quot;SelectedCustomer&quot; /&gt;
+
+&lt;x-data-grid
+  datasource=&quot;Orders&quot;
+  master=&quot;Customers&quot;
+  master-key=&quot;Id&quot;
+  detail-key=&quot;CustomerId&quot; /&gt;</code></pre>
+<p>Lookup binding:</p>
+<pre><code>&lt;x-select
+  label=&quot;Status&quot;
+  bind:value=&quot;Customer.StatusId&quot;
+  lookup=&quot;CustomerStatuses&quot;
+  text-field=&quot;Name&quot;
+  value-field=&quot;Id&quot; /&gt;</code></pre>
+<p>Validation binding:</p>
+<pre><code>&lt;x-input
+  label=&quot;Email&quot;
+  bind:value=&quot;Customer.Email&quot;
+  errors.bind=&quot;Customer.Errors.Email&quot; /&gt;</code></pre>
+<p>The design goal is to make common database UI feel as immediate as Delphi/Lazarus DataSource/DataSet workflows, while keeping the implementation modern, testable, and suitable for HTML components.</p>
+<h2 id="10-mvvm-design"><a class="anchor" href="#10-mvvm-design">#</a> 10. MVVM Design</h2>
+<h3 id="10-1-model"><a class="anchor" href="#10-1-model">#</a> 10.1 Model</h3>
+<p>Models represent domain data:</p>
+<pre><code>type
+  TCustomer = class
+  published
+    property Name: string;
+    property Email: string;
+  end;</code></pre>
+<h3 id="10-2-viewmodel"><a class="anchor" href="#10-2-viewmodel">#</a> 10.2 ViewModel</h3>
+<p>ViewModels own state and commands:</p>
+<pre><code>type
+  TCustomerViewModel = class(TViewModel)
+  private
+    FCustomer: TCustomer;
+  published
+    property Customer: TCustomer read FCustomer write SetCustomer;
+    property IsSaving: Boolean read FIsSaving;
+    function CanSave: Boolean;
+    procedure SaveCustomer;
+  end;</code></pre>
+<h3 id="10-3-view"><a class="anchor" href="#10-3-view">#</a> 10.3 View</h3>
+<p>Views are HTML component templates:</p>
+<pre><code>&lt;x-page title=&quot;Customer&quot;&gt;
+  &lt;x-form bind:submit=&quot;SaveCustomer&quot;&gt;
+    &lt;x-input label=&quot;Name&quot; bind:value=&quot;Customer.Name&quot; required /&gt;
+    &lt;x-input label=&quot;Email&quot; bind:value=&quot;Customer.Email&quot; type=&quot;email&quot; /&gt;
+    &lt;x-button command=&quot;SaveCustomer&quot; disabled.bind=&quot;!CanSave&quot;&gt;
+      Save
+    &lt;/x-button&gt;
+  &lt;/x-form&gt;
+&lt;/x-page&gt;</code></pre>
+<h3 id="10-4-testing"><a class="anchor" href="#10-4-testing">#</a> 10.4 Testing</h3>
+<p>ViewModels should be testable without launching a UI:</p>
+<pre><code>procedure Test_CustomerCannotSaveWithoutEmail;
+begin
+  VM.Customer.Name := &#x27;Jane&#x27;;
+  VM.Customer.Email := &#x27;&#x27;;
+  AssertFalse(VM.CanSave);
+end;</code></pre>
+<h3 id="10-5-viewmodel-datasource-pattern"><a class="anchor" href="#10-5-viewmodel-datasource-pattern">#</a> 10.5 ViewModel DataSource Pattern</h3>
+<p>Business ViewModels should expose data sources directly instead of forcing every screen to hand-roll collection, selection, validation, and detail state.</p>
+<p>Example:</p>
+<pre><code>type
+  TCustomerListViewModel = class(TViewModel)
+  private
+    FCustomers: TXDataSource&lt;TCustomer&gt;;
+    FOrders: TXDataSource&lt;TOrder&gt;;
+  published
+    property Customers: TXDataSource&lt;TCustomer&gt; read FCustomers;
+    property Orders: TXDataSource&lt;TOrder&gt; read FOrders;
+    property SelectedCustomer: TCustomer read GetSelectedCustomer;
+
+    procedure NewCustomer;
+    procedure SaveCustomer;
+    procedure DeleteCustomer;
+  end;</code></pre>
+<p>The framework should provide standard ViewModel primitives:</p>
+<ul>
+<li><code>TXDataSource&lt;T&gt;</code></li>
+<li><code>TXCollectionView&lt;T&gt;</code></li>
+<li><code>TXCurrentRecord&lt;T&gt;</code></li>
+<li><code>TXSelection&lt;T&gt;</code></li>
+<li><code>TXMasterDetailLink</code></li>
+<li><code>TXLookupSource&lt;T&gt;</code></li>
+<li><code>TXChangeTracker</code></li>
+<li><code>TXValidationResult</code></li>
+</ul>
+<p>This keeps repetitive business app plumbing out of application code.</p>
+<h2 id="11-xrtl"><a class="anchor" href="#11-xrtl">#</a> 11. XRTL</h2>
+<p>XRTL is the modern runtime library layer on top of FPC RTL/FCL.</p>
+<p>It should reuse strong existing open-source libraries where appropriate, but expose a clean and consistent developer experience.</p>
+<h3 id="11-1-xrtl-modules"><a class="anchor" href="#11-1-xrtl-modules">#</a> 11.1 XRTL Modules</h3>
+<pre><code>X.Core
+X.Config
+X.Env
+X.Json
+X.Http
+X.Rest
+X.Db
+X.Sqlite
+X.Postgres
+X.Data
+X.DataSource
+X.Binding
+X.CollectionView
+X.Log
+X.Validation
+X.Auth
+X.Session
+X.Crypto
+X.Mail
+X.Job
+X.Queue
+X.FileSystem
+X.Process
+X.Desktop
+X.Test</code></pre>
+<h3 id="11-2-rest-client"><a class="anchor" href="#11-2-rest-client">#</a> 11.2 REST Client</h3>
+<p>Example:</p>
+<pre><code>var Response := XRest
+  .Get(&#x27;https://api.example.com/customers&#x27;)
+  .BearerToken(Config.ApiToken)
+  .AcceptJson
+  .Send;</code></pre>
+<h3 id="11-3-server-routing"><a class="anchor" href="#11-3-server-routing">#</a> 11.3 Server Routing</h3>
+<p>FastAPI-inspired, but Pascal-native:</p>
+<pre><code>App.Get(&#x27;/customers/:id&#x27;,
+  procedure(Ctx: TXContext)
+  begin
+    Ctx.Json(CustomerService.Find(Ctx.ParamInt(&#x27;id&#x27;)));
+  end);</code></pre>
+<p>Later:</p>
+<pre><code>[Get(&#x27;/customers/:id&#x27;)]
+function GetCustomer(Id: Integer): TCustomerDto;</code></pre>
+<p>Start explicit. Add attribute magic later.</p>
+<h3 id="11-4-x-data"><a class="anchor" href="#11-4-x-data">#</a> 11.4 X.Data</h3>
+<p><code>X.Data</code> is the business data layer that gives XPascal its Delphi/Lazarus-style productivity without requiring Delphi/Lazarus compatibility.</p>
+<p>It should include:</p>
+<ul>
+<li>typed data sources</li>
+<li>query-backed data sources</li>
+<li>in-memory data sources</li>
+<li>REST-backed data sources</li>
+<li>current record tracking</li>
+<li>selection state</li>
+<li>master-detail relationships</li>
+<li>lookup lists</li>
+<li>dirty/change tracking</li>
+<li>optimistic update support</li>
+<li>validation state</li>
+<li>transaction helpers</li>
+<li>paging and virtual loading contracts</li>
+</ul>
+<p>Example:</p>
+<pre><code>Customers := XData.Source&lt;TCustomer&gt;
+  .FromQuery(Db.Query(&#x27;select * from customers&#x27;))
+  .Key(&#x27;Id&#x27;)
+  .OrderBy(&#x27;Name&#x27;);
+
+Orders := XData.Source&lt;TOrder&gt;
+  .FromQuery(Db.Query(&#x27;select * from orders&#x27;))
+  .Key(&#x27;Id&#x27;)
+  .Master(Customers, &#x27;CustomerId&#x27;);</code></pre>
+<p>The API should make the common case short, but still allow direct SQL, REST, or custom repository implementations behind the same component-facing contract.</p>
+<h2 id="12-server-framework"><a class="anchor" href="#12-server-framework">#</a> 12. Server Framework</h2>
+<p>The server framework should be easy like FastAPI:</p>
+<pre><code>App := XServer.Create;
+
+App.Get(&#x27;/health&#x27;,
+  procedure(Ctx: TXContext)
+  begin
+    Ctx.Json([&#x27;status&#x27;, &#x27;ok&#x27;]);
+  end);
+
+App.Post(&#x27;/customers&#x27;,
+  procedure(Ctx: TXContext)
+  var Input: TCustomerInput;
+  begin
+    Input := Ctx.Body.As&lt;TCustomerInput&gt;;
+    Ctx.Json(CustomerService.Create(Input));
+  end);
+
+App.Run;</code></pre>
+<p>Features:</p>
+<ul>
+<li>routing</li>
+<li>middleware</li>
+<li>JSON body parsing</li>
+<li>typed DTOs</li>
+<li>validation</li>
+<li>static files</li>
+<li>templates/components</li>
+<li>sessions</li>
+<li>auth</li>
+<li>background jobs</li>
+<li>OpenAPI-style metadata later</li>
+</ul>
+<h2 id="13-project-structure"><a class="anchor" href="#13-project-structure">#</a> 13. Project Structure</h2>
+<p>Recommended project layout:</p>
+<pre><code>myapp/
+  xproject.toml
+  AGENTS.md
+  README.md
+
+  app/
+    models/
+      customer.pas
+
+    viewmodels/
+      customer_vm.pas
+
+    datasources/
+      customer_source.pas
+      order_source.pas
+
+    views/
+      customer.xui.html
+      dashboard.xui.html
+
+    components/
+      app_button.xui.html
+      app_layout.xui.html
+
+    routes/
+      web.pas
+      api.pas
+
+    services/
+      customer_service.pas
+
+  assets/
+    styles/
+      theme.css
+    images/
+
+  tests/
+    unit/
+    integration/
+    e2e/
+
+  build/
+  dist/</code></pre>
+<h2 id="14-cli-design"><a class="anchor" href="#14-cli-design">#</a> 14. CLI Design</h2>
+<p>The CLI should be the heart of the platform.</p>
+<p>Commands:</p>
+<pre><code>xpc new app myapp
+xpc run desktop
+xpc run web
+xpc run api
+xpc build
+xpc test
+xpc test unit
+xpc test e2e
+xpc package
+xpc generate viewmodel Customer
+xpc generate component AppButton
+xpc doctor
+xpc format
+xpc lint
+xpc docs serve</code></pre>
+<h3 id="14-1-xpc-doctor"><a class="anchor" href="#14-1-xpc-doctor">#</a> 14.1 <code>xpc doctor</code></h3>
+<p>Checks:</p>
+<ul>
+<li>FPC installed</li>
+<li>target platform toolchain</li>
+<li>WebView runtime</li>
+<li>package dependencies</li>
+<li>test tools</li>
+<li>environment variables</li>
+<li>project file health</li>
+</ul>
+<h3 id="14-2-ci-cd"><a class="anchor" href="#14-2-ci-cd">#</a> 14.2 CI/CD</h3>
+<p>Generated projects should include:</p>
+<pre><code>.github/workflows/ci.yml</code></pre>
+<p>Default CI:</p>
+<pre><code>xpc doctor
+xpc build
+xpc test</code></pre>
+<p>Later:</p>
+<pre><code>xpc package desktop
+xpc publish</code></pre>
+<h2 id="15-ide-strategy"><a class="anchor" href="#15-ide-strategy">#</a> 15. IDE Strategy</h2>
+<p>Do not build the IDE first.</p>
+<p>The IDE should be a visual frontend over the CLI and project format.</p>
+<p>Initial IDE features:</p>
+<ul>
+<li>open project</li>
+<li>project explorer</li>
+<li>code editor</li>
+<li>XUI preview</li>
+<li>ViewModel binding inspector</li>
+<li>property inspector for components</li>
+<li>build/run/test panel</li>
+<li>integrated docs/tutorials</li>
+<li>AI-agent task panel</li>
+</ul>
+<p>The IDE should never be the only way to build or edit a project.</p>
+<h2 id="16-documentation-strategy"><a class="anchor" href="#16-documentation-strategy">#</a> 16. Documentation Strategy</h2>
+<p>Documentation is a core product feature, not an afterthought.</p>
+<p>The user explicitly called out that:</p>
+<ul>
+<li>Xojo wins on approachable docs</li>
+<li>Lazarus/FPC docs feel old-school</li>
+<li>modern Gen Z frameworks like ElysiaJS feel far ahead in docs/readability</li>
+</ul>
+<p>Therefore XPascal must ship with excellent documentation from day one.</p>
+<h3 id="16-1-documentation-goals"><a class="anchor" href="#16-1-documentation-goals">#</a> 16.1 Documentation Goals</h3>
+<p>Docs must be:</p>
+<ul>
+<li>English first</li>
+<li>Thai first-class, not machine-translated afterthought</li>
+<li>example-heavy</li>
+<li>beginner-friendly</li>
+<li>searchable</li>
+<li>versioned</li>
+<li>copy-paste runnable</li>
+<li>linked directly from compiler/runtime errors where possible</li>
+</ul>
+<h3 id="16-2-documentation-structure"><a class="anchor" href="#16-2-documentation-structure">#</a> 16.2 Documentation Structure</h3>
+<pre><code>docs/
+  en/
+    getting-started/
+    tutorials/
+    guides/
+    reference/
+    cookbook/
+    examples/
+    migration-thinking/
+
+  th/
+    getting-started/
+    tutorials/
+    guides/
+    reference/
+    cookbook/
+    examples/</code></pre>
+<h3 id="16-3-required-first-tutorials"><a class="anchor" href="#16-3-required-first-tutorials">#</a> 16.3 Required First Tutorials</h3>
+<ol>
+<li>Install XPascal</li>
+<li>Create your first desktop app</li>
+<li>Build a form with MVVM</li>
+<li>Save data to SQLite</li>
+<li>Call a REST API</li>
+<li>Build a small CRM</li>
+<li>Package a desktop app</li>
+<li>Run tests</li>
+<li>Deploy a web app</li>
+<li>Use Codex + GLM to modify an app safely</li>
+</ol>
+<h3 id="16-4-documentation-style"><a class="anchor" href="#16-4-documentation-style">#</a> 16.4 Documentation Style</h3>
+<p>Every concept page should include:</p>
+<ul>
+<li>short explanation</li>
+<li>why it exists</li>
+<li>minimal example</li>
+<li>complete runnable example</li>
+<li>common mistakes</li>
+<li>next steps</li>
+</ul>
+<p>Example:</p>
+<pre><code># ViewModels
+
+ViewModels hold screen state and commands.
+
+## Minimal Example
+
+...
+
+## Common Mistakes
+
+- Putting database code directly in the View
+- Binding to private fields
+- Returning unvalidated state
+
+## Try It
+
+xpc new tutorial viewmodel-counter</code></pre>
+<h3 id="16-5-thai-documentation"><a class="anchor" href="#16-5-thai-documentation">#</a> 16.5 Thai Documentation</h3>
+<p>Thai docs should not be literal translation only.</p>
+<p>They should use natural Thai explanations:</p>
+<ul>
+<li>less academic</li>
+<li>practical examples</li>
+<li>terminology consistency</li>
+<li>English terms preserved when developers expect them</li>
+</ul>
+<p>Example terminology:</p>
+<pre><code>ViewModel = วิวโมเดล
+Binding = binding / การผูกข้อมูล
+Command = command / คำสั่งจากหน้าจอ
+Component = component
+Route = route</code></pre>
+<h2 id="17-codex-glm-collaboration-workflow"><a class="anchor" href="#17-codex-glm-collaboration-workflow">#</a> 17. Codex + GLM Collaboration Workflow</h2>
+<p>This is critical.</p>
+<p>The platform should be designed so Codex and GLM can divide work well without wasting tokens or sacrificing quality.</p>
+<h3 id="17-1-problem"><a class="anchor" href="#17-1-problem">#</a> 17.1 Problem</h3>
+<p>If Codex does everything:</p>
+<ul>
+<li>quality is high</li>
+<li>tool execution is strong</li>
+<li>but cost/time/token usage may be high</li>
+</ul>
+<p>If GLM does everything:</p>
+<ul>
+<li>cheaper thinking may be possible</li>
+<li>but no direct tool access</li>
+<li>higher risk of schema mismatch, hallucination, or unverified output</li>
+</ul>
+<p>Best workflow:</p>
+<pre><code>GLM does heavy drafting/review/planning
+Codex supervises, applies, tests, verifies</code></pre>
+<h3 id="17-2-recommended-role-split"><a class="anchor" href="#17-2-recommended-role-split">#</a> 17.2 Recommended Role Split</h3>
+<p>Codex:</p>
+<ul>
+<li>source-of-truth keeper</li>
+<li>planner</li>
+<li>task splitter</li>
+<li>prompt writer</li>
+<li>final approver</li>
+<li>file editor</li>
+<li>test runner</li>
+<li>integration owner</li>
+<li>quality gate</li>
+</ul>
+<p>GLM:</p>
+<ul>
+<li>content drafter</li>
+<li>UX reviewer</li>
+<li>backend reviewer</li>
+<li>test-plan generator</li>
+<li>documentation drafter</li>
+<li>alternative architecture explorer</li>
+<li>risk checklist generator</li>
+</ul>
+<p>Sub-agents:</p>
+<ul>
+<li>source research</li>
+<li>parallel review</li>
+<li>isolated test/report tasks</li>
+<li>independent critique</li>
+</ul>
+<h3 id="17-3-token-saving-strategy"><a class="anchor" href="#17-3-token-saving-strategy">#</a> 17.3 Token-Saving Strategy</h3>
+<p>Use a layered context model:</p>
+<pre><code>Level 1: Product brief, always short
+Level 2: Task-specific context
+Level 3: File excerpts only when needed
+Level 4: Full files only for Codex/tool execution</code></pre>
+<p>Do not send the whole codebase to GLM.</p>
+<p>Instead:</p>
+<pre><code>Send:
+- source brief
+- acceptance criteria
+- relevant file excerpts
+- expected output schema
+
+Do not send:
+- secrets
+- full logs unless needed
+- large unrelated code
+- user PII</code></pre>
+<h3 id="17-4-glm-task-packet-format"><a class="anchor" href="#17-4-glm-task-packet-format">#</a> 17.4 GLM Task Packet Format</h3>
+<p>Every GLM task should use this contract:</p>
+<pre><code># Task
+
+One clear objective.
+
+# Source Of Truth
+
+Brief facts. Do not invent beyond this.
+
+# Constraints
+
+Hard boundaries.
+
+# Output Format
+
+Exact sections/JSON/table expected.
+
+# Quality Bar
+
+How Codex will judge the result.
+
+# Do Not
+
+List of forbidden mistakes.</code></pre>
+<h3 id="17-5-glm-output-schema"><a class="anchor" href="#17-5-glm-output-schema">#</a> 17.5 GLM Output Schema</h3>
+<p>For implementation-adjacent tasks:</p>
+<pre><code>{
+  &quot;summary&quot;: &quot;...&quot;,
+  &quot;recommendations&quot;: [],
+  &quot;risks&quot;: [],
+  &quot;files_likely_affected&quot;: [],
+  &quot;tests_to_run&quot;: [],
+  &quot;open_questions&quot;: [],
+  &quot;confidence&quot;: &quot;high|medium|low&quot;
+}</code></pre>
+<h3 id="17-6-codex-verification-loop"><a class="anchor" href="#17-6-codex-verification-loop">#</a> 17.6 Codex Verification Loop</h3>
+<p>Codex must:</p>
+<ol>
+<li>read GLM output</li>
+<li>check against source of truth</li>
+<li>mark accepted / modified / rejected</li>
+<li>apply only accepted changes</li>
+<li>run tests</li>
+<li>record result</li>
+</ol>
+<p>Example log:</p>
+<pre><code>## GLM Suggestion Review
+
+Accepted:
+- Add duplicate registration guard
+
+Modified:
+- Use email-only confirmation, not email/SMS
+
+Rejected:
+- Use LINE in seminar registration
+
+Verification:
+- Unit tests passed
+- E2E passed</code></pre>
+<h3 id="17-7-quality-control-rubric"><a class="anchor" href="#17-7-quality-control-rubric">#</a> 17.7 Quality Control Rubric</h3>
+<p>Score GLM output:</p>
+<ol>
+<li>requirement fit</li>
+<li>practicality</li>
+<li>language quality</li>
+<li>risk control</li>
+<li>completeness</li>
+<li>originality/usefulness</li>
+</ol>
+<p>This should become a built-in project workflow:</p>
+<pre><code>xpc ai review-output glm-output.md --rubric default</code></pre>
+<h2 id="18-ai-friendly-project-files"><a class="anchor" href="#18-ai-friendly-project-files">#</a> 18. AI-Friendly Project Files</h2>
+<p>Each project should include:</p>
+<pre><code>AGENTS.md
+context.md
+decisions/
+  0001-ui-architecture.md
+  0002-data-layer.md
+ai/
+  briefs/
+  glm-outputs/
+  reviews/</code></pre>
+<p>Purpose:</p>
+<ul>
+<li>agents know project rules</li>
+<li>decisions are traceable</li>
+<li>GLM outputs are auditable</li>
+<li>Codex reviews are saved</li>
+<li>humans can inspect the collaboration</li>
+</ul>
+<h2 id="19-testing-strategy"><a class="anchor" href="#19-testing-strategy">#</a> 19. Testing Strategy</h2>
+<p>Testing must be included early.</p>
+<h3 id="19-1-unit-tests"><a class="anchor" href="#19-1-unit-tests">#</a> 19.1 Unit Tests</h3>
+<p>Test:</p>
+<ul>
+<li>ViewModels</li>
+<li>validation</li>
+<li>services</li>
+<li>routing handlers</li>
+<li>data transformations</li>
+</ul>
+<h3 id="19-2-integration-tests"><a class="anchor" href="#19-2-integration-tests">#</a> 19.2 Integration Tests</h3>
+<p>Test:</p>
+<ul>
+<li>HTTP routes</li>
+<li>DB persistence</li>
+<li>auth/session</li>
+<li>jobs</li>
+</ul>
+<h3 id="19-3-e2e-tests"><a class="anchor" href="#19-3-e2e-tests">#</a> 19.3 E2E Tests</h3>
+<p>For web/desktop:</p>
+<ul>
+<li>use Playwright or equivalent where possible</li>
+<li>test user flows</li>
+<li>test component visibility</li>
+<li>test form submission</li>
+<li>test bridge commands</li>
+</ul>
+<h3 id="19-4-golden-tests"><a class="anchor" href="#19-4-golden-tests">#</a> 19.4 Golden Tests</h3>
+<p>For XUI:</p>
+<ul>
+<li>render component</li>
+<li>compare output DOM/snapshot</li>
+<li>verify accessibility attributes</li>
+</ul>
+<h2 id="20-roadmap"><a class="anchor" href="#20-roadmap">#</a> 20. Roadmap</h2>
+<h3 id="phase-0-research-spike"><a class="anchor" href="#phase-0-research-spike">#</a> Phase 0: Research Spike</h3>
+<p>Goal: prove technical feasibility.</p>
+<p>Deliverables:</p>
+<ul>
+<li>FPC CLI wrapper proof</li>
+<li>basic HTTP server</li>
+<li>minimal HTML template renderer</li>
+<li>WebView shell spike on Windows</li>
+<li>Pascal-to-JS bridge proof</li>
+</ul>
+<h3 id="phase-1-xcli-project-format"><a class="anchor" href="#phase-1-xcli-project-format">#</a> Phase 1: XCLI + Project Format</h3>
+<p>Deliverables:</p>
+<ul>
+<li><code>xpc new app</code></li>
+<li><code>xpc run web</code></li>
+<li><code>xpc build</code></li>
+<li><code>xpc test</code></li>
+<li><code>xproject.toml</code></li>
+<li>generated project skeleton</li>
+</ul>
+<h3 id="phase-2-xserver"><a class="anchor" href="#phase-2-xserver">#</a> Phase 2: XServer</h3>
+<p>Deliverables:</p>
+<ul>
+<li>routing</li>
+<li>middleware</li>
+<li>JSON</li>
+<li>static assets</li>
+<li>template rendering</li>
+<li>basic REST API</li>
+</ul>
+<h3 id="phase-3-xui"><a class="anchor" href="#phase-3-xui">#</a> Phase 3: XUI</h3>
+<p>Deliverables:</p>
+<ul>
+<li>component parser</li>
+<li>component renderer</li>
+<li>component library v0</li>
+<li>theme tokens</li>
+<li>form controls</li>
+<li>partial update protocol</li>
+</ul>
+<h3 id="phase-4-xmvvm"><a class="anchor" href="#phase-4-xmvvm">#</a> Phase 4: XMVVM</h3>
+<p>Deliverables:</p>
+<ul>
+<li>ViewModel base</li>
+<li>binding engine</li>
+<li>observable state</li>
+<li>commands</li>
+<li>validation</li>
+<li>ViewModel unit testing</li>
+</ul>
+<h3 id="phase-5-xdesktop"><a class="anchor" href="#phase-5-xdesktop">#</a> Phase 5: XDesktop</h3>
+<p>Deliverables:</p>
+<ul>
+<li>WebView shell</li>
+<li>native bridge</li>
+<li>file dialogs</li>
+<li>menus</li>
+<li>notifications</li>
+<li>packaging</li>
+</ul>
+<h3 id="phase-6-documentation"><a class="anchor" href="#phase-6-documentation">#</a> Phase 6: Documentation</h3>
+<p>Deliverables:</p>
+<ul>
+<li>English getting started</li>
+<li>Thai getting started</li>
+<li>tutorials</li>
+<li>API reference</li>
+<li>cookbook</li>
+<li>example apps</li>
+</ul>
+<h3 id="phase-7-ide"><a class="anchor" href="#phase-7-ide">#</a> Phase 7: IDE</h3>
+<p>Deliverables:</p>
+<ul>
+<li>project explorer</li>
+<li>XUI preview</li>
+<li>code editor</li>
+<li>property inspector</li>
+<li>binding picker</li>
+<li>build/test panel</li>
+</ul>
+<h2 id="21-mvp-app"><a class="anchor" href="#21-mvp-app">#</a> 21. MVP App</h2>
+<p>The first serious proof app should be:</p>
+<pre><code>Mini CRM</code></pre>
+<p>Features:</p>
+<ul>
+<li>desktop mode</li>
+<li>web mode</li>
+<li>customer list</li>
+<li>create/edit form</li>
+<li>data-aware customer grid</li>
+<li>master-detail customer/order screen</li>
+<li>lookup fields</li>
+<li>validation shown directly in form/grid cells</li>
+<li>change tracking and dirty state</li>
+<li>SQLite</li>
+<li>REST API</li>
+<li>ViewModel validation</li>
+<li>HTML component UI</li>
+<li>tests</li>
+<li>packaging</li>
+<li>CI workflow</li>
+</ul>
+<p>This proves:</p>
+<ul>
+<li>FPC backend</li>
+<li>XRTL</li>
+<li>X.Data / DataSource</li>
+<li>XUI</li>
+<li>MVVM</li>
+<li>business grid/table components</li>
+<li>master-detail binding</li>
+<li>desktop shell</li>
+<li>web server</li>
+<li>testing</li>
+<li>docs</li>
+</ul>
+<h2 id="22-major-risks"><a class="anchor" href="#22-major-risks">#</a> 22. Major Risks</h2>
+<h3 id="22-1-webview-cross-platform-complexity"><a class="anchor" href="#22-1-webview-cross-platform-complexity">#</a> 22.1 WebView Cross-Platform Complexity</h3>
+<p>Risk:</p>
+<ul>
+<li>WebView2, WKWebView, and WebKitGTK differ.</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>target Windows first</li>
+<li>define minimal bridge</li>
+<li>add macOS/Linux later</li>
+<li>create WebView compatibility test suite</li>
+</ul>
+<h3 id="22-2-template-binding-complexity"><a class="anchor" href="#22-2-template-binding-complexity">#</a> 22.2 Template/Binding Complexity</h3>
+<p>Risk:</p>
+<ul>
+<li>HTML binding system grows into a framework monster.</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>start with small binding features</li>
+<li>avoid arbitrary JS framework complexity</li>
+<li>keep ViewModel as source of truth</li>
+</ul>
+<h3 id="22-3-documentation-debt"><a class="anchor" href="#22-3-documentation-debt">#</a> 22.3 Documentation Debt</h3>
+<p>Risk:</p>
+<ul>
+<li>platform becomes powerful but hard to learn like Lazarus/FPC.</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>docs are part of every milestone</li>
+<li>every API must include examples</li>
+<li>English and Thai docs ship together</li>
+</ul>
+<h3 id="22-4-ai-workflow-drift"><a class="anchor" href="#22-4-ai-workflow-drift">#</a> 22.4 AI Workflow Drift</h3>
+<p>Risk:</p>
+<ul>
+<li>Codex does too much or GLM outputs are unverified.</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>use saved GLM task packets</li>
+<li>require Codex review logs</li>
+<li>run tests before accepting changes</li>
+</ul>
+<h3 id="22-5-native-feel-expectations"><a class="anchor" href="#22-5-native-feel-expectations">#</a> 22.5 Native Feel Expectations</h3>
+<p>Risk:</p>
+<ul>
+<li>users expect true native widgets, but HTML UI is WebView-based.</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>be honest: native shell + web UI</li>
+<li>provide native bridge for menus/dialogs/notifications</li>
+<li>make UI polished and fast</li>
+</ul>
+<h3 id="22-6-data-binding-complexity"><a class="anchor" href="#22-6-data-binding-complexity">#</a> 22.6 Data Binding Complexity</h3>
+<p>Risk:</p>
+<ul>
+<li>data binding becomes too magical, fragile, or hard to debug.</li>
+<li>master-detail, validation, dirty state, paging, and virtual grids can interact in complicated ways.</li>
+</ul>
+<p>Mitigation:</p>
+<ul>
+<li>start with explicit DataSource APIs</li>
+<li>make binding state inspectable in dev tools</li>
+<li>provide strong diagnostics for missing fields, invalid bindings, and broken master-detail links</li>
+<li>keep ViewModel and DataSource testable without UI</li>
+<li>ship examples for every business data pattern</li>
+<li>avoid hidden global state</li>
+<li>document the mental model clearly in English and Thai</li>
+</ul>
+<h2 id="23-open-design-questions"><a class="anchor" href="#23-open-design-questions">#</a> 23. Open Design Questions</h2>
+<ol>
+<li>Should templates use standard Custom Elements syntax as much as possible?</li>
+<li>Should component files use <code>.xui.html</code>, <code>.html</code>, or <code>.xhtml</code>?</li>
+<li>How strict should the template parser be?</li>
+<li>Should JS be optional or hidden entirely?</li>
+<li>How much client-side interactivity should be allowed?</li>
+<li>Should the default update model be server-rendered partials, client-side state sync, or hybrid?</li>
+<li>What is the first target OS?</li>
+<li>Should the IDE itself be built with XPascal once the platform is mature?</li>
+<li>Should <code>X.Data</code> be inspired more by Delphi <code>TDataSet/TDataSource</code>, Lazarus data controls, or a newer CollectionView model?</li>
+<li>Should master-detail binding live in DataSource, ViewModel, or template declarations?</li>
+<li>How much grid behavior should be built into <code>x-data-grid</code> versus delegated to plugins?</li>
+<li>Should data-aware components support offline/local-first operation in the first major version?</li>
+</ol>
+<h2 id="24-initial-recommendation"><a class="anchor" href="#24-initial-recommendation">#</a> 24. Initial Recommendation</h2>
+<p>Start with:</p>
+<pre><code>FreePascal + XCLI + XServer + X.Data + HTML component templates</code></pre>
+<p>Then add:</p>
+<pre><code>XMVVM + data-aware components + XDesktop shell</code></pre>
+<p>Do not build the IDE first.</p>
+<p>Do not chase Delphi/Lazarus compatibility.</p>
+<p>Do not build a native widget framework first.</p>
+<p>Do not clone Electron or React Native.</p>
+<p>Build a small, coherent, documented platform that proves:</p>
+<pre><code>Pascal can feel modern again.</code></pre>
+<h2 id="25-one-sentence-positioning"><a class="anchor" href="#25-one-sentence-positioning">#</a> 25. One-Sentence Positioning</h2>
+<p>XPascal is a modern FreePascal app platform for building desktop, web, and server software with MVVM, HTML components, data-aware business components, batteries-included libraries, excellent bilingual documentation, and workflows designed for CLI, CI/CD, and AI agents from day one.</p>
+</body>
+</html>
