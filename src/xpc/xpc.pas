@@ -62,10 +62,10 @@ begin
     'xpc-fpc-version-' + IntToStr(GetProcessID) + '.txt';
 
   {$IFDEF WINDOWS}
-  CommandLine := ShellQuote(CompilerPath) + ' -iV > ' + ShellQuote(OutputPath);
+  CommandLine := ShellQuote(CompilerPath) + ' -iV > ' + ShellQuote(OutputPath) + ' 2> nul';
   ExitCode := ExecuteProcess('cmd.exe', ['/C', CommandLine]);
   {$ELSE}
-  CommandLine := ShellQuote(CompilerPath) + ' -iV > ' + ShellQuote(OutputPath);
+  CommandLine := ShellQuote(CompilerPath) + ' -iV > ' + ShellQuote(OutputPath) + ' 2> /dev/null';
   ExitCode := ExecuteProcess('/bin/sh', ['-c', CommandLine]);
   {$ENDIF}
 

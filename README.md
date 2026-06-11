@@ -31,8 +31,8 @@ Windows:
 ./tools/install-fpc.ps1
 ./tools/check-toolchain.ps1
 ./tools/build-xpc.ps1
-./build/xpc.exe version
-./build/xpc.exe doctor
+./tools/run-xpc.ps1 version
+./tools/run-xpc.ps1 doctor
 ```
 
 macOS / Ubuntu:
@@ -41,8 +41,8 @@ macOS / Ubuntu:
 ./tools/install-fpc.sh
 ./tools/check-toolchain.sh
 ./tools/build-xpc.sh
-./build/xpc version
-./build/xpc doctor
+./tools/run-xpc.sh version
+./tools/run-xpc.sh doctor
 ```
 
 ## Collaboration Records

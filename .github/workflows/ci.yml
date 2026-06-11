@@ -32,6 +32,6 @@ jobs:
       - name: Run CLI smoke checks
         shell: pwsh
         run: |
-          ./build/xpc.exe version
-          ./build/xpc.exe doctor
+          ./tools/run-xpc.ps1 version
+          ./tools/run-xpc.ps1 doctor
           ./build/hello_xpc.exe
