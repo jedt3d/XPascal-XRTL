@@ -263,5 +263,12 @@
     <p>The host reported <code>Darwin 25.5.0 arm64</code>. The FPC compiler was <code>ppca64</code> and reported version <code>3.3.1</code>. The validation passed <code>install-fpc.sh</code>, <code>check-toolchain.sh</code>, <code>run-xpc.sh build</code>, <code>version</code>, and <code>doctor</code>. The build included and passed <code>database_smoke</code> and <code>database_sqlite_tests</code>.</p>
     <p>The macOS linker still prints the known non-fatal <code>-macosx_version_min</code> rename warning. No tracked documentation includes validation host IPs, passwords, host keys, or usernames.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 11:44 ICT - Database Feature Stack Starts</h2>
+    <p>After Windows, Ubuntu 26.04, and macOS Apple Silicon all passed the SQLite v0 validation path, the next Database direction moved from bootstrap proof to local-only feature work. Created epic issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47</a> for the sequence: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, and ORM.</p>
+    <p>Started issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> as the first feature slice. It adds XRTL-owned public transaction methods and parameter binding for text, int64, and null values while keeping SQLDB, SQLite3Conn, TSQLQuery, TSQLTransaction, TParam, and TDataset out of the public contract. PostgreSQL, MySQL/MariaDB, and Firebird remain completely out of scope.</p>
+    <p>Validation for issue #48 passed on Windows x86_64 locally and in GitHub Actions, Ubuntu 26.04 x86_64, and macOS Apple Silicon arm64 at commit <code>c677db5</code>. All platforms ran the Database suite including <code>database_transaction_tests</code>, plus <code>version</code> and <code>doctor</code>.</p>
+  </section>
 </body>
 </html>

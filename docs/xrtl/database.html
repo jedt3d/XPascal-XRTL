@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. The first slice is limited to local SQLite through FPC <code>SQLDB</code>.</p>
+  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Network databases remain out of scope.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -26,6 +26,8 @@
     <li>SQLite file and in-memory connection configuration.</li>
     <li>Open/close behavior for local SQLite databases through SQLDB.</li>
     <li>Simple execute and scalar query operations for bootstrap smoke coverage.</li>
+    <li>Public transaction control for local SQLite.</li>
+    <li>Text, int64, and null parameter binding without exposing SQLDB parameter types.</li>
     <li>Error results through <code>XRTL.Core</code> result/error contracts.</li>
     <li>Future migration/query helper surface only after a separate issue defines it.</li>
   </ul>
@@ -57,14 +59,34 @@
       </tr>
       <tr>
         <td><code>TXrtlSqliteDatabase.Execute</code></td>
-        <td>Runs a non-query SQL statement inside an internal SQLDB transaction.</td>
+        <td>Runs a non-query SQL statement. The one-argument form uses an implicit transaction; the parameterized overload binds XRTL-owned parameters.</td>
       </tr>
       <tr>
         <td><code>TXrtlSqliteDatabase.QueryInt64</code></td>
-        <td>Runs the first scalar query shape needed by bootstrap tests, such as <code>select count(*)</code>.</td>
+        <td>Runs the first scalar query shape needed by bootstrap tests, such as <code>select count(*)</code>. A parameterized overload binds text, int64, and null parameters.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlSqliteParameters</code></td>
+        <td>Reusable parameter collection for named SQLite parameters. Supports text, int64, and null values.</td>
+      </tr>
+      <tr>
+        <td><code>BeginTransaction</code> / <code>Commit</code> / <code>Rollback</code></td>
+        <td>Explicit public transaction control. Invalid state transitions fail with XRTL error codes instead of leaking SQLDB exceptions.</td>
       </tr>
     </tbody>
   </table>
+
+  <h2>Local Feature Stack</h2>
+  <ol>
+    <li><strong>Complete:</strong> local SQLite foundation through SQLDB.</li>
+    <li><strong>Complete in issue #48:</strong> public transaction API and parameter binding.</li>
+    <li><strong>Next:</strong> raw row/field/value mapping data.</li>
+    <li><strong>Later:</strong> app dataset abstraction.</li>
+    <li><strong>Later:</strong> SQLite provider abstraction.</li>
+    <li><strong>Later:</strong> migrations.</li>
+    <li><strong>Later:</strong> query builder.</li>
+    <li><strong>Last:</strong> ORM after lower layers are stable.</li>
+  </ol>
 
   <h2>Initial Candidate Posture</h2>
   <table>
@@ -104,6 +126,7 @@
   <ul>
     <li><code>database_smoke</code> checks library metadata and SQLite config behavior.</li>
     <li><code>database_sqlite_tests</code> creates a local SQLite file, creates a table, inserts rows, queries a count, and verifies error paths.</li>
+    <li><code>database_transaction_tests</code> verifies public transaction state, commit, rollback, text/int64/null binding, parameter reuse, and binding failures.</li>
     <li>No PostgreSQL, Firebird, MySQL, or MariaDB tests in v0.</li>
     <li>Network adapters require later issues with service setup, native client libraries, and credentials documented outside tracked files.</li>
   </ul>

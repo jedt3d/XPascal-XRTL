@@ -15,6 +15,7 @@ The current foundation focuses on:
 - `xpc build` and `xpc new <project_name>`
 - `XRTL.Core` v0 result/error/option primitives
 - `XRTL.Database` v0 local SQLite smoke over FPC SQLDB
+- `XRTL.Database` public transactions and parameter binding for local SQLite
 - Windows-first CI
 - manual validation scripts for Windows, macOS, and Ubuntu 26.04 LTS
 - GitHub issue, branch, and draft PR workflow
