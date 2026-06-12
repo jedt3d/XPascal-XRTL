@@ -1,0 +1,9 @@
+.toolchains/
+build/
+*.o
+*.ppu
+*.compiled
+*.exe
+*.dll
+*.dylib
+*.so

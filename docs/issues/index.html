@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Issue Map - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; color: #202124; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="../">Documentation Home</a></p>
+  <h1>Issue Map</h1>
+  <p>This page connects GitHub issues to the proposal, implementation evidence, validation, and close criteria. Issues are planning and accountability artifacts, not disposable notes.</p>
+
+  <h2>Issue Rules</h2>
+  <ul>
+    <li>Every issue should name the proposal section or decision it implements.</li>
+    <li>Every issue should state scope, non-scope, acceptance criteria, implementation evidence, and validation status.</li>
+    <li>Issues remain open while PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a> is draft/open, even if implementation has landed on the branch.</li>
+    <li>Close issues only after the PR is merged or after a maintainer marks the issue not planned.</li>
+  </ul>
+
+  <h2>Bootstrap Issues</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Issue</th>
+        <th>Proposal Link</th>
+        <th>Status</th>
+        <th>Implementation Evidence</th>
+        <th>Validation / Close Criteria</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1 Bootstrap XPascal/XRTL platform foundation</a></td>
+        <td>Proposal 1.1, 3.1, 3.7, 14.2, 17, 18</td>
+        <td>Implemented in draft PR #8; keep open until merge.</td>
+        <td>Branch <code>codex/bootstrap-xpascal-foundation</code>, PR #8, issues #2-#7, Captain's Log, developer docs.</td>
+        <td>Windows, macOS Apple Silicon, and Linux x86_64 validation recorded; CI and maintainer review still govern merge.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/2">#2 Repository structure and proposal docs</a></td>
+        <td>Proposal 3.7, 16, 18</td>
+        <td>Implemented in PR #8; keep open until merge.</td>
+        <td><code>README.md</code>, <code>AGENTS.md</code>, <code>docs/proposal.md</code>, <code>docs/proposal.html</code>, <code>docs/decisions/0001-bootstrap-strategy.md</code>, <code>.gitignore</code>, <code>.gitattributes</code>.</td>
+        <td>Docs are linkable from <code>docs/index.html</code>; proposal source and HTML are both present.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/3">#3 FreePascal 3.3.1 toolchain metadata</a></td>
+        <td>Proposal 1.1, 14.1, 14.2</td>
+        <td>Implemented in PR #8; checksums partially pinned.</td>
+        <td><code>toolchains/fpc-3.3.1.lock</code>; installer scripts choose platform-specific compiler binaries.</td>
+        <td>Linux SHA256 pinned; Windows and macOS SHA256 finalization is tracked in follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> before release packaging.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/4">#4 Initial xpc CLI skeleton</a></td>
+        <td>Proposal 14, 14.1</td>
+        <td>Implemented in PR #8; keep open until merge.</td>
+        <td><code>src/xpc/xpc.pas</code>, <code>tests/smoke/hello_xpc.pas</code>, <code>tools/run-xpc.ps1</code>, <code>tools/run-xpc.sh</code>.</td>
+        <td><code>xpc version</code>, <code>xpc doctor</code>, and smoke executable pass on validated platforms.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/5">#5 Bootstrap install/check/build scripts</a></td>
+        <td>Proposal 14.1, 14.2, 19</td>
+        <td>Implemented in PR #8; keep open until merge.</td>
+        <td><code>tools/install-fpc.*</code>, <code>tools/check-toolchain.*</code>, <code>tools/build-xpc.*</code>, <code>tools/platform-id.sh</code>.</td>
+        <td>Windows uses <code>ppcrossx64.exe</code>; macOS Apple Silicon uses <code>ppca64</code>; Linux uses <code>ppcx64</code>; all validated.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/6">#6 Windows bootstrap CI workflow</a></td>
+        <td>Proposal 14.2, 19</td>
+        <td>Implemented in PR #8; latest CI passed.</td>
+        <td><code>.github/workflows/ci.yml</code>; GitHub Actions PR checks.</td>
+        <td>Latest checked CI passed at merge-readiness review time. Workflow installs FPC 3.3.1, checks toolchain, builds CLI and smoke test, then runs launcher smoke checks. Use PR #8 checks as the source of truth for the current head.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7 Codex and GLM cooperation workflow</a></td>
+        <td>Proposal 17, 18</td>
+        <td>Implemented in PR #8; keep open until merge.</td>
+        <td><code>ai/briefs/</code>, <code>ai/glm-outputs/</code>, <code>ai/reviews/</code>, GLM coordinator packet, Captain's Log and developer docs.</td>
+        <td>Codex remains source-of-truth owner; GLM drafts/reviews docs through auditable packets.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Follow-up Issues</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Issue</th>
+        <th>Parent</th>
+        <th>Purpose</th>
+        <th>Merge Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9 Finalize Windows and macOS FPC 3.3.1 snapshot checksums</a></td>
+        <td>#3</td>
+        <td>Replace remaining <code>PENDING</code> checksum values before release packaging.</td>
+        <td>Not a blocker for bootstrap PR #8 because the pending status is explicit and release packaging is non-scope.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10 Capture exact Linux validation host report</a></td>
+        <td>#1</td>
+        <td>Copy exact Linux host configuration and command output into Captain's Log.</td>
+        <td>Completed in the three-platform validation pass; ready to close after this documentation commit lands.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

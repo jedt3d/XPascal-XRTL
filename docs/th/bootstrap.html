@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap Toolchain - XPascal</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.75; margin: 2rem auto; max-width: 980px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <p><a href="./">เอกสารนักพัฒนา</a></p>
+  <h1>Bootstrap Toolchain</h1>
+  <p>งานชุดแรกของ XPascal/XRTL คือสร้างฐานที่ build ได้ ตรวจสอบได้ และใช้ FreePascal 3.3.1 แบบชัดเจน</p>
+
+  <h2>Platform ที่รองรับ</h2>
+  <ul>
+    <li>Windows x86_64: ทดสอบผ่านแล้ว</li>
+    <li>macOS Apple Silicon aarch64: ทดสอบผ่านแล้ว</li>
+    <li>Linux x86_64 / Ubuntu 26.04: Side Chat ทดสอบผ่านแล้ว</li>
+  </ul>
+  <p>macOS Intel x86_64 ไม่อยู่ใน scope และไม่รองรับโดยตั้งใจ</p>
+
+  <h2>Windows</h2>
+  <pre><code>./tools/install-fpc.ps1
+./tools/check-toolchain.ps1
+./tools/build-xpc.ps1
+./tools/run-xpc.ps1 version
+./tools/run-xpc.ps1 doctor
+./build/hello_xpc.exe</code></pre>
+
+  <h2>macOS Apple Silicon และ Linux</h2>
+  <pre><code>bash ./tools/install-fpc.sh
+bash ./tools/check-toolchain.sh
+bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh version
+bash ./tools/run-xpc.sh doctor
+./build/hello_xpc</code></pre>
+
+  <h2>หมายเหตุแต่ละ Platform</h2>
+  <ul>
+    <li>Windows ใช้ compiler จาก snapshot ผ่าน <code>ppcrossx64.exe</code> และควรรันผ่าน <code>tools/run-xpc.ps1</code></li>
+    <li>macOS Apple Silicon ใช้ compiler จริงชื่อ <code>ppca64</code> พร้อม FPC unit path และ macOS SDK link flags</li>
+    <li>Linux x86_64 เลือก <code>ppcx64</code> ก่อน <code>fpc</code> และ pin SHA256 ของ snapshot แล้ว</li>
+  </ul>
+
+  <h2>แต่ละ script ทำอะไร</h2>
+  <ul>
+    <li><code>install-fpc</code> ดาวน์โหลดและแตก FPC 3.3.1 snapshot สำหรับ platform ปัจจุบัน</li>
+    <li><code>check-toolchain</code> ตรวจว่า compiler รายงาน version เป็น <code>3.3.1</code></li>
+    <li><code>build-xpc</code> build CLI bootstrap และ smoke executable</li>
+    <li><code>run-xpc</code> รัน CLI พร้อม metadata ของ compiler ที่ตรวจแล้ว</li>
+  </ul>
+</body>
+</html>
