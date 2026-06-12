@@ -225,7 +225,7 @@
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47 XRTL.Database local feature stack roadmap</a></td>
         <td>#40</td>
         <td>Track the local-only Database feature stack: transactions, binding, raw mapping, datasets, abstraction, migrations, query builder, and ORM.</td>
-        <td>Open epic. Network databases remain explicitly out of scope.</td>
+        <td>Completed by the ORM mapping PR after issues #48, #50, #52, #54, #56, #58, and #60. Network databases remain explicitly out of scope.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48 XRTL.Database public transactions and parameter binding</a></td>
@@ -262,6 +262,12 @@
         <td>#47</td>
         <td>Implement minimum SELECT query builder primitives over the provider and migration foundation.</td>
         <td>Completed by the query builder PR. Evidence: <code>TXrtlDatabaseSelectBuilder</code>, <code>database_query_builder_tests</code>, ADR #0014, and docs. ORM remains deferred.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60 XRTL.Database ORM mapping primitives</a></td>
+        <td>#47</td>
+        <td>Implement the smallest practical ORM mapping layer over provider, migration, raw mapping, and query builder contracts.</td>
+        <td>Completed by the ORM mapping PR. Evidence: <code>TXrtlDatabaseOrmSchema</code>, <code>TXrtlDatabaseOrmRecord</code>, <code>TXrtlDatabaseOrmMapper</code>, <code>database_orm_tests</code>, ADR #0015, and docs.</td>
       </tr>
     </tbody>
   </table>

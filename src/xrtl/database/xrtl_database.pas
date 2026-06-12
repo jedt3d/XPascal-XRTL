@@ -332,6 +332,71 @@ type
     property RowLimit: Int64 read FLimit;
   end;
 
+  TXrtlDatabaseOrmField = record
+  private
+    FName: string;
+    FColumnName: string;
+  public
+    class function Create(const AName, AColumnName: string): TXrtlDatabaseOrmField; static;
+    property Name: string read FName;
+    property ColumnName: string read FColumnName;
+  end;
+
+  TXrtlDatabaseOrmSchema = class
+  private
+    FTableName: string;
+    FIdColumnName: string;
+    FFields: array of TXrtlDatabaseOrmField;
+    function GetFieldCount: Integer;
+    function GetField(const AIndex: Integer): TXrtlDatabaseOrmField;
+  public
+    procedure Clear;
+    function Configure(const ATableName, AIdColumnName: string): TXrtlResult;
+    function AddField(const AName, AColumnName: string): TXrtlResult;
+    function IndexOfField(const AName: string): Integer;
+    function IndexOfColumn(const AColumnName: string): Integer;
+    function Validate: TXrtlResult;
+    property TableName: string read FTableName;
+    property IdColumnName: string read FIdColumnName;
+    property FieldCount: Integer read GetFieldCount;
+    property Fields[const AIndex: Integer]: TXrtlDatabaseOrmField read GetField; default;
+  end;
+
+  TXrtlDatabaseOrmRecordValue = record
+  private
+    FName: string;
+    FValue: TXrtlDatabaseValue;
+  public
+    class function Create(const AName: string; const AValue: TXrtlDatabaseValue): TXrtlDatabaseOrmRecordValue; static;
+    property Name: string read FName;
+    property Value: TXrtlDatabaseValue read FValue;
+  end;
+
+  TXrtlDatabaseOrmRecord = class
+  private
+    FValues: array of TXrtlDatabaseOrmRecordValue;
+    function GetValueCount: Integer;
+    function GetValue(const AIndex: Integer): TXrtlDatabaseOrmRecordValue;
+  public
+    procedure Clear;
+    procedure SetValue(const AName: string; const AValue: TXrtlDatabaseValue);
+    function IndexOfValue(const AName: string): Integer;
+    function ValueByName(const AName: string; out AValue: TXrtlDatabaseValue): TXrtlResult;
+    property ValueCount: Integer read GetValueCount;
+    property Values[const AIndex: Integer]: TXrtlDatabaseOrmRecordValue read GetValue; default;
+  end;
+
+  TXrtlDatabaseOrmMapper = class
+  private
+    function MapRow(const ASchema: TXrtlDatabaseOrmSchema; const ARow: TXrtlDatabaseRow; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+  public
+    function FindByInt64Id(
+      const AConnection: TXrtlDatabaseConnection;
+      const ASchema: TXrtlDatabaseOrmSchema;
+      const AId: Int64;
+      const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+  end;
+
 implementation
 
 uses
@@ -1402,6 +1467,281 @@ begin
     end;
 
   Result := TXrtlResult.Ok;
+end;
+
+class function TXrtlDatabaseOrmField.Create(const AName, AColumnName: string): TXrtlDatabaseOrmField;
+begin
+  Result.FName := AName;
+  Result.FColumnName := AColumnName;
+end;
+
+procedure TXrtlDatabaseOrmSchema.Clear;
+begin
+  FTableName := '';
+  FIdColumnName := '';
+  SetLength(FFields, 0);
+end;
+
+function TXrtlDatabaseOrmSchema.GetFieldCount: Integer;
+begin
+  Result := Length(FFields);
+end;
+
+function TXrtlDatabaseOrmSchema.GetField(const AIndex: Integer): TXrtlDatabaseOrmField;
+begin
+  if (AIndex < 0) or (AIndex >= Length(FFields)) then
+    raise ERangeError.Create('Database ORM schema field index out of range');
+  Result := FFields[AIndex];
+end;
+
+function TXrtlDatabaseOrmSchema.Configure(const ATableName, AIdColumnName: string): TXrtlResult;
+begin
+  if not XrtlDatabaseIsValidIdentifierPath(ATableName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM table identifier is invalid: ' + ATableName));
+  if not XrtlDatabaseIsValidIdentifier(AIdColumnName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM id column identifier is invalid: ' + AIdColumnName));
+
+  FTableName := ATableName;
+  FIdColumnName := AIdColumnName;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSchema.IndexOfField(const AName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(FFields) do
+    if SameText(FFields[I].Name, AName) then
+      Exit(I);
+end;
+
+function TXrtlDatabaseOrmSchema.IndexOfColumn(const AColumnName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(FFields) do
+    if SameText(FFields[I].ColumnName, AColumnName) then
+      Exit(I);
+end;
+
+function TXrtlDatabaseOrmSchema.AddField(const AName, AColumnName: string): TXrtlResult;
+begin
+  if not XrtlDatabaseIsValidIdentifier(AName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM field name is invalid: ' + AName));
+  if not XrtlDatabaseIsValidIdentifier(AColumnName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM column identifier is invalid: ' + AColumnName));
+  if IndexOfField(AName) >= 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'duplicate_orm_field',
+      'ORM field name is duplicated: ' + AName));
+  if IndexOfColumn(AColumnName) >= 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'duplicate_orm_column',
+      'ORM column name is duplicated: ' + AColumnName));
+
+  SetLength(FFields, Length(FFields) + 1);
+  FFields[High(FFields)] := TXrtlDatabaseOrmField.Create(AName, AColumnName);
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSchema.Validate: TXrtlResult;
+begin
+  if FTableName = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema table must be configured'));
+  if FIdColumnName = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema id column must be configured'));
+  if Length(FFields) = 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema must include at least one mapped field'));
+
+  Result := TXrtlResult.Ok;
+end;
+
+class function TXrtlDatabaseOrmRecordValue.Create(const AName: string; const AValue: TXrtlDatabaseValue): TXrtlDatabaseOrmRecordValue;
+begin
+  Result.FName := AName;
+  Result.FValue := AValue;
+end;
+
+function TXrtlDatabaseOrmRecord.GetValueCount: Integer;
+begin
+  Result := Length(FValues);
+end;
+
+function TXrtlDatabaseOrmRecord.GetValue(const AIndex: Integer): TXrtlDatabaseOrmRecordValue;
+begin
+  if (AIndex < 0) or (AIndex >= Length(FValues)) then
+    raise ERangeError.Create('Database ORM record value index out of range');
+  Result := FValues[AIndex];
+end;
+
+procedure TXrtlDatabaseOrmRecord.Clear;
+begin
+  SetLength(FValues, 0);
+end;
+
+function TXrtlDatabaseOrmRecord.IndexOfValue(const AName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(FValues) do
+    if SameText(FValues[I].Name, AName) then
+      Exit(I);
+end;
+
+procedure TXrtlDatabaseOrmRecord.SetValue(const AName: string; const AValue: TXrtlDatabaseValue);
+var
+  Index: Integer;
+begin
+  Index := IndexOfValue(AName);
+  if Index >= 0 then
+    FValues[Index] := TXrtlDatabaseOrmRecordValue.Create(AName, AValue)
+  else
+  begin
+    SetLength(FValues, Length(FValues) + 1);
+    FValues[High(FValues)] := TXrtlDatabaseOrmRecordValue.Create(AName, AValue);
+  end;
+end;
+
+function TXrtlDatabaseOrmRecord.ValueByName(const AName: string; out AValue: TXrtlDatabaseValue): TXrtlResult;
+var
+  Index: Integer;
+begin
+  Index := IndexOfValue(AName);
+  if Index < 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'orm_field_not_found',
+      'ORM record field was not found: ' + AName));
+
+  AValue := FValues[Index].Value;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmMapper.MapRow(const ASchema: TXrtlDatabaseOrmSchema; const ARow: TXrtlDatabaseRow; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+var
+  I: Integer;
+  Value: TXrtlDatabaseValue;
+begin
+  ARecord.Clear;
+  for I := 0 to ASchema.FieldCount - 1 do
+  begin
+    Result := ARow.ValueByName(ASchema[I].ColumnName, Value);
+    if Result.Failed then
+    begin
+      ARecord.Clear;
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'orm_map_failed',
+        'Failed to map ORM column ' + ASchema[I].ColumnName + ': ' + Result.Error.Code + ': ' + Result.Error.Message));
+    end;
+
+    ARecord.SetValue(ASchema[I].Name, Value);
+  end;
+
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmMapper.FindByInt64Id(
+  const AConnection: TXrtlDatabaseConnection;
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64;
+  const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+var
+  Builder: TXrtlDatabaseSelectBuilder;
+  Params: TXrtlDatabaseParameters;
+  Rows: TXrtlDatabaseResultSet;
+  Row: TXrtlDatabaseRow;
+  Sql: string;
+  I: Integer;
+begin
+  if not Assigned(AConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'ORM mapper requires a database connection'));
+  if not Assigned(ASchema) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM mapper requires a schema'));
+  if not Assigned(ARecord) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_record',
+      'ORM mapper requires an output record'));
+
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  Builder := TXrtlDatabaseSelectBuilder.Create;
+  Params := TXrtlDatabaseParameters.Create;
+  Rows := TXrtlDatabaseResultSet.Create;
+  try
+    Result := Builder.FromTable(ASchema.TableName);
+    if Result.Failed then
+      Exit;
+    for I := 0 to ASchema.FieldCount - 1 do
+    begin
+      Result := Builder.AddColumn(ASchema[I].ColumnName);
+      if Result.Failed then
+        Exit;
+    end;
+    Result := Builder.WhereInt64Equals(ASchema.IdColumnName, 'xrtl_orm_id', AId);
+    if Result.Failed then
+      Exit;
+    Result := Builder.SetLimit(1);
+    if Result.Failed then
+      Exit;
+    Result := Builder.Build(Sql, Params);
+    if Result.Failed then
+      Exit;
+
+    Result := AConnection.QueryRows(Sql, Params, Rows);
+    if Result.Failed then
+      Exit;
+    if Rows.RowCount = 0 then
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'orm_record_not_found',
+        'ORM record was not found'));
+
+    Result := Rows.RowByIndex(0, Row);
+    if Result.Failed then
+      Exit;
+
+    Result := MapRow(ASchema, Row, ARecord);
+  finally
+    Rows.Free;
+    Params.Free;
+    Builder.Free;
+  end;
 end;
 
 class function TXrtlSqliteParameter.Text(const AName, AValue: string): TXrtlSqliteParameter;

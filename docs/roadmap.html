@@ -76,7 +76,7 @@ gantt
     Database provider abstraction (#54)           :done, db-provider, after db-dataset, 1d
     Database migrations (#56)                     :done, db-migrations, after db-provider, 1d
     Database query builder (#58)                  :done, db-query, after db-migrations, 1d
-    Database ORM layer                            :db-orm, after db-query, 2w
+    Database ORM mapping (#60)                    :done, db-orm, after db-query, 1d
     XRTL.HTTP FCL-Web/fphttpserver research (#41) :http-scope, after refine-scope, 1w
     XRTL.Web middleware design (#42)              :web-scope, after http-scope, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
@@ -101,7 +101,7 @@ gantt
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/39">#39</a> refines the next slice: <code>XRTL.Database</code> starts local SQLite-only through SQLDB, network databases are deferred, <code>XRTL.HTTP</code> starts with FCL-Web vs <code>fphttpserver</code> research, and <code>XRTL.Web</code> starts with provider-neutral middleware design inspired by Rack/Horse.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> implements <code>XRTL.Database</code> v0 as local SQLite over SQLDB only, with network databases deferred to later service-validation issues.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45</a> completes the macOS Apple Silicon rerun for Database SQLite v0 on merged <code>main</code>; the SQLite tests passed with FPC <code>3.3.1</code>.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47</a> defines the local-only Database feature-stack sequence. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> implements public transactions and parameter binding as the first slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> implements detached raw row/field/value mapping as the second slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> implements app dataset iteration over detached rows as the third slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> implements the SQLite-only provider facade as the fourth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> implements apply-only migration primitives as the fifth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> implements SELECT query builder primitives as the sixth slice. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47</a> defines the local-only Database feature-stack sequence. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> implements public transactions and parameter binding as the first slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> implements detached raw row/field/value mapping as the second slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> implements app dataset iteration over detached rows as the third slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> implements the SQLite-only provider facade as the fourth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> implements apply-only migration primitives as the fifth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> implements SELECT query builder primitives as the sixth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> completes the epic with ORM mapping primitives. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -156,7 +156,7 @@ gantt
       </tr>
       <tr>
         <td>Database ORM</td>
-        <td>Next Database slice after #58: define the smallest ORM layer on top of provider, migration, and query builder contracts.</td>
+        <td>Completed by issue #60: minimal read-oriented ORM schema/record/mapper primitives over the provider and query builder contracts.</td>
         <td>After #58.</td>
       </tr>
       <tr>

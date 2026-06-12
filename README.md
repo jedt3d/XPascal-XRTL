@@ -21,6 +21,7 @@ The current foundation focuses on:
 - `XRTL.Database` SQLite-only provider abstraction facade
 - `XRTL.Database` apply-only migration primitives over the provider facade
 - `XRTL.Database` SELECT query builder primitives
+- `XRTL.Database` ORM mapping primitives
 - Windows-first CI
 - manual validation scripts for Windows, macOS, and Ubuntu 26.04 LTS
 - GitHub issue, branch, and draft PR workflow
