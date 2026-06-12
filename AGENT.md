@@ -59,6 +59,7 @@
 - Update Captain's Log when the merge changes project state, validation state, or operating rules.
 - Update the Project Progress section in this file whenever the merge closes an issue or changes roadmap status.
 - Update the PRD and ADR guide/records when the issue changes product requirements or architecture decisions.
+- Update roadmap, issue map, and PRD status immediately after a merge closes planning or documentation work, before opening the next epic.
 
 ## PRD And ADR Cadence
 
