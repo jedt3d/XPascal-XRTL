@@ -251,10 +251,61 @@ type
     property IsOpen: Boolean read GetIsOpen;
   end;
 
+  TXrtlDatabaseMigration = record
+  private
+    FId: string;
+    FDescription: string;
+    FStatements: array of string;
+    function GetStatementCount: Integer;
+    function GetStatement(const AIndex: Integer): string;
+  public
+    class function Create(const AId, ADescription: string): TXrtlDatabaseMigration; static;
+    procedure ClearStatements;
+    function AddStatement(const ASql: string): TXrtlResult;
+    property Id: string read FId;
+    property Description: string read FDescription;
+    property StatementCount: Integer read GetStatementCount;
+    property Statements[const AIndex: Integer]: string read GetStatement;
+  end;
+
+  TXrtlDatabaseMigrationPlan = class
+  private
+    FItems: array of TXrtlDatabaseMigration;
+    function GetCount: Integer;
+    function GetItem(const AIndex: Integer): TXrtlDatabaseMigration;
+  public
+    procedure Clear;
+    function Add(const AMigration: TXrtlDatabaseMigration): TXrtlResult;
+    function IndexOfId(const AId: string): Integer;
+    function Validate: TXrtlResult;
+    property Count: Integer read GetCount;
+    property Items[const AIndex: Integer]: TXrtlDatabaseMigration read GetItem; default;
+  end;
+
+  TXrtlDatabaseMigrationRunner = class
+  private
+    FConnection: TXrtlDatabaseConnection;
+    FMetadataTableName: string;
+    function EnsureMetadataTable: TXrtlResult;
+    function MigrationApplied(const AId: string; out AApplied: Boolean): TXrtlResult;
+    function NextAppliedOrder(out AOrder: Int64): TXrtlResult;
+    function ApplyMigration(const AMigration: TXrtlDatabaseMigration; var AAppliedCount: Integer): TXrtlResult;
+    function FailMigration(const AMigration: TXrtlDatabaseMigration; const ACode: string; const ACause: TXrtlResult): TXrtlResult;
+  public
+    constructor Create(const AConnection: TXrtlDatabaseConnection);
+    function Apply(const APlan: TXrtlDatabaseMigrationPlan; out AAppliedCount: Integer): TXrtlResult;
+    property MetadataTableName: string read FMetadataTableName;
+  end;
+
 implementation
 
 uses
-  SysUtils, DB, SQLDB, SQLite3Conn;
+  SysUtils, Math, DB, SQLDB, SQLite3Conn;
+
+function XrtlSqliteCallMask(const ACurrentMask: TFPUExceptionMask): TFPUExceptionMask;
+begin
+  Result := ACurrentMask + [exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision];
+end;
 
 class function TXrtlSqliteValue.Null: TXrtlSqliteValue;
 begin
@@ -748,6 +799,312 @@ begin
   Result := FSqliteDatabase.QueryDataSet(ASql, AParams, ADataSet);
 end;
 
+class function TXrtlDatabaseMigration.Create(const AId, ADescription: string): TXrtlDatabaseMigration;
+begin
+  Result.FId := AId;
+  Result.FDescription := ADescription;
+  SetLength(Result.FStatements, 0);
+end;
+
+function TXrtlDatabaseMigration.GetStatementCount: Integer;
+begin
+  Result := Length(FStatements);
+end;
+
+function TXrtlDatabaseMigration.GetStatement(const AIndex: Integer): string;
+begin
+  if (AIndex < 0) or (AIndex >= Length(FStatements)) then
+    raise ERangeError.Create('Database migration statement index out of range');
+  Result := FStatements[AIndex];
+end;
+
+procedure TXrtlDatabaseMigration.ClearStatements;
+begin
+  SetLength(FStatements, 0);
+end;
+
+function TXrtlDatabaseMigration.AddStatement(const ASql: string): TXrtlResult;
+begin
+  if Trim(ASql) = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_migration',
+      'Migration statement SQL must not be empty'));
+
+  SetLength(FStatements, Length(FStatements) + 1);
+  FStatements[High(FStatements)] := ASql;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseMigrationPlan.GetCount: Integer;
+begin
+  Result := Length(FItems);
+end;
+
+function TXrtlDatabaseMigrationPlan.GetItem(const AIndex: Integer): TXrtlDatabaseMigration;
+begin
+  if (AIndex < 0) or (AIndex >= Length(FItems)) then
+    raise ERangeError.Create('Database migration index out of range');
+  Result := FItems[AIndex];
+end;
+
+procedure TXrtlDatabaseMigrationPlan.Clear;
+begin
+  SetLength(FItems, 0);
+end;
+
+function TXrtlDatabaseMigrationPlan.IndexOfId(const AId: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(FItems) do
+    if SameText(FItems[I].Id, AId) then
+      Exit(I);
+end;
+
+function TXrtlDatabaseMigrationPlan.Add(const AMigration: TXrtlDatabaseMigration): TXrtlResult;
+begin
+  if Trim(AMigration.Id) = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_migration',
+      'Migration id must not be empty'));
+
+  if IndexOfId(AMigration.Id) >= 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'duplicate_migration',
+      'Migration id is duplicated in the plan: ' + AMigration.Id));
+
+  SetLength(FItems, Length(FItems) + 1);
+  FItems[High(FItems)] := AMigration;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseMigrationPlan.Validate: TXrtlResult;
+var
+  I: Integer;
+  J: Integer;
+begin
+  for I := 0 to High(FItems) do
+  begin
+    if Trim(FItems[I].Id) = '' then
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'invalid_migration',
+        'Migration id must not be empty'));
+
+    if FItems[I].StatementCount = 0 then
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'invalid_migration',
+        'Migration must include at least one SQL statement: ' + FItems[I].Id));
+
+    for J := 0 to FItems[I].StatementCount - 1 do
+      if Trim(FItems[I].Statements[J]) = '' then
+        Exit(TXrtlResult.Fail(
+          XRTL_DATABASE_ERROR_DOMAIN,
+          'invalid_migration',
+          'Migration statement SQL must not be empty: ' + FItems[I].Id));
+
+    for J := I + 1 to High(FItems) do
+      if SameText(FItems[I].Id, FItems[J].Id) then
+        Exit(TXrtlResult.Fail(
+          XRTL_DATABASE_ERROR_DOMAIN,
+          'duplicate_migration',
+          'Migration id is duplicated in the plan: ' + FItems[I].Id));
+  end;
+
+  Result := TXrtlResult.Ok;
+end;
+
+constructor TXrtlDatabaseMigrationRunner.Create(const AConnection: TXrtlDatabaseConnection);
+begin
+  inherited Create;
+  FConnection := AConnection;
+  FMetadataTableName := 'xrtl_schema_migrations';
+end;
+
+function TXrtlDatabaseMigrationRunner.EnsureMetadataTable: TXrtlResult;
+begin
+  if not Assigned(FConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'Database migration runner requires a connection'));
+
+  Result := FConnection.Execute(
+    'create table if not exists xrtl_schema_migrations (' +
+    'id text primary key not null, ' +
+    'description text not null, ' +
+    'applied_order integer not null, ' +
+    'applied_at_utc text not null)');
+end;
+
+function TXrtlDatabaseMigrationRunner.MigrationApplied(const AId: string; out AApplied: Boolean): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+  Count: Int64;
+begin
+  AApplied := False;
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Params.AddText('id', AId);
+    Result := FConnection.QueryInt64(
+      'select count(*) from xrtl_schema_migrations where id = :id',
+      Params,
+      Count);
+    if Result.Failed then
+      Exit;
+
+    AApplied := Count > 0;
+    Result := TXrtlResult.Ok;
+  finally
+    Params.Free;
+  end;
+end;
+
+function TXrtlDatabaseMigrationRunner.NextAppliedOrder(out AOrder: Int64): TXrtlResult;
+begin
+  AOrder := 0;
+  Result := FConnection.QueryInt64(
+    'select count(*) + 1 from xrtl_schema_migrations',
+    AOrder);
+end;
+
+function TXrtlDatabaseMigrationRunner.FailMigration(const AMigration: TXrtlDatabaseMigration; const ACode: string; const ACause: TXrtlResult): TXrtlResult;
+begin
+  Result := TXrtlResult.Fail(
+    XRTL_DATABASE_ERROR_DOMAIN,
+    ACode,
+    'Migration ' + AMigration.Id + ' failed: ' + ACause.Error.Code + ': ' + ACause.Error.Message);
+end;
+
+function TXrtlDatabaseMigrationRunner.ApplyMigration(const AMigration: TXrtlDatabaseMigration; var AAppliedCount: Integer): TXrtlResult;
+var
+  I: Integer;
+  Params: TXrtlDatabaseParameters;
+  AppliedOrder: Int64;
+  Cause: TXrtlResult;
+begin
+  Result := FConnection.BeginTransaction;
+  if Result.Failed then
+    Exit;
+
+  for I := 0 to AMigration.StatementCount - 1 do
+  begin
+    Result := FConnection.Execute(AMigration.Statements[I]);
+    if Result.Failed then
+    begin
+      Cause := Result;
+      Result := FConnection.Rollback;
+      if Result.Failed then
+        Exit(FailMigration(AMigration, 'migration_rollback_failed', Result));
+      Exit(FailMigration(AMigration, 'migration_failed', Cause));
+    end;
+  end;
+
+  Result := NextAppliedOrder(AppliedOrder);
+  if Result.Failed then
+  begin
+    Cause := Result;
+    Result := FConnection.Rollback;
+    if Result.Failed then
+      Exit(FailMigration(AMigration, 'migration_rollback_failed', Result));
+    Exit(FailMigration(AMigration, 'migration_failed', Cause));
+  end;
+
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Params.AddText('id', AMigration.Id);
+    Params.AddText('description', AMigration.Description);
+    Params.AddInt64('applied_order', AppliedOrder);
+    Result := FConnection.Execute(
+      'insert into xrtl_schema_migrations(id, description, applied_order, applied_at_utc) ' +
+      'values (:id, :description, :applied_order, strftime(''%Y-%m-%dT%H:%M:%fZ'', ''now''))',
+      Params);
+  finally
+    Params.Free;
+  end;
+
+  if Result.Failed then
+  begin
+    Cause := Result;
+    Result := FConnection.Rollback;
+    if Result.Failed then
+      Exit(FailMigration(AMigration, 'migration_rollback_failed', Result));
+    Exit(FailMigration(AMigration, 'migration_failed', Cause));
+  end;
+
+  Result := FConnection.Commit;
+  if Result.Failed then
+    Exit(FailMigration(AMigration, 'migration_commit_failed', Result));
+
+  Inc(AAppliedCount);
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseMigrationRunner.Apply(const APlan: TXrtlDatabaseMigrationPlan; out AAppliedCount: Integer): TXrtlResult;
+var
+  I: Integer;
+  FoundPending: Boolean;
+  AppliedStates: array of Boolean;
+  Applied: Boolean;
+begin
+  AAppliedCount := 0;
+  if not Assigned(APlan) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_migration_plan',
+      'Migration plan must not be nil'));
+
+  Result := APlan.Validate;
+  if Result.Failed then
+    Exit;
+
+  if Assigned(FConnection) and FConnection.InTransaction then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'migration_transaction_active',
+      'Migrations cannot run inside an existing transaction'));
+
+  Result := EnsureMetadataTable;
+  if Result.Failed then
+    Exit;
+
+  SetLength(AppliedStates, APlan.Count);
+  FoundPending := False;
+  for I := 0 to APlan.Count - 1 do
+  begin
+    Result := MigrationApplied(APlan[I].Id, Applied);
+    if Result.Failed then
+      Exit;
+
+    AppliedStates[I] := Applied;
+    if Applied then
+    begin
+      if FoundPending then
+        Exit(TXrtlResult.Fail(
+          XRTL_DATABASE_ERROR_DOMAIN,
+          'migration_out_of_order',
+          'Migration is already applied after a pending migration: ' + APlan[I].Id));
+    end
+    else
+      FoundPending := True;
+  end;
+
+  for I := 0 to APlan.Count - 1 do
+    if not AppliedStates[I] then
+    begin
+      Result := ApplyMigration(APlan[I], AAppliedCount);
+      if Result.Failed then
+        Exit;
+    end;
+
+  Result := TXrtlResult.Ok;
+end;
+
 class function TXrtlSqliteParameter.Text(const AName, AValue: string): TXrtlSqliteParameter;
 begin
   Result.FName := AName;
@@ -1099,6 +1456,7 @@ end;
 function TXrtlSqliteDatabase.Execute(const ASql: string; const AParams: TXrtlSqliteParameters): TXrtlResult;
 var
   Query: TSQLQuery;
+  OldFpuMask: TFPUExceptionMask;
 begin
   Result := EnsureOpen;
   if Result.Failed then
@@ -1108,6 +1466,31 @@ begin
       XRTL_DATABASE_ERROR_DOMAIN,
       'empty_sql',
       'SQL text must not be empty'));
+
+  if (not Assigned(AParams)) or (AParams.Count = 0) then
+  begin
+    EnsureTransactionStarted;
+    try
+      OldFpuMask := GetExceptionMask;
+      SetExceptionMask(XrtlSqliteCallMask(OldFpuMask));
+      try
+        TSQLite3Connection(FConnection).ExecuteDirect(ASql);
+        if not FExplicitTransaction then
+          TSQLTransaction(FTransaction).Commit;
+      finally
+        SetExceptionMask(OldFpuMask);
+      end;
+      Result := TXrtlResult.Ok;
+    except
+      on E: Exception do
+      begin
+        if (not FExplicitTransaction) and TSQLTransaction(FTransaction).Active then
+          TSQLTransaction(FTransaction).Rollback;
+        Result := FailFromException('execute_failed', E.Message);
+      end;
+    end;
+    Exit;
+  end;
 
   Query := TSQLQuery.Create(nil);
   try
@@ -1121,9 +1504,15 @@ begin
 
     EnsureTransactionStarted;
     try
-      Query.ExecSQL;
-      if not FExplicitTransaction then
-        TSQLTransaction(FTransaction).Commit;
+      OldFpuMask := GetExceptionMask;
+      SetExceptionMask(XrtlSqliteCallMask(OldFpuMask));
+      try
+        Query.ExecSQL;
+        if not FExplicitTransaction then
+          TSQLTransaction(FTransaction).Commit;
+      finally
+        SetExceptionMask(OldFpuMask);
+      end;
       Result := TXrtlResult.Ok;
     except
       on E: Exception do
@@ -1146,6 +1535,7 @@ end;
 function TXrtlSqliteDatabase.QueryInt64(const ASql: string; const AParams: TXrtlSqliteParameters; out AValue: Int64): TXrtlResult;
 var
   Query: TSQLQuery;
+  OldFpuMask: TFPUExceptionMask;
 begin
   AValue := 0;
   Result := EnsureOpen;
@@ -1169,23 +1559,29 @@ begin
 
     EnsureTransactionStarted;
     try
-      Query.Open;
-      if Query.EOF or (Query.Fields.Count = 0) then
-      begin
-        if Query.Active then
-          Query.Close;
-        if not FExplicitTransaction then
-          TSQLTransaction(FTransaction).Rollback;
-        Exit(TXrtlResult.Fail(
-          XRTL_DATABASE_ERROR_DOMAIN,
-          'empty_result',
-          'Query did not return a scalar value'));
-      end;
+      OldFpuMask := GetExceptionMask;
+      SetExceptionMask(XrtlSqliteCallMask(OldFpuMask));
+      try
+        Query.Open;
+        if Query.EOF or (Query.Fields.Count = 0) then
+        begin
+          if Query.Active then
+            Query.Close;
+          if not FExplicitTransaction then
+            TSQLTransaction(FTransaction).Rollback;
+          Exit(TXrtlResult.Fail(
+            XRTL_DATABASE_ERROR_DOMAIN,
+            'empty_result',
+            'Query did not return a scalar value'));
+        end;
 
-      AValue := Query.Fields[0].AsLargeInt;
-      Query.Close;
-      if not FExplicitTransaction then
-        TSQLTransaction(FTransaction).Commit;
+        AValue := Query.Fields[0].AsLargeInt;
+        Query.Close;
+        if not FExplicitTransaction then
+          TSQLTransaction(FTransaction).Commit;
+      finally
+        SetExceptionMask(OldFpuMask);
+      end;
       Result := TXrtlResult.Ok;
     except
       on E: Exception do
@@ -1210,6 +1606,7 @@ end;
 function TXrtlSqliteDatabase.QueryRows(const ASql: string; const AParams: TXrtlSqliteParameters; ARows: TXrtlSqliteResultSet): TXrtlResult;
 var
   Query: TSQLQuery;
+  OldFpuMask: TFPUExceptionMask;
 begin
   Result := EnsureOpen;
   if Result.Failed then
@@ -1237,18 +1634,24 @@ begin
 
     EnsureTransactionStarted;
     try
-      Query.Open;
-      Result := LoadResultSet(Query, ARows);
-      Query.Close;
-      if Result.Failed then
-      begin
-        if not FExplicitTransaction and TSQLTransaction(FTransaction).Active then
-          TSQLTransaction(FTransaction).Rollback;
-        Exit;
-      end;
+      OldFpuMask := GetExceptionMask;
+      SetExceptionMask(XrtlSqliteCallMask(OldFpuMask));
+      try
+        Query.Open;
+        Result := LoadResultSet(Query, ARows);
+        Query.Close;
+        if Result.Failed then
+        begin
+          if not FExplicitTransaction and TSQLTransaction(FTransaction).Active then
+            TSQLTransaction(FTransaction).Rollback;
+          Exit;
+        end;
 
-      if not FExplicitTransaction then
-        TSQLTransaction(FTransaction).Commit;
+        if not FExplicitTransaction then
+          TSQLTransaction(FTransaction).Commit;
+      finally
+        SetExceptionMask(OldFpuMask);
+      end;
       Result := TXrtlResult.Ok;
     except
       on E: Exception do

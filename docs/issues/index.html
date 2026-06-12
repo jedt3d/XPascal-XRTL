@@ -251,6 +251,12 @@
         <td>Implement a SQLite-only provider abstraction facade before migrations begin.</td>
         <td>Completed by the provider abstraction PR. Evidence: provider capabilities/config, <code>TXrtlDatabaseConnection</code>, <code>database_provider_tests</code>, ADR #0012, and docs.</td>
       </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56 XRTL.Database migration primitives</a></td>
+        <td>#47</td>
+        <td>Implement minimum apply-only migration primitives over the provider facade.</td>
+        <td>Completed by the migration primitives PR. Evidence: <code>TXrtlDatabaseMigration</code>, <code>TXrtlDatabaseMigrationPlan</code>, <code>TXrtlDatabaseMigrationRunner</code>, <code>database_migration_tests</code>, ADR #0013, and docs. Query builder and ORM remain deferred.</td>
+      </tr>
     </tbody>
   </table>
 </body>

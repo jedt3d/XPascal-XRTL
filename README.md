@@ -19,6 +19,7 @@ The current foundation focuses on:
 - `XRTL.Database` detached raw row/field/value mapping for local SQLite
 - `XRTL.Database` app dataset iteration over detached SQLite rows
 - `XRTL.Database` SQLite-only provider abstraction facade
+- `XRTL.Database` apply-only migration primitives over the provider facade
 - Windows-first CI
 - manual validation scripts for Windows, macOS, and Ubuntu 26.04 LTS
 - GitHub issue, branch, and draft PR workflow
