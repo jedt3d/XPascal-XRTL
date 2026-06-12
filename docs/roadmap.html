@@ -71,7 +71,7 @@ gantt
     Refine next XRTL slices (#39)                 :done, refine-scope, after research, 1d
     XRTL.Database local SQLite (#40)              :done, runtime-scope, after refine-scope, 1d
     Database transactions and params (#48)        :done, db-txn, after runtime-scope, 1d
-    Database raw mapping data                     :db-map, after db-txn, 1w
+    Database raw mapping data (#50)              :done, db-map, after db-txn, 1d
     Database app dataset abstraction              :db-dataset, after db-map, 1w
     Database migrations                           :db-migrations, after db-dataset, 1w
     Database query builder                        :db-query, after db-migrations, 1w
@@ -100,7 +100,7 @@ gantt
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/39">#39</a> refines the next slice: <code>XRTL.Database</code> starts local SQLite-only through SQLDB, network databases are deferred, <code>XRTL.HTTP</code> starts with FCL-Web vs <code>fphttpserver</code> research, and <code>XRTL.Web</code> starts with provider-neutral middleware design inspired by Rack/Horse.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> implements <code>XRTL.Database</code> v0 as local SQLite over SQLDB only, with network databases deferred to later service-validation issues.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45</a> completes the macOS Apple Silicon rerun for Database SQLite v0 on merged <code>main</code>; the SQLite tests passed with FPC <code>3.3.1</code>.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47</a> defines the local-only Database feature-stack sequence. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> implements public transactions and parameter binding as the first slice. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47</a> defines the local-only Database feature-stack sequence. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> implements public transactions and parameter binding as the first slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> implements detached raw row/field/value mapping as the second slice. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -130,8 +130,13 @@ gantt
       </tr>
       <tr>
         <td>Database raw mapping</td>
-        <td>Next Database slice after #48: define raw row/field/value mapping without exposing SQLDB datasets.</td>
+        <td>Completed by issue #50: detached row/field/value mapping without exposing SQLDB datasets.</td>
         <td>After #48.</td>
+      </tr>
+      <tr>
+        <td>Database app dataset abstraction</td>
+        <td>Next Database slice after #50: design an app-facing dataset layer over detached raw result sets without starting ORM behavior.</td>
+        <td>After #50.</td>
       </tr>
       <tr>
         <td>XRTL.Web v0</td>

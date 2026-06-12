@@ -57,3 +57,4 @@ jobs:
           ./build/database_smoke.exe
           ./build/database_sqlite_tests.exe
           ./build/database_transaction_tests.exe
+          ./build/database_raw_mapping_tests.exe
