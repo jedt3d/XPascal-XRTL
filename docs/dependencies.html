@@ -16,6 +16,7 @@
   <p><a href="./">Documentation Home</a></p>
   <h1>Dependency Provenance Register</h1>
   <p>This register records third-party projects considered or adopted by XCLI and XRTL. No source should be copied, vendored, linked, or wrapped before license and provenance notes exist.</p>
+  <p>This document is an engineering register, not legal advice. Treat every license note as a prompt for verification against the exact upstream source and version before adoption.</p>
 
   <h2>Evaluation Rules</h2>
   <ul>
@@ -31,26 +32,81 @@
     <thead>
       <tr>
         <th>Area</th>
-        <th>Candidates</th>
+        <th>Candidate</th>
+        <th>Upstream</th>
+        <th>License Notes</th>
         <th>Status</th>
-        <th>Required Next Evidence</th>
+        <th>Current Rationale</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>Database</td>
-        <td>PostgreSQL, MySQL, SQLite, Firebird</td>
-        <td>Research planned in issue #28.</td>
-        <td>Upstream URLs, licenses, maintenance signals, Pascal/FPC integration options, and testability notes.</td>
+        <td>FPC SQLDB</td>
+        <td><a href="https://www.freepascal.org/docs-html/fcl/sqldb/usingsqldb.html">Free Pascal SQLDB docs</a></td>
+        <td>Part of the FPC/FCL ecosystem; exact package license and linking obligations must be confirmed from the selected FPC snapshot before redistribution.</td>
+        <td>Preferred first prototype backend, not yet adopted as public API.</td>
+        <td>SQLDB provides uniform SQL access and separate connection components for Firebird, PostgreSQL, and MySQL. XRTL.Database should wrap or thin-adapt it behind XRTL.Data contracts rather than expose SQLDB as the XPascal public API.</td>
       </tr>
       <tr>
-        <td>Web server / HTTP</td>
-        <td>Pascal/FPC-compatible server libraries to be researched.</td>
-        <td>Research planned in issue #28.</td>
-        <td>Cross-platform behavior, maintenance activity, API fit, licensing, and wrapper/direct-use recommendation.</td>
+        <td>Database</td>
+        <td>ZeosLib</td>
+        <td><a href="https://github.com/frones/ZeosLib">GitHub mirror</a>, <a href="https://sourceforge.net/projects/zeoslib/">SourceForge project</a></td>
+        <td>GitHub reports LGPL-2.1 plus an additional unknown <code>COPYING.ZEOS</code> file. License review is required before adoption.</td>
+        <td>Research-only candidate.</td>
+        <td>Broad support across MySQL, MariaDB, PostgreSQL, Firebird/Interbase, SQLite, and more makes it worth reviewing. Do not adopt until license and official-upstream provenance are clear.</td>
+      </tr>
+      <tr>
+        <td>Database / HTTP / Web</td>
+        <td>mORMot 2</td>
+        <td><a href="https://github.com/synopse/mORMot2">GitHub repository</a></td>
+        <td>MPL/GPL/LGPL tri-license according to upstream README; chosen license path and attribution duties must be recorded before adoption.</td>
+        <td>Research-only candidate.</td>
+        <td>Very capable Object Pascal stack for SQL/NoSQL, HTTP, WebSockets, ORM/SOA/MVC, logging, JSON, and more. Main risk is over-adopting a full framework before XRTL's minimal contracts are proven.</td>
+      </tr>
+      <tr>
+        <td>HTTP / Web</td>
+        <td>FPC <code>fphttpserver</code></td>
+        <td><a href="https://wiki.freepascal.org/fphttpserver">Free Pascal wiki</a></td>
+        <td>Part of the FPC/Lazarus ecosystem; exact package license and redistribution obligations must be confirmed from the selected snapshot.</td>
+        <td>Preferred baseline HTTP smoke candidate.</td>
+        <td>Good first candidate for loopback server validation because it is close to the toolchain. Needs supported-platform smoke tests before XRTL.HTTP relies on it.</td>
+      </tr>
+      <tr>
+        <td>Web</td>
+        <td>Horse</td>
+        <td><a href="https://github.com/HashLoad/horse">GitHub repository</a></td>
+        <td>MIT according to upstream README.</td>
+        <td>Research-only candidate and design reference.</td>
+        <td>Minimal Express-inspired API, Lazarus/FPC quickstart, provider-neutral transport model, and FPC default <code>fphttpserver</code> provider are promising. XRTL.Web should still decide whether to wrap, adapt, or only borrow design ideas.</td>
+      </tr>
+      <tr>
+        <td>Web</td>
+        <td>Brook</td>
+        <td><a href="https://github.com/risoflora/brookframework">GitHub repository</a></td>
+        <td>LGPL-2.1 according to upstream README.</td>
+        <td>Research-only candidate.</td>
+        <td>Cross-platform Pascal microframework with rich server features. Needs activity, dependency, and license review before any adoption.</td>
+      </tr>
+      <tr>
+        <td>HTTP / Network</td>
+        <td>Indy</td>
+        <td><a href="https://github.com/IndySockets/Indy">GitHub repository</a></td>
+        <td>Dual-licensed under Indy Modified BSD or Indy MPL according to upstream README; exact license file compatibility must be reviewed.</td>
+        <td>Research-only candidate.</td>
+        <td>Broad protocol suite and recent release signal. Candidate for lower-level network/HTTP needs only if FPC integration and TLS dependency risks are acceptable.</td>
       </tr>
     </tbody>
   </table>
+
+  <h2>Current Recommendations</h2>
+  <ul>
+    <li>Prototype XRTL.Database against FPC SQLDB first, but keep SQLDB behind XRTL.Data and XRTL.Database contracts.</li>
+    <li>Keep ZeosLib and mORMot 2 as research candidates until license, maintenance, platform, and API-shape evidence is stronger.</li>
+    <li>Prototype XRTL.HTTP loopback smoke with FPC <code>fphttpserver</code> if the FPC 3.3.1 snapshot includes the needed units on all supported platforms.</li>
+    <li>Treat Horse as a serious design/reference candidate for XRTL.Web, not a direct public API dependency yet.</li>
+    <li>Treat Brook and Indy as research candidates with explicit license and maintenance review before adoption.</li>
+  </ul>
 
   <h2>Provenance Template</h2>
   <ul>

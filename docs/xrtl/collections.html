@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Collections Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Collections</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Collections owns reusable collection and iteration helpers only where FPC standard facilities are not enough for XRTL public contracts.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Stable map/set/list contracts if FPC generics are not suitable for the supported compiler snapshot.</li>
+    <li>Small iteration helpers used by Data, HTTP headers, Config layers, or Diagnostics attributes.</li>
+    <li>Deterministic ordering helpers for tests and documentation examples.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No broad replacement of FPC containers for novelty.</li>
+    <li>No JSON, database row, or HTTP header domain logic.</li>
+    <li>No custom memory manager.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Collections may depend on Core. It should avoid depending on higher-level libraries.</p>
+
+  <h2>Refactor Check</h2>
+  <p>When another library needs a collection helper, prefer moving a generic helper here instead of copying local list/map code. If a helper is domain-specific, keep it in the domain library and document why.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Deterministic ordering tests.</li>
+    <li>Empty and boundary collection tests.</li>
+    <li>Compile smoke with FPC <code>3.3.1</code> on all supported platforms.</li>
+  </ul>
+</body>
+</html>

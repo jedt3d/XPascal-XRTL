@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL Test Strategy</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a> | <a href="../">Documentation Home</a></p>
+  <h1>XRTL Test Strategy</h1>
+  <p>XRTL tests should prove contracts, not only compile units. Every library must define its test surface before implementation merges.</p>
+
+  <h2>Test Layers</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Purpose</th>
+        <th>Default Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Compile smoke</td>
+        <td>Proves a unit or generated project can compile with FPC <code>3.3.1</code>.</td>
+        <td><code>tests/smoke/</code> and later <code>tests/xrtl/&lt;library&gt;/</code></td>
+      </tr>
+      <tr>
+        <td>Unit tests</td>
+        <td>Proves deterministic behavior of pure code: Core, Time, Text, Collections, Config parsing.</td>
+        <td><code>tests/xrtl/&lt;library&gt;/</code></td>
+      </tr>
+      <tr>
+        <td>Contract tests</td>
+        <td>Proves a shared abstraction behaves the same across adapters, platforms, and backends.</td>
+        <td><code>tests/contracts/&lt;capability&gt;/</code></td>
+      </tr>
+      <tr>
+        <td>Adapter tests</td>
+        <td>Proves Database, HTTP, or Web integrations against real or local service backends.</td>
+        <td><code>tests/adapters/&lt;adapter&gt;/</code></td>
+      </tr>
+      <tr>
+        <td>Platform validation</td>
+        <td>Proves supported platforms behave the same: Windows x86_64, macOS Apple Silicon, Ubuntu 26.04 x86_64.</td>
+        <td>PR evidence and <a href="../captains-log/">Captain's Log</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Minimum Test Requirements By Library</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Library</th>
+        <th>First Required Tests</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Core, Time, Text, Collections</td>
+        <td>Pure unit tests plus compile smoke on all supported platforms.</td>
+      </tr>
+      <tr>
+        <td>Diagnostics, Config, IO, Process</td>
+        <td>Unit tests plus platform-specific failure tests where OS behavior differs.</td>
+      </tr>
+      <tr>
+        <td>Data</td>
+        <td>Contract tests for records, fields, parameters, result iteration, and error mapping.</td>
+      </tr>
+      <tr>
+        <td>Database</td>
+        <td>Driver-neutral contract tests first; real PostgreSQL, MySQL, SQLite, and Firebird adapters only after service setup is explicit.</td>
+      </tr>
+      <tr>
+        <td>HTTP</td>
+        <td>Request/response parsing tests, header/status tests, and loopback server/client smoke where supported.</td>
+      </tr>
+      <tr>
+        <td>Web</td>
+        <td>Routing, middleware order, request context, error handling, and handler isolation tests.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Default Validation Command Shape</h2>
+  <p>The exact commands will evolve as XRTL test runners exist. Until then, implementation PRs should extend the existing bootstrap pattern:</p>
+  <pre><code># Windows
+./tools/check-toolchain.ps1
+./tools/run-xpc.ps1 build
+./tools/run-xpc.ps1 version
+./tools/run-xpc.ps1 doctor
+
+# macOS Apple Silicon / Ubuntu
+bash ./tools/check-toolchain.sh
+bash ./tools/run-xpc.sh build
+bash ./tools/run-xpc.sh version
+bash ./tools/run-xpc.sh doctor</code></pre>
+
+  <h2>Adapter Test Policy</h2>
+  <ul>
+    <li>Adapter tests must fail loudly when a required local service is intentionally enabled but unavailable.</li>
+    <li>Adapter tests must skip with a clear message when no service configuration is provided.</li>
+    <li>Credentials, hostnames, and service passwords stay in local ignored files or CI secrets, never in tracked docs.</li>
+    <li>Each adapter test must publish the tested backend version in PR evidence.</li>
+  </ul>
+
+  <h2>Definition Of Done For A Library PR</h2>
+  <ol>
+    <li>The library document under <code>docs/xrtl/</code> is current.</li>
+    <li>Shared ownership was checked against <a href="architecture.html">XRTL Shared Architecture</a>.</li>
+    <li>Tests cover the first public behavior and at least one failure path.</li>
+    <li>Any third-party dependency is registered in <a href="../dependencies.html">Dependency Provenance</a>.</li>
+    <li>Windows, macOS Apple Silicon, and Ubuntu validation expectations are recorded in the PR.</li>
+  </ol>
+</body>
+</html>

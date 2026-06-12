@@ -36,13 +36,16 @@
 11. Create or update ADRs when architecture, toolchain policy, runtime API shape, supported platforms, or repository governance changes.
 12. For XRTL work, create or update the per-library documentation file in `docs/xrtl/` in the same PR as the library.
 13. Before adopting or wrapping third-party code, update `docs/dependencies.html` with license, activity, attribution, and wrap/direct-use rationale.
+14. Before implementing or extending an XRTL library, check `docs/xrtl/architecture.html` and the target library page for ownership boundaries, shared helpers, and no-duplication rules.
+15. If a proposed helper, type, config policy, diagnostic shape, path/process helper, data contract, or HTTP/Web concept belongs to another XRTL library, use that shared owner or open a refactor issue before adding duplicate code.
 
 ## Project Progress
 
 - Keep this section current as issues close, PRs merge, or platform validation status changes.
 - Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
 - Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
-- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`.
+- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI/XRTL epic `#24` remains open with child issues `#25`-`#28`.
+- Current XRTL governance gate: issue `#26` defines XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
 - Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
 
 ## Platform Validation
@@ -77,10 +80,17 @@
 
 - Follow the sequence `xpc build` -> XCLI project creation -> XRTL foundation.
 - XRTL means XPascal Extended RunTime Library; do not rename this phase to XRT.
+- Treat `docs/xrtl/architecture.html` as the XRTL layering and ownership contract.
+- Treat `docs/xrtl/testing.html` as the minimum test strategy for XRTL library work.
+- The first XRTL planning gate must happen before runtime implementation grows. This does not replace the XCLI sequence; it prevents generated projects and future runtime units from drifting apart.
+- XRTL is not required to mirror Delphi, Lazarus, or historical FPC library boundaries.
+- Prefer shared XRTL primitives over duplicated per-library helpers.
+- Keep Core and Time small. Process owns OS/CPU detection behavior; Core may own only neutral platform/capability value shapes if needed.
 - Prefer active, compatible open source libraries when they are a strong long-term fit.
 - Do not choose dependencies only because they are quick to assemble; future maintainability is the first priority.
 - If wrapping open source, document why a wrapper is needed, what is wrapped, why direct use was not chosen, and what license/NOTICE obligations apply.
 - Candidate areas such as database access and web server support require research and provenance notes before implementation.
+- Database and Web candidates remain research-only until license, maintenance, platform validation, testability, and API-shape evidence are recorded.
 
 ## Issue Discipline
 

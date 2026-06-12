@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Text Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Text</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Text owns encoding, line-ending, escaping, and formatting helpers that are shared across Config, Diagnostics, Data, HTTP, and Web.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>UTF-8 policy and conversion boundaries.</li>
+    <li>Line ending normalization for generated files and tests.</li>
+    <li>Simple escaping helpers for diagnostics, config, HTTP headers, and docs examples.</li>
+    <li>String comparison policy where platform differences matter.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No full JSON implementation in the first plan; JSON should be a separate issue because mORMot and other libraries may already solve it well.</li>
+    <li>No HTML templating engine.</li>
+    <li>No database-specific escaping.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Text may depend on Core and Collections. It must not depend on Database, HTTP, or Web.</p>
+
+  <h2>Refactor Check</h2>
+  <p>Any library that handles UTF-8, line endings, or escaping must check Text first. This is especially important for generated projects, HTTP headers, SQL diagnostics, and config files.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>UTF-8 round-trip tests.</li>
+    <li>Line ending normalization tests for Windows and POSIX inputs.</li>
+    <li>Escaping tests for empty, ASCII, and non-ASCII content once Unicode fixtures are allowed.</li>
+  </ul>
+</body>
+</html>

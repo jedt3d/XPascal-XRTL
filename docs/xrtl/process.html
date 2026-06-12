@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Process Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Process</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Process owns command execution, executable discovery, environment access, OS/CPU detection, and exit-code contracts.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Executable lookup and path probing.</li>
+    <li>Process execution result shape: command, exit code, stdout/stderr capture, elapsed time.</li>
+    <li>OS and CPU detection shared by CLI, build, and tests.</li>
+    <li>Safe shell-avoidance policy for command execution.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No filesystem abstraction beyond executable lookup; IO owns paths and files.</li>
+    <li>No build orchestration policy by itself; XCLI or build tools consume Process.</li>
+    <li>No direct dependency on Database, HTTP, or Web.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Process may depend on Core, Diagnostics, IO, Text, and Time.</p>
+
+  <h2>Refactor Check</h2>
+  <p>The first macOS bootstrap found that naive Pascal process execution can crash in some paths. Process must be introduced with focused platform tests before it replaces shell launcher behavior.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>OS/CPU detection tests on Windows, macOS Apple Silicon, and Ubuntu.</li>
+    <li>Executable lookup success and failure tests.</li>
+    <li>Process execution smoke using a harmless command on each platform.</li>
+  </ul>
+</body>
+</html>

@@ -17,15 +17,95 @@
   <h1>XRTL</h1>
   <p>XRTL means <strong>XPascal Extended RunTime Library</strong>. Do not abbreviate this phase as XRT.</p>
 
+  <h2>Architecture And Test Contracts</h2>
+  <ul>
+    <li><a href="architecture.html">Shared Architecture</a>: layering, dependency direction, shared ownership, and no-duplication rules.</li>
+    <li><a href="testing.html">Test Strategy</a>: unit, smoke, contract, adapter, and platform validation expectations.</li>
+  </ul>
+
   <h2>Development Order</h2>
   <ol>
     <li><code>xpc build</code> closeout.</li>
     <li>XCLI project creation.</li>
+    <li>XRTL planning gate: shared architecture, per-library docs, dependency provenance, and test strategy.</li>
     <li>XRTL foundation and libraries.</li>
   </ol>
 
   <h2>Per-Library Documentation Rule</h2>
   <p>Every XRTL library gets its own documentation file when it is created. The file should live under this directory and cover purpose, public API, examples, tests, platform notes, dependencies, and provenance links.</p>
+
+  <h2>Initial Library Plan</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Library</th>
+        <th>Role</th>
+        <th>Implementation Gate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="core.html">XRTL.Core</a></td>
+        <td>Result/status, error records, option/capability shapes, and shared primitives.</td>
+        <td>First foundation candidate. Must stay dependency-free.</td>
+      </tr>
+      <tr>
+        <td><a href="time.html">XRTL.Time</a></td>
+        <td>Clocks, durations, timeouts, timestamps, and deterministic test clocks.</td>
+        <td>Implement before timeout-heavy Process, HTTP, or Database features.</td>
+      </tr>
+      <tr>
+        <td><a href="diagnostics.html">XRTL.Diagnostics</a></td>
+        <td>Structured diagnostic events, scopes, trace ids, and safe human-readable failures.</td>
+        <td>Implement before library-specific logging appears.</td>
+      </tr>
+      <tr>
+        <td><a href="config.html">XRTL.Config</a></td>
+        <td>Typed settings, layered config sources, and secret redaction markers.</td>
+        <td>Implement before Database/Web connection, port, or credential settings.</td>
+      </tr>
+      <tr>
+        <td><a href="collections.html">XRTL.Collections</a></td>
+        <td>Small shared collections and deterministic iteration helpers when FPC defaults are not enough.</td>
+        <td>Only add helpers proven useful by at least one library contract.</td>
+      </tr>
+      <tr>
+        <td><a href="text.html">XRTL.Text</a></td>
+        <td>UTF-8 policy, line endings, escaping, and shared formatting helpers.</td>
+        <td>Implement before generated files, HTTP headers, or diagnostics duplicate text helpers.</td>
+      </tr>
+      <tr>
+        <td><a href="io.html">XRTL.IO</a></td>
+        <td>Paths, files, streams, directories, and temporary workspaces.</td>
+        <td>Implement before XCLI generated-project code grows more filesystem logic.</td>
+      </tr>
+      <tr>
+        <td><a href="process.html">XRTL.Process</a></td>
+        <td>Process execution, executable lookup, OS/CPU detection, and exit-code contracts.</td>
+        <td>Requires careful platform tests because prior macOS Pascal process execution crashed.</td>
+      </tr>
+      <tr>
+        <td><a href="data.html">XRTL.Data</a></td>
+        <td>Driver-neutral data values, fields, parameters, result iteration, and data errors.</td>
+        <td>Implement before Database adapters to prevent driver types leaking into public APIs.</td>
+      </tr>
+      <tr>
+        <td><a href="database.html">XRTL.Database</a></td>
+        <td>SQL connection, transaction, adapter, and driver capability boundaries.</td>
+        <td>Requires Data contracts and dependency provenance for any backend.</td>
+      </tr>
+      <tr>
+        <td><a href="http.html">XRTL.HTTP</a></td>
+        <td>HTTP request/response, headers, status codes, server/client transport contracts.</td>
+        <td>Requires provider research and loopback smoke tests on all supported platforms.</td>
+      </tr>
+      <tr>
+        <td><a href="web.html">XRTL.Web</a></td>
+        <td>Routes, middleware, request context, and application web composition.</td>
+        <td>Requires HTTP contracts; database usage must be optional and explicit.</td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>Library Documentation Template</h2>
   <table>
@@ -72,6 +152,9 @@
     <li>Database access candidates: PostgreSQL, MySQL, SQLite, and Firebird when suitable maintained Pascal/FPC integration options are confirmed.</li>
     <li>Web server candidates: practical Pascal/FPC-compatible HTTP server libraries with cross-platform behavior on Windows, macOS Apple Silicon, and Ubuntu 26.04.</li>
   </ul>
+
+  <h2>No-Duplication Rule</h2>
+  <p>Before implementation, every library must check <a href="architecture.html">Shared Architecture</a>. If a helper, type, config rule, diagnostic shape, data value, path helper, timeout, or HTTP concept already belongs to another library, use that shared owner or open a refactor issue. Do not grow duplicated mini-frameworks inside separate libraries.</p>
 
   <h2>Quality Bias</h2>
   <p>XRTL should not rebuild what active, compatible open source already solves well. It also should not become a fragile pile of wrappers chosen only because they are fast to assemble. Long-term maintainability, testability, and licensing clarity come first.</p>

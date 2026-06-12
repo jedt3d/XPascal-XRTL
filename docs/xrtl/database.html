@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Database Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Database</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Database owns SQL and database adapter behavior while keeping public contracts independent from any single driver stack.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Connection and transaction contracts built on XRTL.Data values.</li>
+    <li>Adapter boundary for PostgreSQL, MySQL/MariaDB, SQLite, and Firebird.</li>
+    <li>Driver capability detection and diagnostic reporting.</li>
+    <li>Future migration/query helper surface only after a separate issue defines it.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No generic row/field/value contracts; Data owns those.</li>
+    <li>No web request lifecycle or route handling.</li>
+    <li>No ORM in the first implementation slice.</li>
+  </ul>
+
+  <h2>Initial Candidate Posture</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Current Posture</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FPC SQLDB</td>
+        <td>Preferred first prototype backend.</td>
+        <td>Built into the FPC ecosystem, provides a uniform SQL access layer, and already names Firebird, PostgreSQL, and MySQL connection components in upstream docs.</td>
+      </tr>
+      <tr>
+        <td>ZeosLib</td>
+        <td>Research-only candidate.</td>
+        <td>Broad database support, but license metadata includes LGPL-2.1 plus a separate unknown Zeos license file on the GitHub mirror. Needs deeper license and maintenance review.</td>
+      </tr>
+      <tr>
+        <td>mORMot 2</td>
+        <td>Research-only candidate for larger server/data stack.</td>
+        <td>Very broad features and active modern Object Pascal scope. Risk is over-adopting a full framework when XRTL may only need a narrow database adapter.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Wrap Rationale</h2>
+  <p>Database should wrap driver stacks behind XRTL.Data contracts because XPascal needs stable diagnostics, config, platform behavior, and test contracts even if the first backend changes. Directly exposing SQLDB, Zeos, or mORMot types would make later backend changes expensive.</p>
+
+  <h2>Dependencies</h2>
+  <p>Database may depend on Core, Diagnostics, Config, Data, Text, IO, Process, and Time. It must not depend on HTTP or Web.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Driver-neutral connection config validation tests.</li>
+    <li>Data contract mapping tests without a live service.</li>
+    <li>SQLite local adapter smoke first if SQLDB support is confirmed with FPC 3.3.1.</li>
+    <li>PostgreSQL, MySQL/MariaDB, and Firebird adapter tests only after service setup and credentials are documented outside tracked files.</li>
+  </ul>
+</body>
+</html>

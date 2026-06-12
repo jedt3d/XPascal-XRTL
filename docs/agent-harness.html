@@ -57,6 +57,17 @@ bash ./tools/run-xpc.sh doctor
     <li>Update proposal source and generated HTML when the project plan changes.</li>
     <li>Update the PRD when product scope, user workflow, public CLI behavior, platform support, or milestone priority changes.</li>
     <li>Create or update ADRs when architecture, toolchain policy, runtime API shape, supported platforms, or repository governance changes.</li>
+    <li>For XRTL work, update <code>docs/xrtl/architecture.html</code>, <code>docs/xrtl/testing.html</code>, and the per-library page before implementation expands.</li>
+    <li>For open source candidates, update <code>docs/dependencies.html</code> before copying, vendoring, linking, or wrapping anything.</li>
+  </ul>
+
+  <h2>XRTL Pre-Implementation Gate</h2>
+  <ul>
+    <li>Check the linked GitHub issue and confirm whether it changes XRTL architecture, library boundaries, or dependency policy.</li>
+    <li>Read <a href="./xrtl/architecture.html">XRTL Shared Architecture</a> and the target library document before editing runtime code.</li>
+    <li>Do not duplicate helpers across libraries. Shared status, errors, config, diagnostics, timeouts, paths, process execution, data rows, HTTP primitives, and Web routing each have an owner.</li>
+    <li>If a library needs a helper owned elsewhere, refactor toward the owner or open a follow-up issue. Do not silently create a second version.</li>
+    <li>Keep Database and Web candidates research-only until licensing, maintenance, platform, and test evidence is recorded.</li>
   </ul>
 
   <h2>PR Closeout</h2>

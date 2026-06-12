@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Web Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Web</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Web owns application-level web composition: routing, middleware, request context, handler execution, and web-specific diagnostics.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Route declaration and matching.</li>
+    <li>Middleware order and handler lifecycle.</li>
+    <li>Request context that can carry diagnostics, config, and optional service references.</li>
+    <li>Error-to-response mapping at the application layer.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No low-level HTTP parser or socket lifecycle; HTTP owns transport contracts.</li>
+    <li>No database dependency by default. Database-backed apps must opt in explicitly.</li>
+    <li>No frontend framework, UI toolkit, or template engine in the first plan.</li>
+  </ul>
+
+  <h2>Initial Candidate Posture</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Current Posture</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Horse</td>
+        <td>Research-only candidate and design reference.</td>
+        <td>Minimal Express-inspired API, MIT license, Lazarus/FPC quickstart, and provider model are attractive. XRTL still needs to decide whether wrapping or independent API design is safer.</td>
+      </tr>
+      <tr>
+        <td>Brook</td>
+        <td>Research-only candidate.</td>
+        <td>Pascal microframework with LGPL-2.1 license and broad feature set. Needs maintenance and dependency review before adoption.</td>
+      </tr>
+      <tr>
+        <td>mORMot 2</td>
+        <td>Research-only candidate for full-stack server apps.</td>
+        <td>Powerful ORM/SOA/MVC stack. Risk is locking XRTL.Web to a comprehensive framework before XPascal's minimal web contract is proven.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Wrap Rationale</h2>
+  <p>Web should not expose Horse, Brook, or mORMot as the public XPascal contract until the project proves that doing so preserves long-term survival. A wrapper or inspired independent API can keep route/middleware behavior stable while the HTTP provider changes underneath.</p>
+
+  <h2>Dependencies</h2>
+  <p>Web may depend on Core, Diagnostics, Config, Text, IO, Time, and HTTP. Database dependency must be optional and documented by a separate issue.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Route matching tests for literal, parameter, and not-found paths.</li>
+    <li>Middleware order tests.</li>
+    <li>Error mapping tests.</li>
+    <li>Loopback request smoke through the selected HTTP provider.</li>
+  </ul>
+</body>
+</html>

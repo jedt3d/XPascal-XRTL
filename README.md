@@ -107,6 +107,8 @@ Project documentation starts as static HTML:
 - [Product Requirements](docs/prd.html)
 - [Architecture Decisions](docs/adr.html)
 - [XRTL Library Docs](docs/xrtl/index.html)
+- [XRTL Shared Architecture](docs/xrtl/architecture.html)
+- [XRTL Test Strategy](docs/xrtl/testing.html)
 - [Dependency Provenance](docs/dependencies.html)
 - [Issue Map](docs/issues/index.html)
 - [Developer Docs EN](docs/en/index.html)
