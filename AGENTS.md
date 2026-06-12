@@ -13,7 +13,9 @@
 - Product direction: `docs/proposal.md`
 - Architecture decisions: `docs/decisions/`
 - Toolchain lock: `toolchains/fpc-3.3.1.lock`
+- Agent harness: `docs/agent-harness.html`
 - Codex + GLM task packets and reviews: `ai/`
+- Local-only validation host credentials: `.secrets/validation-hosts.local.md` when present. This path is ignored by Git and must never be committed.
 
 ## Workflow
 
@@ -32,7 +34,16 @@
 - Windows validation runs locally or in CI with the PowerShell scripts.
 - macOS validation targets Apple Silicon only; macOS Intel is intentionally unsupported.
 - Linux validation targets Ubuntu 26.04 x86_64 first.
+- Remote validation host details and credentials belong only in `.secrets/validation-hosts.local.md`.
 - Record host, OS, architecture, compiler path/version, commands, and results in `docs/captains-log/index.html`.
+
+## PR Closeout
+
+- Before opening or updating a PR, compare the change against the linked issue acceptance criteria.
+- Before merging, confirm CI status, review threads, issue map status, and documentation updates.
+- After merging, verify that auto-closed issues actually closed.
+- Sync local `main` with `origin/main` after merge.
+- Update Captain's Log when the merge changes project state, validation state, or operating rules.
 
 ## Issue Discipline
 
@@ -49,4 +60,5 @@
 - Scripts must fail loudly with actionable messages.
 - Bootstrap commands must work from a clean checkout.
 - CI must verify the compiler version before building.
+- Supported toolchain archives must be checksum-verified before extraction.
 - Documentation should be beginner-friendly and suitable for both human developers and AI agents.

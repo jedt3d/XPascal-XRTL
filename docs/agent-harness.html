@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Harness - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 980px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <p><a href="./">Documentation Home</a></p>
+  <h1>Agent Harness</h1>
+  <p>This page is the operating checklist for Codex, GLM, and side-agent work in this repository.</p>
+
+  <h2>Start Of Work</h2>
+  <ul>
+    <li>Fetch <code>origin/main</code> and start from an up-to-date local branch.</li>
+    <li>Confirm or create a GitHub issue before non-trivial work begins.</li>
+    <li>Create a feature branch named <code>codex/&lt;short-description&gt;</code>.</li>
+    <li>Keep the work scoped to the issue. Create follow-up issues instead of silently expanding scope.</li>
+  </ul>
+
+  <h2>Validation Hosts</h2>
+  <p>Remote host credentials are local-only and must not be committed. Store them in <code>.secrets/validation-hosts.local.md</code> when needed; <code>.secrets/</code> is ignored by Git.</p>
+  <ul>
+    <li>Windows x86_64 validation runs locally and in GitHub Actions.</li>
+    <li>macOS validation targets Apple Silicon aarch64 only.</li>
+    <li>Linux validation targets Ubuntu 26.04 x86_64 first.</li>
+  </ul>
+
+  <h2>Validation Commands</h2>
+  <p>Windows:</p>
+  <pre><code>./tools/install-fpc.ps1
+./tools/check-toolchain.ps1
+./tools/build-xpc.ps1
+./tools/run-xpc.ps1 version
+./tools/run-xpc.ps1 doctor
+./build/hello_xpc.exe</code></pre>
+
+  <p>macOS Apple Silicon and Ubuntu:</p>
+  <pre><code>bash ./tools/install-fpc.sh
+bash ./tools/check-toolchain.sh
+bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh version
+bash ./tools/run-xpc.sh doctor
+./build/hello_xpc</code></pre>
+
+  <h2>Documentation Updates</h2>
+  <ul>
+    <li>Update Captain's Log when validation, merge state, support policy, or operating rules change.</li>
+    <li>Update Issue Map when issue status, scope, evidence, or close criteria change.</li>
+    <li>Update README and developer docs when commands or supported platform expectations change.</li>
+    <li>Update proposal source and generated HTML when the project plan changes.</li>
+  </ul>
+
+  <h2>PR Closeout</h2>
+  <ul>
+    <li>Run the validation plan from the linked issue.</li>
+    <li>Run <code>git diff --check</code>.</li>
+    <li>Search for stale status language and secrets before pushing.</li>
+    <li>Open a PR with <code>Closes #&lt;issue&gt;</code> when the issue should close at merge.</li>
+    <li>Wait for CI to pass and verify there are no unresolved review threads.</li>
+    <li>After merge, verify GitHub closed the intended issue and sync local <code>main</code>.</li>
+  </ul>
+</body>
+</html>
