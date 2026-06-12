@@ -44,18 +44,20 @@ gantt
     Linux validation capture (#10)                :done, linuxval, after boot, 1d
 
     section Roadmap And Planning
-    Roadmap Gantt (#16)                           :active, roadmap, after harness, 1d
-    Create validation follow-up issues            :crit, nextissues, after roadmap, 2d
+    Roadmap Gantt (#16, PR #17)                   :done, roadmap, after harness, 1d
+    PRD and ADR cadence (#18, PR #19)             :done, prdadr, after roadmap, 1d
+    Status closeout (#20)                         :active, closeout, after prdadr, 1d
 
     section Platform Validation
-    Windows bootstrap validation evidence         :active, winval, after nextissues, 3d
-    macOS Apple Silicon validation evidence       :active, macval, after nextissues, 3d
+    Windows bootstrap validation evidence         :done, winval, 2026-06-12, 1d
+    macOS Apple Silicon validation evidence       :done, macval, 2026-06-12, 1d
     Ubuntu 26.04 validation evidence              :done, ubval, after linuxval, 1d
-    Cross-platform validation summary             :crit, evidence, after winval, 2d
+    Cross-platform validation summary             :done, evidence, after macval, 1d
 
     section CLI And Toolchain
-    Stabilize xpc CLI skeleton                    :cli, after evidence, 1w
-    Harden install/check/build scripts            :scripts, after evidence, 1w
+    CLI v0 build command epic                     :crit, cliv0, after closeout, 1w
+    Stabilize xpc CLI skeleton                    :cli, after cliv0, 1w
+    Harden install/check/build scripts            :scripts, after cliv0, 1w
     Expand CI compiler-version enforcement        :ci, after scripts, 3d
 
     section XRTL Runtime
@@ -73,8 +75,8 @@ gantt
   <ul>
     <li>Foundation issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7</a> are complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>.</li>
     <li>Post-merge workflow <a href="https://github.com/jedt3d/XPascal-XRTL/issues/11">#11</a>, FPC checksum finalization <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a>, and agent harness refresh <a href="https://github.com/jedt3d/XPascal-XRTL/issues/14">#14</a> are complete.</li>
-    <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> bridges completed bootstrap work into explicit next-phase issues.</li>
-    <li>Windows, macOS Apple Silicon, and Ubuntu validation evidence gates deeper CLI/toolchain work. This keeps runtime work from building on an unverified bootstrap surface.</li>
+    <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> and PRD/ADR cadence issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/18">#18</a> are complete.</li>
+    <li>Windows, macOS Apple Silicon, and Ubuntu bootstrap validation evidence exists from the bootstrap and checksum closeout passes. The next CLI v0 PR should refresh affected validation logs instead of reopening a standalone platform gate.</li>
     <li>Runtime implementation should wait until the first runtime surface area is defined in an issue and, where needed, an architecture decision record.</li>
   </ul>
 
@@ -89,29 +91,29 @@ gantt
     </thead>
     <tbody>
       <tr>
-        <td>Windows validation</td>
-        <td>Capture current Windows manual validation commands and logs after checksum pinning.</td>
-        <td>Roadmap issue #16.</td>
+        <td>CLI v0 build command</td>
+        <td>Define and implement <code>xpc build</code> as the first public CLI v0 command after <code>version</code> and <code>doctor</code>.</td>
+        <td>Status closeout issue #20.</td>
       </tr>
       <tr>
-        <td>macOS Apple Silicon validation</td>
-        <td>Capture current macOS Apple Silicon manual validation commands and logs after checksum pinning.</td>
-        <td>Roadmap issue #16.</td>
+        <td>Windows validation refresh</td>
+        <td>Capture current Windows validation logs for the CLI v0 build command.</td>
+        <td>CLI v0 build command epic.</td>
+      </tr>
+      <tr>
+        <td>macOS Apple Silicon validation refresh</td>
+        <td>Capture current macOS Apple Silicon validation logs for the CLI v0 build command.</td>
+        <td>CLI v0 build command epic.</td>
       </tr>
       <tr>
         <td>Ubuntu 26.04 validation refresh</td>
-        <td>Confirm Linux validation still passes after main branch sync and documentation changes.</td>
-        <td>Roadmap issue #16.</td>
-      </tr>
-      <tr>
-        <td>CLI stabilization</td>
-        <td>Define the next public <code>xpc</code> commands, flags, and error behavior.</td>
-        <td>Cross-platform validation summary.</td>
+        <td>Capture current Ubuntu 26.04 validation logs for the CLI v0 build command.</td>
+        <td>CLI v0 build command epic.</td>
       </tr>
       <tr>
         <td>Script hardening</td>
-        <td>Make installer/check/build scripts more robust around cache reuse, checksum failures, shell permissions, and platform detection.</td>
-        <td>Cross-platform validation summary.</td>
+        <td>Make installer/check/build scripts more robust only where CLI v0 build exposes concrete gaps.</td>
+        <td>CLI v0 build command epic.</td>
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>

@@ -102,25 +102,30 @@
       </tr>
       <tr>
         <td>Roadmap and documentation harness</td>
-        <td>In progress</td>
-        <td>Issues #16 and #18.</td>
+        <td>Complete</td>
+        <td>Issues #16 and #18; PRs #17 and #19.</td>
       </tr>
       <tr>
-        <td>Next platform validation evidence refresh</td>
-        <td>Planned</td>
-        <td>Create follow-up issues from <a href="./roadmap.html">Roadmap Gantt</a>.</td>
+        <td>Bootstrap platform validation</td>
+        <td>Historically validated</td>
+        <td>Windows, macOS Apple Silicon, and Ubuntu 26.04 passed during the bootstrap and checksum closeout passes. Future CLI v0 work should refresh affected platform evidence in its own PR.</td>
+      </tr>
+      <tr>
+        <td>CLI v0 build command</td>
+        <td>Next</td>
+        <td>Open the next epic for <code>xpc build</code> as the first public CLI v0 command after <code>version</code> and <code>doctor</code>.</td>
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>
         <td>Planned</td>
-        <td>Requires a scoped issue and ADR before implementation.</td>
+        <td>Requires CLI v0 build command progress, a scoped issue, and ADR review before implementation.</td>
       </tr>
     </tbody>
   </table>
 
   <h2>Open Product Questions</h2>
   <ul>
-    <li>Which <code>xpc</code> command should come after <code>version</code> and <code>doctor</code>: project creation, build orchestration, or test orchestration?</li>
+    <li>What should the minimum public contract for <code>xpc build</code> include in CLI v0?</li>
     <li>What is the first runtime unit/API that gives the project useful forward motion without overcommitting the framework shape?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>
     <li>When should GLM move from file-based manual exchange to automation?</li>
