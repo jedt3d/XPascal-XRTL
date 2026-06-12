@@ -112,13 +112,18 @@
       </tr>
       <tr>
         <td>CLI v0 build command</td>
-        <td>In progress</td>
-        <td>Issue #22 defines <code>xpc build</code> as the first public CLI v0 command after <code>version</code> and <code>doctor</code>.</td>
+        <td>Complete</td>
+        <td>Issue #22 and PR #23 define <code>xpc build</code> as the first public CLI v0 command after <code>version</code> and <code>doctor</code>.</td>
+      </tr>
+      <tr>
+        <td>XCLI project creation</td>
+        <td>Next</td>
+        <td>Issue #25 starts the XCLI phase after <code>xpc build</code>.</td>
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>
         <td>Planned</td>
-        <td>Requires CLI v0 build command progress, a scoped issue, and ADR review before implementation.</td>
+        <td>Issues #24, #26, #27, and #28 define the XRTL foundation, documentation, test strategy, dependency provenance, and database/web research.</td>
       </tr>
     </tbody>
   </table>
@@ -126,7 +131,8 @@
   <h2>Open Product Questions</h2>
   <ul>
     <li>When should <code>xpc build</code> move from launcher-managed build orchestration into the Pascal CLI itself?</li>
-    <li>What is the first runtime unit/API that gives the project useful forward motion without overcommitting the framework shape?</li>
+    <li>What minimal generated project should XCLI create first?</li>
+    <li>Which XRTL library should be implemented first after project creation?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>
     <li>When should GLM move from file-based manual exchange to automation?</li>
   </ul>

@@ -14,6 +14,8 @@
 - Product requirements: `docs/prd.html`
 - Architecture decisions: `docs/decisions/`
 - ADR guide: `docs/adr.html`
+- XRTL library documentation: `docs/xrtl/`
+- Dependency provenance and licensing: `docs/dependencies.html`
 - Toolchain lock: `toolchains/fpc-3.3.1.lock`
 - Agent harness: `docs/agent-harness.html`
 - Codex + GLM task packets and reviews: `ai/`
@@ -32,6 +34,8 @@
 9. Revisit this file whenever an issue is closed or project status changes, and update the project progress notes below.
 10. Update the PRD when product scope, user workflow, public CLI behavior, platform support, or milestone priority changes.
 11. Create or update ADRs when architecture, toolchain policy, runtime API shape, supported platforms, or repository governance changes.
+12. For XRTL work, create or update the per-library documentation file in `docs/xrtl/` in the same PR as the library.
+13. Before adopting or wrapping third-party code, update `docs/dependencies.html` with license, activity, attribution, and wrap/direct-use rationale.
 
 ## Project Progress
 
@@ -68,6 +72,15 @@
 - Before implementation, check whether the linked issue changes PRD requirements or requires an ADR.
 - During closeout, update PRD/ADR docs in the same PR as the relevant implementation when the change affects product or architecture direction.
 - Keep proposal updates for broad vision changes; keep PRD updates for current requirements; keep ADRs for durable technical decisions.
+
+## XCLI And XRTL Direction
+
+- Follow the sequence `xpc build` -> XCLI project creation -> XRTL foundation.
+- XRTL means XPascal Extended RunTime Library; do not rename this phase to XRT.
+- Prefer active, compatible open source libraries when they are a strong long-term fit.
+- Do not choose dependencies only because they are quick to assemble; future maintainability is the first priority.
+- If wrapping open source, document why a wrapper is needed, what is wrapped, why direct use was not chosen, and what license/NOTICE obligations apply.
+- Candidate areas such as database access and web server support require research and provenance notes before implementation.
 
 ## Issue Discipline
 

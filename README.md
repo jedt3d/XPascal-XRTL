@@ -106,6 +106,8 @@ Project documentation starts as static HTML:
 - [Roadmap Gantt](docs/roadmap.html)
 - [Product Requirements](docs/prd.html)
 - [Architecture Decisions](docs/adr.html)
+- [XRTL Library Docs](docs/xrtl/index.html)
+- [Dependency Provenance](docs/dependencies.html)
 - [Issue Map](docs/issues/index.html)
 - [Developer Docs EN](docs/en/index.html)
 - [Developer Docs TH](docs/th/index.html)
