@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.HTTP Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1040px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.HTTP</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>HTTP owns transport-neutral request, response, header, status, and server/client contracts. It is lower-level than XRTL.Web.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>HTTP method, status, header, and body contracts.</li>
+    <li>Request/response parsing policy where XRTL owns the shape.</li>
+    <li>Transport adapter boundary for built-in FPC, mORMot, Indy, or other providers.</li>
+    <li>Loopback smoke testing surface for future Web tests.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No route tree, middleware pipeline, controllers, or templating; Web owns those.</li>
+    <li>No database or ORM dependencies.</li>
+    <li>No TLS policy until a dedicated security issue exists.</li>
+  </ul>
+
+  <h2>Initial Candidate Posture</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Current Posture</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FPC <code>fphttpserver</code></td>
+        <td>Preferred baseline smoke candidate.</td>
+        <td>Part of the FPC/Lazarus ecosystem and practical for a first self-hosted server smoke, but must be validated on all supported platforms.</td>
+      </tr>
+      <tr>
+        <td>mORMot 2</td>
+        <td>Research-only candidate for high-performance HTTP/WebSocket transport.</td>
+        <td>Powerful and cross-platform, but broad enough that wrapping only the needed transport may be safer than making it the public API.</td>
+      </tr>
+      <tr>
+        <td>Indy</td>
+        <td>Research-only candidate for protocol coverage.</td>
+        <td>Large protocol suite and active 2026 release signal, but license and FPC integration must be reviewed before adoption.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Wrap Rationale</h2>
+  <p>HTTP should wrap provider-specific servers because Web and CLI tests need one stable request/response contract. Directly exposing a provider would couple XPascal applications to provider-specific lifecycle and platform behavior too early.</p>
+
+  <h2>Dependencies</h2>
+  <p>HTTP may depend on Core, Diagnostics, Config, Text, IO, Process, and Time. It must not depend on Database or Web.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Header normalization and status code tests.</li>
+    <li>Request/response body boundary tests.</li>
+    <li>Loopback smoke with the selected provider on Windows, macOS Apple Silicon, and Ubuntu.</li>
+  </ul>
+</body>
+</html>

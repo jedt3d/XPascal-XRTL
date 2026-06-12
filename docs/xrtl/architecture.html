@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL Shared Architecture</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1120px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a> | <a href="../">Documentation Home</a></p>
+  <h1>XRTL Shared Architecture</h1>
+  <p>XRTL is the XPascal Extended RunTime Library. It is not a Delphi, Lazarus, or FPC compatibility clone. The project can reuse good Pascal ecosystem work, but the XRTL structure is owned by XPascal and should be optimized for future survival, testability, and clear public contracts.</p>
+
+  <h2>Status</h2>
+  <p>This is the planning contract for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a>. No meaningful XRTL unit should merge until its library documentation file exists and the shared ownership table below has been checked.</p>
+
+  <h2>Target Source Layout</h2>
+  <pre><code>src/xrtl/
+  core/
+  diagnostics/
+  config/
+  collections/
+  text/
+  io/
+  process/
+  time/
+  data/
+  database/
+  http/
+  web/
+tests/xrtl/
+  core/
+  diagnostics/
+  config/
+  collections/
+  text/
+  io/
+  process/
+  time/
+  data/
+  database/
+  http/
+  web/</code></pre>
+  <p>The exact Pascal unit names can change in the implementation ADR, but the dependency direction should remain stable unless a later ADR supersedes this plan.</p>
+
+  <h2>Layer Rules</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Libraries</th>
+        <th>Allowed Direction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Foundation</td>
+        <td><a href="core.html">Core</a>, <a href="time.html">Time</a></td>
+        <td>No dependency on other XRTL libraries. These units define small shared primitives only.</td>
+      </tr>
+      <tr>
+        <td>Support</td>
+        <td><a href="diagnostics.html">Diagnostics</a>, <a href="config.html">Config</a>, <a href="collections.html">Collections</a>, <a href="text.html">Text</a>, <a href="io.html">IO</a>, <a href="process.html">Process</a></td>
+        <td>May depend on Core and Time. Must not depend on Database, HTTP, or Web.</td>
+      </tr>
+      <tr>
+        <td>Data Model</td>
+        <td><a href="data.html">Data</a></td>
+        <td>May depend on Core, Collections, Text, Time, and Diagnostics. Must not depend on any concrete database driver.</td>
+      </tr>
+      <tr>
+        <td>Adapters</td>
+        <td><a href="database.html">Database</a>, <a href="http.html">HTTP</a></td>
+        <td>May depend on foundation/support libraries. Concrete third-party adapters must stay behind XRTL contracts.</td>
+      </tr>
+      <tr>
+        <td>Application Runtime</td>
+        <td><a href="web.html">Web</a></td>
+        <td>May depend on HTTP, Config, Diagnostics, Text, IO, Time, and Core. Database use must be explicit and optional.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Shared Ownership Catalog</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Owning Library</th>
+        <th>Duplication Rule</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Result status, error record, option/null value, feature flags</td>
+        <td>Core</td>
+        <td>Other libraries may add domain-specific errors, but must use Core status and error shapes.</td>
+      </tr>
+      <tr>
+        <td>Clock abstraction, durations, timestamps, monotonic time</td>
+        <td>Time</td>
+        <td>No library should invent its own timestamp or timeout type without first checking Time.</td>
+      </tr>
+      <tr>
+        <td>Log events, diagnostic scopes, trace ids, human-readable failure notes</td>
+        <td>Diagnostics</td>
+        <td>Libraries emit diagnostics through this layer instead of writing directly to console output.</td>
+      </tr>
+      <tr>
+        <td>Environment variables, config files, layered settings, typed option parsing</td>
+        <td>Config</td>
+        <td>Libraries declare config keys; they do not parse environment strings independently.</td>
+      </tr>
+      <tr>
+        <td>Reusable collections, iteration helpers, stable maps/sets when FPC defaults are insufficient</td>
+        <td>Collections</td>
+        <td>Add here only when FPC built-ins do not meet portability, testability, or API consistency needs.</td>
+      </tr>
+      <tr>
+        <td>UTF-8/text normalization, line endings, escaping, simple format helpers</td>
+        <td>Text</td>
+        <td>HTTP, Database, and Config may use Text helpers but must not create separate encoding helpers.</td>
+      </tr>
+      <tr>
+        <td>Paths, file IO, streams, temp directories</td>
+        <td>IO</td>
+        <td>Process and Web may consume IO paths but must not own filesystem abstractions.</td>
+      </tr>
+      <tr>
+        <td>Process execution, exit codes, OS/CPU detection, executable lookup</td>
+        <td>Process</td>
+        <td>Build tools and Doctor-style checks should share this layer once Pascal-side orchestration is safe.</td>
+      </tr>
+      <tr>
+        <td>Rows, fields, parameters, data errors, connection-neutral query contracts</td>
+        <td>Data</td>
+        <td>Database adapters translate into Data contracts; Data must stay driver-free.</td>
+      </tr>
+      <tr>
+        <td>SQL database adapters and transaction behavior</td>
+        <td>Database</td>
+        <td>Adapter-specific code stays here. Database must not own generic records, logging, config, or HTTP concepts.</td>
+      </tr>
+      <tr>
+        <td>HTTP request/response, headers, status codes, server/client transport contracts</td>
+        <td>HTTP</td>
+        <td>Web routing builds on HTTP. HTTP must not know application routes or database services.</td>
+      </tr>
+      <tr>
+        <td>Routing, middleware, request context, controller-style composition</td>
+        <td>Web</td>
+        <td>Web owns application composition and should not duplicate lower-level HTTP parsing.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Pre-Implementation Refactor Gate</h2>
+  <ol>
+    <li>Open or confirm a GitHub issue for the library.</li>
+    <li>Update that library's document under <code>docs/xrtl/</code>.</li>
+    <li>Check the shared ownership catalog for any helper, type, or policy the new library wants to add.</li>
+    <li>If the helper belongs to another library, either use that library or open a refactor issue before duplicating it.</li>
+    <li>Update <a href="../dependencies.html">Dependency Provenance</a> before copying, linking, wrapping, or vendoring third-party code.</li>
+    <li>Add unit, smoke, or contract tests in the same PR as implementation.</li>
+    <li>Run Windows, macOS Apple Silicon, and Ubuntu validation for platform-affecting behavior.</li>
+  </ol>
+
+  <h2>Wrapper Decision Ladder</h2>
+  <ol>
+    <li>Use FPC or standard runtime capability directly when it is stable, cross-platform, and not a leaky user-facing API.</li>
+    <li>Use an active open source library directly only when its API is already the right long-term public contract for XPascal.</li>
+    <li>Wrap an open source library when XRTL needs API stability, multiple backend choices, platform-specific behavior, better diagnostics, or license/attribution isolation.</li>
+    <li>Use a library only as design inspiration when its license, maintenance, API shape, or platform story is not acceptable.</li>
+    <li>Build custom code only after documenting why existing maintained options do not fit.</li>
+  </ol>
+
+  <h2>First Implementation Bias</h2>
+  <p>Start with narrow, boring, testable primitives: Core status/errors, Time clock abstractions, Diagnostics events, Config parsing, and IO/Process safety helpers. Database and Web should wait until Data and HTTP contracts can keep them from becoming monolithic wrappers around whichever dependency is adopted first.</p>
+</body>
+</html>

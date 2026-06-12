@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Data Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Data</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Data owns database-neutral data contracts: rows, fields, parameters, records, cursor-like iteration, and data errors. It prevents Database adapters from leaking driver-specific types into user code.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Data value and field metadata contracts.</li>
+    <li>Parameter binding shape independent of SQLDB, Zeos, mORMot, or any future backend.</li>
+    <li>Result iteration policy and error mapping.</li>
+    <li>Small serialization boundary decisions when they are not full JSON or ORM features.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No database connection or SQL execution.</li>
+    <li>No ORM, migration system, or schema management in the first plan.</li>
+    <li>No HTTP or Web routing concepts.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Data may depend on Core, Collections, Text, Time, and Diagnostics. It must not depend on Database.</p>
+
+  <h2>Refactor Check</h2>
+  <p>If Database, Web, or future CLI commands need tabular data, they should consume Data contracts. Duplicated row/field abstractions are a red flag and should be moved here before implementation expands.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Field type mapping tests.</li>
+    <li>Parameter binding shape tests without a real database.</li>
+    <li>Result iteration and error propagation contract tests.</li>
+  </ul>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Core Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Core</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Core owns the smallest shared runtime primitives that other XRTL libraries need to communicate without depending on each other.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Result status and error records.</li>
+    <li>Option/null value shape where FPC defaults are not sufficient for public APIs.</li>
+    <li>Feature flags and capability markers.</li>
+    <li>Small cross-library constants that do not belong to a domain library.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No logging implementation; use Diagnostics.</li>
+    <li>No text encoding helpers; use Text.</li>
+    <li>No file, process, network, or database access.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Core must not depend on other XRTL libraries. It may use FPC RTL features only when they are stable across supported platforms.</p>
+
+  <h2>Refactor Check</h2>
+  <p>Any new XRTL library that wants its own status, error, optional value, or capability type must first check whether Core should own it. Duplicating those shapes creates incompatible contracts and should require an ADR.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Compile smoke for the Core unit.</li>
+    <li>Unit tests for result success/failure, error identity, and optional value behavior.</li>
+  </ul>
+</body>
+</html>

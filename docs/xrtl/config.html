@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Config Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Config</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Config owns typed configuration loading and precedence so libraries do not parse environment variables, local files, or defaults independently.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Configuration key declaration and validation.</li>
+    <li>Layered sources: defaults, files, environment variables, and command-line overrides when needed.</li>
+    <li>Typed values for booleans, numbers, paths, durations, and connection settings.</li>
+    <li>Redaction policy for secrets in diagnostic output.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No ownership of process environment discovery; Process provides OS access where needed.</li>
+    <li>No database connection implementation; Database consumes config records.</li>
+    <li>No web route configuration beyond generic typed settings.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Config may depend on Core, Diagnostics, Text, IO, Process, and Time. It must not depend on Database, HTTP, or Web.</p>
+
+  <h2>Refactor Check</h2>
+  <p>If a library needs a setting, it should declare a Config key or record instead of reading environment variables directly. Any direct env access must be justified as bootstrap-only code.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Precedence tests for default, file, environment, and override values.</li>
+    <li>Type parsing and validation failure tests.</li>
+    <li>Secret redaction tests.</li>
+  </ul>
+</body>
+</html>

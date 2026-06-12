@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Time Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Time</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Time owns clocks, durations, timeouts, and timestamp contracts so tests and adapters do not invent incompatible time handling.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Clock abstraction for real and test clocks.</li>
+    <li>Durations and timeout values.</li>
+    <li>UTC timestamp representation policy.</li>
+    <li>Monotonic elapsed-time measurement for diagnostics and process execution.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No scheduling engine.</li>
+    <li>No timezone database unless a future issue proves it is needed.</li>
+    <li>No logging of timings; Diagnostics owns emitted events.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Time may depend on Core after Core exists. It should not depend on Config, IO, Process, Database, HTTP, or Web.</p>
+
+  <h2>Refactor Check</h2>
+  <p>Database timeouts, HTTP request deadlines, Web middleware timings, and Process execution timeouts should all use Time contracts instead of local integer timeout conventions.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Duration conversion tests.</li>
+    <li>Fake clock tests for deterministic elapsed time.</li>
+    <li>Platform smoke for monotonic clock availability.</li>
+  </ul>
+</body>
+</html>

@@ -56,14 +56,15 @@ gantt
 
     section CLI And Toolchain
     CLI v0 build command (#22, PR #23)            :done, cliv0, after closeout, 1d
-    XCLI project creation (#25)                   :crit, active, xcli, after cliv0, 1w
+    XRTL library planning gate (#26)              :crit, xrtlplan, after cliv0, 1d
+    XCLI project creation (#25)                   :crit, xcli, after xrtlplan, 1w
     Stabilize xpc CLI skeleton                    :cli, after xcli, 1w
     Harden install/check/build scripts            :scripts, after cliv0, 1w
     Expand CI compiler-version enforcement        :ci, after scripts, 3d
 
     section XRTL Runtime
-    XRTL foundation (#24, #26)                    :crit, xrtl-foundation, after xcli, 1w
-    Dependency provenance (#27)                   :crit, provenance, after xcli, 1w
+    XRTL foundation implementation (#24)          :crit, xrtl-foundation, after xcli, 1w
+    Dependency provenance (#27)                   :crit, provenance, after xrtlplan, 1w
     Database and web research (#28)               :research, after provenance, 1w
     Define first runtime surface area             :runtime-scope, after xrtl-foundation, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
@@ -81,6 +82,7 @@ gantt
     <li>Post-merge workflow <a href="https://github.com/jedt3d/XPascal-XRTL/issues/11">#11</a>, FPC checksum finalization <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a>, and agent harness refresh <a href="https://github.com/jedt3d/XPascal-XRTL/issues/14">#14</a> are complete.</li>
     <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> and PRD/ADR cadence issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/18">#18</a> are complete.</li>
     <li>Windows, macOS Apple Silicon, and Ubuntu bootstrap validation evidence exists from the bootstrap and checksum closeout passes. The next CLI v0 PR should refresh affected validation logs instead of reopening a standalone platform gate.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy must be documented before runtime implementation grows.</li>
     <li>Runtime implementation should wait until the first runtime surface area is defined in an issue and, where needed, an architecture decision record.</li>
   </ul>
 
@@ -121,7 +123,7 @@ gantt
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>
-        <td>Define XRTL library layout, per-library docs, tests, and dependency provenance before implementation.</td>
+        <td>Define XRTL library layout, per-library docs, tests, shared ownership, and dependency provenance before implementation.</td>
         <td>Issues #24, #26, #27, and #28.</td>
       </tr>
     </tbody>

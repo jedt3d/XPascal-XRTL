@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Diagnostics Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.Diagnostics</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>Diagnostics owns structured runtime reporting: logs, diagnostic scopes, trace ids, and actionable failure messages.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Diagnostic event shape and severity levels.</li>
+    <li>Trace id and scope propagation for CLI, build, database, HTTP, and Web flows.</li>
+    <li>Human-readable failure notes that can be surfaced by <code>xpc doctor</code> or test runners.</li>
+    <li>Pluggable sinks such as console, memory capture for tests, and later file output.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No config parsing; Config declares and reads settings.</li>
+    <li>No telemetry transport or cloud service integration in the first version.</li>
+    <li>No direct database or HTTP dependency.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>Diagnostics may depend on Core, Time, and Text. It must remain usable by all other XRTL libraries.</p>
+
+  <h2>Refactor Check</h2>
+  <p>Any library that writes directly to stdout/stderr for runtime status should be reviewed. CLI launchers may print user-facing messages, but reusable XRTL units should emit diagnostics instead.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Memory sink captures event order and severity.</li>
+    <li>Diagnostic scopes include nested context without leaking global state.</li>
+    <li>Failure messages stay stable enough for smoke assertions.</li>
+  </ul>
+</body>
+</html>

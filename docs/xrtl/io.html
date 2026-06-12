@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.IO Plan</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a></p>
+  <h1>XRTL.IO</h1>
+  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+
+  <h2>Purpose</h2>
+  <p>IO owns path, file, stream, directory, and temporary workspace behavior so build, project creation, tests, and web/static file features do not each invent filesystem rules.</p>
+
+  <h2>Responsibilities</h2>
+  <ul>
+    <li>Path normalization and joining.</li>
+    <li>Safe file read/write primitives.</li>
+    <li>Directory creation and cleanup policy.</li>
+    <li>Temporary directory helpers for tests and generated project smoke checks.</li>
+  </ul>
+
+  <h2>Non-Responsibilities</h2>
+  <ul>
+    <li>No process execution; Process owns command running.</li>
+    <li>No web static-file server behavior; Web may consume IO.</li>
+    <li>No database file format behavior.</li>
+  </ul>
+
+  <h2>Dependencies</h2>
+  <p>IO may depend on Core, Diagnostics, Text, and Time. It must not depend on Database, HTTP, or Web.</p>
+
+  <h2>Refactor Check</h2>
+  <p>Generated project creation, toolchain lookup, HTTP static files, and tests should use the same path and temporary directory policy. Any duplicate path helper should be moved here or explicitly justified.</p>
+
+  <h2>First Tests</h2>
+  <ul>
+    <li>Path join tests for Windows and POSIX separators.</li>
+    <li>Temporary directory lifecycle tests.</li>
+    <li>Read/write failure tests for missing files and existing directories.</li>
+  </ul>
+</body>
+</html>
