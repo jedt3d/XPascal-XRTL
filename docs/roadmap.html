@@ -63,10 +63,11 @@ gantt
     Expand CI compiler-version enforcement        :ci, after scripts, 3d
 
     section XRTL Runtime
-    XRTL foundation implementation (#24)          :crit, xrtl-foundation, after xcli, 1w
+    XRTL.Core design (#32)                        :crit, active, core-design, after xcli, 1d
+    XRTL foundation implementation (#24)          :crit, xrtl-foundation, after core-design, 1w
     Dependency provenance (#27)                   :crit, provenance, after xrtlplan, 1w
     Database and web research (#28)               :research, after provenance, 1w
-    Define first runtime surface area             :runtime-scope, after xrtl-foundation, 1w
+    Define first runtime surface area             :runtime-scope, after core-design, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
     Add conformance and smoke coverage            :runtime-tests, after runtime-impl, 2w
 
@@ -83,6 +84,7 @@ gantt
     <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> and PRD/ADR cadence issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/18">#18</a> are complete.</li>
     <li>Windows, macOS Apple Silicon, and Ubuntu bootstrap validation evidence exists from the bootstrap and checksum closeout passes. The next CLI v0 PR should refresh affected validation logs instead of reopening a standalone platform gate.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/30">#30</a>. It defines the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy before runtime implementation grows.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> is the active design-only gate for <code>XRTL.Core</code>. Runtime implementation waits for review.</li>
     <li>Runtime implementation should wait until the first runtime surface area is defined in an issue and, where needed, an architecture decision record.</li>
   </ul>
 
@@ -123,8 +125,8 @@ gantt
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>
-        <td>Define XRTL library layout, per-library docs, tests, shared ownership, and dependency provenance before implementation.</td>
-        <td>Issues #24, #26, #27, and #28.</td>
+        <td>Review the <code>XRTL.Core</code> contract proposal before creating implementation work.</td>
+        <td>Issue #32; follows issues #24 and #26.</td>
       </tr>
     </tbody>
   </table>

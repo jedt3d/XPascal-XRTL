@@ -3,45 +3,163 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>XRTL.Core Plan</title>
+  <title>XRTL.Core Design</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
-    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
   </style>
 </head>
 <body>
-  <p><a href="./">XRTL Home</a></p>
+  <p><a href="./">XRTL Home</a> | <a href="architecture.html">Shared Architecture</a> | <a href="testing.html">Test Strategy</a></p>
   <h1>XRTL.Core</h1>
-  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+  <p><strong>Status:</strong> design proposal for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a>. Runtime implementation is intentionally blocked until this design is reviewed.</p>
 
   <h2>Purpose</h2>
-  <p>Core owns the smallest shared runtime primitives that other XRTL libraries need to communicate without depending on each other.</p>
+  <p>Core owns the smallest shared runtime primitives that let XRTL libraries communicate without depending on each other. It should be boring, stable, dependency-free inside XRTL, and portable across Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</p>
 
-  <h2>Responsibilities</h2>
+  <h2>Design Position</h2>
   <ul>
-    <li>Result status and error records.</li>
-    <li>Option/null value shape where FPC defaults are not sufficient for public APIs.</li>
-    <li>Feature flags and capability markers.</li>
-    <li>Small cross-library constants that do not belong to a domain library.</li>
+    <li>Core is a foundation library, not a utility drawer.</li>
+    <li>Core APIs should be stable enough for every later XRTL library to depend on.</li>
+    <li>Core must not perform IO, process execution, logging, config loading, encoding conversion, database work, HTTP parsing, or web routing.</li>
+    <li>Core should prefer plain records, enums, constants, and small functions over object hierarchies.</li>
+    <li>Core should avoid public exception flow. XRTL libraries return status/error contracts for expected failures.</li>
+  </ul>
+
+  <h2>Initial Public Contract</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Proposed Shape</th>
+        <th>Rationale</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Status</td>
+        <td><code>TXrtlStatus = (xsOk, xsError)</code> and helper predicates such as <code>XrtlStatusOk</code>.</td>
+        <td>One success/failure shape prevents each library from inventing incompatible booleans, integers, or exception conventions.</td>
+      </tr>
+      <tr>
+        <td>Error identity</td>
+        <td><code>TXrtlError</code> record with stable machine fields: <code>Domain</code>, <code>Code</code>, and human field <code>Message</code>.</td>
+        <td>Domain and code are for program decisions; message is for humans and diagnostics. Core does not own logging output.</td>
+      </tr>
+      <tr>
+        <td>Result</td>
+        <td><code>TXrtlResult</code> record containing <code>Status</code> and <code>Error</code>. Value-returning APIs use out parameters at first.</td>
+        <td>A non-generic result is easier to compile, document, and test first. Generic result types can be added only after a concrete need is proven.</td>
+      </tr>
+      <tr>
+        <td>Presence</td>
+        <td><code>TXrtlPresence = (xpMissing, xpPresent)</code> for optional values and capability fields.</td>
+        <td>A tiny presence marker avoids early generic-option complexity while giving Config, Data, and HTTP a shared optional-value convention.</td>
+      </tr>
+      <tr>
+        <td>Capability identity</td>
+        <td><code>TXrtlCapability</code> record with <code>Name</code> and <code>Supported</code>, plus optional <code>Detail</code>.</td>
+        <td>Adapters can report backend support without forcing Core to know about databases, HTTP servers, or operating systems.</td>
+      </tr>
+      <tr>
+        <td>Version identity</td>
+        <td>Constants for XRTL library contract version, separate from compiler and package version.</td>
+        <td>Consumers need a stable way to reason about the contract a unit was built against.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Proposed Unit Boundary</h2>
+  <p>The library is named <code>XRTL.Core</code>. The first implementation should use a conservative flat Pascal unit name until FPC <code>3.3.1</code> dotted-unit behavior is proven in this repository.</p>
+  <pre><code>src/xrtl/core/
+  xrtl_core.pas
+
+tests/xrtl/core/
+  core_smoke.pas
+  core_result_tests.pas
+  core_error_tests.pas</code></pre>
+  <p>The first unit may contain the whole contract. Split into more units only after the implementation has real pressure to separate error, result, or capability code.</p>
+
+  <h2>Error Rules</h2>
+  <ul>
+    <li>Error <code>Domain</code> values should use stable lowercase names such as <code>xrtl.core</code>, <code>xrtl.io</code>, or <code>xrtl.database</code>.</li>
+    <li>Error <code>Code</code> values should be stable machine-readable identifiers such as <code>invalid_argument</code> or <code>unsupported_capability</code>.</li>
+    <li>Error <code>Message</code> values are not stable API and may change for clarity.</li>
+    <li>Core must not store nested heap-owned error causes in the first implementation. Chained errors need a later ADR because ownership rules matter.</li>
+    <li>Expected failures should return <code>TXrtlResult</code>. Exceptions remain reserved for programming errors, compiler/runtime failures, or unrecoverable allocation behavior.</li>
   </ul>
 
   <h2>Non-Responsibilities</h2>
-  <ul>
-    <li>No logging implementation; use Diagnostics.</li>
-    <li>No text encoding helpers; use Text.</li>
-    <li>No file, process, network, or database access.</li>
-  </ul>
+  <table>
+    <thead>
+      <tr>
+        <th>Concern</th>
+        <th>Owner</th>
+        <th>Core Boundary</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Clock, timestamps, durations, timeouts</td>
+        <td><a href="time.html">XRTL.Time</a></td>
+        <td>Core may return result/errors for time functions, but it must not define time primitives.</td>
+      </tr>
+      <tr>
+        <td>Logging, trace ids, redacted diagnostic output</td>
+        <td><a href="diagnostics.html">XRTL.Diagnostics</a></td>
+        <td>Core defines error shape only. Diagnostics decides how failures are emitted.</td>
+      </tr>
+      <tr>
+        <td>UTF-8, escaping, line endings, formatting helpers</td>
+        <td><a href="text.html">XRTL.Text</a></td>
+        <td>Core uses strings but does not own text policy.</td>
+      </tr>
+      <tr>
+        <td>OS, CPU, executable lookup, process execution</td>
+        <td><a href="process.html">XRTL.Process</a></td>
+        <td>Core may expose a capability marker shape, but Process owns detection and execution.</td>
+      </tr>
+      <tr>
+        <td>Paths, streams, files, temporary directories</td>
+        <td><a href="io.html">XRTL.IO</a></td>
+        <td>Core must not own filesystem abstractions.</td>
+      </tr>
+      <tr>
+        <td>Driver-neutral data values and records</td>
+        <td><a href="data.html">XRTL.Data</a></td>
+        <td>Core result/errors can wrap data failures, but data values are not Core primitives.</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <h2>Dependencies</h2>
-  <p>Core must not depend on other XRTL libraries. It may use FPC RTL features only when they are stable across supported platforms.</p>
-
-  <h2>Refactor Check</h2>
-  <p>Any new XRTL library that wants its own status, error, optional value, or capability type must first check whether Core should own it. Duplicating those shapes creates incompatible contracts and should require an ADR.</p>
+  <h2>Implementation Gate</h2>
+  <ol>
+    <li>Review and accept this design through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and the design PR.</li>
+    <li>Confirm whether the first implementation uses flat unit name <code>xrtl_core</code> or validated dotted unit name <code>XRTL.Core</code>.</li>
+    <li>Create a follow-up implementation issue that references the accepted design.</li>
+    <li>Add runtime files only in that follow-up implementation PR.</li>
+  </ol>
 
   <h2>First Tests</h2>
   <ul>
-    <li>Compile smoke for the Core unit.</li>
-    <li>Unit tests for result success/failure, error identity, and optional value behavior.</li>
+    <li>Compile smoke for the Core unit on Windows, macOS Apple Silicon, and Ubuntu.</li>
+    <li>Unit tests for status success/failure helpers.</li>
+    <li>Unit tests for error domain/code/message construction and comparison.</li>
+    <li>Unit tests for optional presence markers.</li>
+    <li>Negative test for invalid or empty error identity values if constructors enforce validation.</li>
+  </ul>
+
+  <h2>Open Review Questions</h2>
+  <ul>
+    <li>Should the first public unit name be flat <code>xrtl_core</code>, or should the project validate and commit to dotted Pascal unit names now?</li>
+    <li>Should generic option/result types be deferred until XRTL.Data or XRTL.Config proves the need?</li>
+    <li>Should Core include capability markers in the first implementation, or wait until Database/HTTP adapter research needs them?</li>
+    <li>Should error messages be plain strings only, or should structured detail fields be added before implementation?</li>
   </ul>
 </body>
 </html>
