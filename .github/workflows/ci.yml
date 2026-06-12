@@ -35,4 +35,7 @@ jobs:
           ./tools/run-xpc.ps1 build
           ./tools/run-xpc.ps1 version
           ./tools/run-xpc.ps1 doctor
+          ./tools/run-xpc.ps1 new sample_app
+          ./tools/run-xpc.ps1 build sample_app
+          ./sample_app/build/sample_app.exe
           ./build/hello_xpc.exe

@@ -165,10 +165,31 @@
   </section>
 
   <section class="entry">
+    <h2>2026-06-12 08:10 ICT - XCLI Project Creation Starts</h2>
+    <p>Started issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/25">#25</a> for XCLI project creation. The first implementation target is <code>xpc new &lt;project_name&gt;</code>, generating a minimal plain-text project with <code>xproject.toml</code>, <code>src/main.pas</code>, and <code>README.md</code>.</p>
+    <p>Added ADR <code>docs/decisions/0004-xcli-project-creation.md</code> to keep project-name rules and generated project build behavior explicit. The WIP was paused before merge so the XRTL architecture planning gate could land first.</p>
+  </section>
+
+  <section class="entry">
     <h2>2026-06-12 08:21 ICT - XRTL Library Planning Gate Starts</h2>
     <p>The XCLI project creation implementation work was intentionally paused and kept local so issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> can define XRTL library boundaries before runtime assumptions spread into generated projects.</p>
     <p>Created branch <code>codex/xrtl-library-plan</code> from current <code>main</code>. The planning pass adds a shared XRTL architecture, test strategy, per-library plan pages, dependency candidate posture, and ADR <code>0005</code>. The goal is to prevent Database, HTTP, Web, Config, Diagnostics, and support libraries from each growing duplicate helpers or incompatible contracts.</p>
     <p>Kept local validation credentials in ignored <code>.secrets/</code>. No hostnames, passwords, host keys, or IP secrets should be copied into tracked documentation.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 08:48 ICT - XCLI Project Creation Validation</h2>
+    <p>Resumed issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/25">#25</a> after PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/30">#30</a> closed the XRTL planning gate. The branch <code>codex/xcli-project-creation</code> adds <code>xpc new &lt;project_name&gt;</code>, project build support, ADR <code>0004</code>, README updates, and CI smoke coverage.</p>
+    <p>Windows validation passed locally: <code>tools/check-toolchain.ps1</code>, <code>tools/run-xpc.ps1 build</code>, <code>version</code>, <code>doctor</code>, <code>hello_xpc</code>, <code>new sample_app</code>, <code>build sample_app</code>, and the generated <code>sample_app</code> executable.</p>
+    <p>Ubuntu 26.04 validation passed in a temporary worktree: FPC install/check, bootstrap build, <code>version</code>, <code>doctor</code>, <code>new sample_app</code>, <code>build sample_app</code>, generated app execution, and <code>hello_xpc</code>. The cleanup command returned nonzero after the successful validation commands because the temporary worktree was no longer registered; a follow-up cleanup removed the directory successfully.</p>
+    <p>macOS Apple Silicon validation was still pending at this point. SSH reached the host once for a short <code>uname</code> check, then later attempts timed out before the full validation could run. No credential or host details were copied into tracked docs.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 09:31 ICT - macOS XCLI Validation Retry</h2>
+    <p>Retried issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/25">#25</a> on the macOS Apple Silicon validation host after SSH became stable again. The host reported <code>Darwin arm64</code>, and the validation ran in a temporary Git worktree from branch <code>codex/xcli-project-creation</code>.</p>
+    <p>The first retry found a real clean-worktree bug: <code>tools/install-fpc.sh</code> wrote <code>.toolchains/current.env</code> without first creating the local <code>.toolchains</code> directory when <code>INSTALL_DIR</code> pointed at a shared toolchain cache. The script now creates that directory before writing the env file.</p>
+    <p>After the fix, macOS validation passed: FPC install/check reported <code>3.3.1</code>, <code>tools/run-xpc.sh build</code> built <code>xpc</code> and <code>hello_xpc</code>, <code>xpc version</code> reported <code>target: macos-aarch64</code>, <code>xpc doctor</code> passed, <code>hello_xpc</code> printed its smoke output, <code>xpc new sample_app</code> created the generated project, <code>tools/run-xpc.sh build sample_app</code> built it, and the generated app printed <code>hello from sample_app</code>.</p>
   </section>
 </body>
 </html>

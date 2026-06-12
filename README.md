@@ -45,6 +45,8 @@ Windows:
 ./tools/run-xpc.ps1 build
 ./tools/run-xpc.ps1 version
 ./tools/run-xpc.ps1 doctor
+./tools/run-xpc.ps1 new sample_app
+./tools/run-xpc.ps1 build sample_app
 ```
 
 macOS / Ubuntu:
@@ -55,6 +57,8 @@ bash ./tools/check-toolchain.sh
 bash ./tools/run-xpc.sh build
 bash ./tools/run-xpc.sh version
 bash ./tools/run-xpc.sh doctor
+bash ./tools/run-xpc.sh new sample_app
+bash ./tools/run-xpc.sh build sample_app
 ```
 
 If your checkout preserved executable bits, you can also run the shell scripts directly as `./tools/*.sh`. If not, either keep using `bash ./tools/<script>.sh` or run:
@@ -64,6 +68,24 @@ chmod +x ./tools/*.sh
 ```
 
 ## Platform Profiles
+
+## XCLI Project Creation
+
+After building the bootstrap CLI, create a minimal project with:
+
+```bash
+# Windows
+./tools/run-xpc.ps1 build
+./tools/run-xpc.ps1 new sample_app
+./tools/run-xpc.ps1 build sample_app
+
+# macOS / Ubuntu
+bash ./tools/run-xpc.sh build
+bash ./tools/run-xpc.sh new sample_app
+bash ./tools/run-xpc.sh build sample_app
+```
+
+The generated project contains `xproject.toml`, `src/main.pas`, and `README.md`.
 
 The bootstrap scripts detect and isolate toolchains by platform:
 

@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $xpc = Join-Path $PSScriptRoot "..\build\xpc.exe"
 
 if ($args.Count -gt 0 -and $args[0] -eq "build") {
-    & (Join-Path $PSScriptRoot "build-xpc.ps1")
+    & (Join-Path $PSScriptRoot "build-xpc.ps1") @($args | Select-Object -Skip 1)
     exit $LASTEXITCODE
 }
 
