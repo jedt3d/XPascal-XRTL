@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Web</h1>
-  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research recommends an independent route/middleware contract; Horse is a design reference and possible future adapter, not the first public API.</p>
+  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/42">#42</a> designs an XPascal-owned middleware and routing contract inspired by Rack and Horse where useful.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -66,6 +66,7 @@
 
   <h2>Wrap Rationale</h2>
   <p>Web should not expose Horse, Brook, or mORMot as the public XPascal contract until the project proves that doing so preserves long-term survival. A wrapper or inspired independent API can keep route/middleware behavior stable while the HTTP provider changes underneath.</p>
+  <p>The first middleware model should credit Rack for the compact middleware pipeline idea and Horse for Pascal web ergonomics, but it should be implemented as an XRTL contract rather than copied from either project.</p>
 
   <h2>Dependencies</h2>
   <p>Web may depend on Core, Diagnostics, Config, Text, IO, Time, and HTTP. Database dependency must be optional and documented by a separate issue.</p>

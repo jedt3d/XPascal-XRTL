@@ -919,7 +919,7 @@ Before any third-party code is copied, vendored, linked, wrapped, or exposed thr
 - rationale for direct use, wrapper use, inspiration-only use, or rejection
 - linked issue, PR, and ADR when the choice affects public behavior
 
-The register lives at `docs/dependencies.html`. Issue #28 records database and web server candidate research, but candidates remain research-only until a later implementation issue accepts a specific adoption decision.
+The register lives at `docs/dependencies.html`. Issue #28 records database and web server candidate research, but candidates remain research-only until a later implementation issue accepts a specific adoption decision. The first concrete slices are intentionally small: local SQLite through SQLDB for `XRTL.Database`, HTTP provider research before any FCL-Web/fphttpserver fork or wrapper, and an XRTL-owned middleware design credited to Rack/Horse-style references.
 
 This keeps the platform practical without turning XRTL into an unreviewed bundle of borrowed code.
 

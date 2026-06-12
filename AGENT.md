@@ -45,8 +45,8 @@
 - Keep this section current as issues close, PRs merge, or platform validation status changes.
 - Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
 - Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
-- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XRTL.Core v0 `#34` via PR `#35`; dependency provenance `#27` via PR `#36`; XCLI/XRTL epic `#24` via PR `#37`; database/web candidate research `#28` closes in the research PR.
-- Current next slice after #28: open implementation issues for `XRTL.Database` v0 over SQLDB, `XRTL.HTTP` v0 over fphttpserver loopback, and then `XRTL.Web` v0 routing/middleware contracts.
+- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XRTL.Core v0 `#34` via PR `#35`; dependency provenance `#27` via PR `#36`; XCLI/XRTL epic `#24` via PR `#37`; database/web candidate research `#28` via PR `#38`; refined next-slice scope is issue `#39`.
+- Current next slices after #39: issue `#40` implements `XRTL.Database` v0 as local SQLite over SQLDB only; issue `#41` researches FCL-Web vs `fphttpserver` and fork/credit strategy; issue `#42` designs provider-neutral `XRTL.Web` middleware inspired by Rack and Horse.
 - Latest completed implementation slice: issue `#34` adds `XRTL.Core` v0 primitives and tests from accepted ADR `0006`.
 - XRTL governance gate: PR `#30` defined XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
 - Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
@@ -93,6 +93,9 @@
 - Prefer active, compatible open source libraries when they are a strong long-term fit.
 - Do not choose dependencies only because they are quick to assemble; future maintainability is the first priority.
 - If wrapping open source, document why a wrapper is needed, what is wrapped, why direct use was not chosen, and what license/NOTICE obligations apply.
+- For `XRTL.Database` v0, keep scope to local SQLite through SQLDB. Network database providers are later validation work.
+- For `XRTL.HTTP`, compare FCL-Web and `fphttpserver` before implementation; if code is forked or modified, preserve upstream credit and document the changed surface.
+- For `XRTL.Web`, design XPascal-owned middleware and routing contracts. Rack and Horse may be credited as design references, but should not become the public API by default.
 - Candidate areas such as database access and web server support require research and provenance notes before implementation.
 - Database and Web candidates remain research-only until license, maintenance, platform validation, testability, and API-shape evidence are recorded.
 

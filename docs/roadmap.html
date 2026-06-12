@@ -68,9 +68,10 @@ gantt
     Dependency provenance (#27, PR #36)           :crit, done, provenance, after xrtl-core-v0, 1d
     XRTL foundation closeout (#24)                :crit, done, xrtl-foundation, after provenance, 1d
     Database and web research (#28)               :done, research, after xrtl-foundation, 1d
-    Define XRTL.Database v0 SQLDB wrapper         :runtime-scope, after research, 1w
-    Define XRTL.HTTP v0 fphttpserver loopback     :http-scope, after research, 1w
-    Define XRTL.Web v0 routing contract           :web-scope, after http-scope, 1w
+    Refine next XRTL slices (#39)                 :done, refine-scope, after research, 1d
+    XRTL.Database local SQLite (#40)              :runtime-scope, after refine-scope, 1w
+    XRTL.HTTP FCL-Web/fphttpserver research (#41) :http-scope, after refine-scope, 1w
+    XRTL.Web middleware design (#42)              :web-scope, after http-scope, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
     Add conformance and smoke coverage            :runtime-tests, after runtime-impl, 2w
 
@@ -90,6 +91,7 @@ gantt
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/33">#33</a>. It defines flat unit name <code>xrtl_core</code>, Core v0 primitives, and release-note-first FPC research evidence.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a>. It added <code>XRTL.Core</code> v0, Core tests, build-script integration, and three-platform validation.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/36">#36</a>. Epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/37">#37</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> records source-backed Database/Web recommendations without adopting third-party code.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/39">#39</a> refines the next slice: <code>XRTL.Database</code> starts local SQLite-only through SQLDB, network databases are deferred, <code>XRTL.HTTP</code> starts with FCL-Web vs <code>fphttpserver</code> research, and <code>XRTL.Web</code> starts with provider-neutral middleware design inspired by Rack/Horse.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -104,18 +106,18 @@ gantt
     <tbody>
       <tr>
         <td>XRTL.Database v0</td>
-        <td>Open an implementation issue for a provider-neutral database API with first SQLDB-backed SQLite and PostgreSQL smoke.</td>
-        <td>After #28 research.</td>
+        <td>Issue #40 implements local SQLite over SQLDB only. PostgreSQL, MySQL/MariaDB, and Firebird move to later service-validation issues.</td>
+        <td>After #39.</td>
       </tr>
       <tr>
         <td>XRTL.HTTP v0</td>
-        <td>Open an implementation issue for request/response/header contracts and fphttpserver loopback smoke.</td>
-        <td>After #28 research.</td>
+        <td>Issue #41 researches FCL-Web vs <code>fphttpserver</code>, chooses the better baseline, and records fork/modification credit rules before implementation.</td>
+        <td>After #39.</td>
       </tr>
       <tr>
         <td>XRTL.Web v0</td>
-        <td>Open a design/implementation issue for routing, middleware order, context, and error mapping, using Horse only as an ergonomic reference.</td>
-        <td>After XRTL.HTTP v0 contract.</td>
+        <td>Issue #42 designs the first middleware and routing contract, inspired by Rack and Horse but owned by XPascal/XRTL.</td>
+        <td>After #41.</td>
       </tr>
     </tbody>
   </table>

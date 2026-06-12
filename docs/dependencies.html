@@ -23,7 +23,7 @@
   <p>This document is an engineering register, not legal advice. Treat every license note as a verification checklist against the exact upstream source, release, and artifact before adoption or redistribution.</p>
 
   <section class="note">
-    <p><strong>Current dependency posture:</strong> XRTL.Core v0 has no third-party runtime dependency. The project uses the pinned FreePascal <code>3.3.1</code> toolchain. Issue #28 recommends first prototypes over FPC SQLDB and FPC fcl-web/fphttpserver wrappers, while ZeosLib, mORMot 2, Horse, Brook, and Indy remain research-only or future adapter candidates.</p>
+    <p><strong>Current dependency posture:</strong> XRTL.Core v0 has no third-party runtime dependency. The project uses the pinned FreePascal <code>3.3.1</code> toolchain. Issue #40 narrows Database v0 to local SQLite through SQLDB only. Issue #41 researches FCL-Web versus <code>fphttpserver</code> before HTTP implementation. Issue #42 designs Web middleware independently while crediting Rack and Horse as references.</p>
   </section>
 
   <h2>Register Rules</h2>
@@ -179,9 +179,9 @@
         <td>FPC SQLDB</td>
         <td><a href="https://www.freepascal.org/docs-html/fcl/sqldb/usingsqldb.html">Free Pascal SQLDB docs</a></td>
         <td>Part of the FPC/FCL ecosystem; FPC states packages and runtime library use a modified Library GPL that permits static linking. Native database client libraries still need per-platform review.</td>
-        <td>Recommended first prototype baseline for <code>XRTL.Database</code> behind an XRTL wrapper.</td>
-        <td><code>research-only</code>; recommended first prototype baseline, not adopted.</td>
-        <td>Future <code>XRTL.Database</code> implementation issue.</td>
+        <td>Recommended first prototype baseline for local SQLite only behind an XRTL wrapper.</td>
+        <td><code>research-only</code>; issue #40 may prototype SQLite over SQLDB, not network databases.</td>
+        <td>Issue #40.</td>
       </tr>
       <tr>
         <td>Database</td>
@@ -206,9 +206,9 @@
         <td>FPC <code>fphttpserver</code></td>
         <td><a href="https://www.freepascal.org/daily/packages/fcl-web/index.html">Free Pascal fcl-web docs</a>, <a href="https://www.freepascal.org/daily/packages/fcl-web/fphttpserver/index.html">fphttpserver docs</a></td>
         <td>Part of the FPC/FCL ecosystem; verify package license from the selected snapshot before redistribution.</td>
-        <td>Recommended first loopback HTTP smoke provider behind <code>XRTL.HTTP</code>.</td>
-        <td><code>research-only</code>; recommended first prototype baseline, not adopted.</td>
-        <td>Future <code>XRTL.HTTP</code> implementation issue.</td>
+        <td>Candidate for issue #41 comparison against the broader FCL-Web package.</td>
+        <td><code>research-only</code>; no code copy/fork until attribution and modification policy are accepted.</td>
+        <td>Issue #41.</td>
       </tr>
       <tr>
         <td>Web</td>
@@ -216,8 +216,8 @@
         <td><a href="https://github.com/HashLoad/horse">GitHub repository</a></td>
         <td>Upstream README states MIT; verify exact license file before adoption.</td>
         <td>Minimal web framework API and FPC/Lazarus signal make it a useful design/reference candidate.</td>
-        <td><code>research-only</code>; design reference and possible future adapter.</td>
-        <td>Future <code>XRTL.Web</code> design or adapter issue.</td>
+        <td><code>inspiration-only</code> for issue #42 unless a later adapter issue changes that status.</td>
+        <td>Issue #42 design reference.</td>
       </tr>
       <tr>
         <td>Web</td>
@@ -277,6 +277,8 @@ Verification commands or reports:</code></pre>
     <li><a href="https://sourceforge.net/projects/zeoslib/">ZeosLib SourceForge project</a></li>
     <li><a href="https://github.com/synopse/mORMot2">mORMot 2 GitHub repository</a></li>
     <li><a href="https://github.com/HashLoad/horse">Horse GitHub repository</a></li>
+    <li><a href="https://github.com/rack/rack">Rack GitHub repository</a></li>
+    <li><a href="https://github.com/rack/rack/blob/main/SPEC.rdoc">Rack specification</a></li>
     <li><a href="https://github.com/risoflora/brookframework">Brook framework GitHub repository</a></li>
     <li><a href="https://github.com/risoflora/brookfreepascal">Brook Free Pascal GitHub repository</a></li>
     <li><a href="https://github.com/IndySockets/Indy">Indy GitHub repository</a></li>
