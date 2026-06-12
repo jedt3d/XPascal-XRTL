@@ -20,7 +20,7 @@
   <ul>
     <li>Windows x86_64: validated</li>
     <li>macOS Apple Silicon aarch64: validated</li>
-    <li>Linux x86_64 / Ubuntu 26.04: validated by Side Chat</li>
+    <li>Linux x86_64 / Ubuntu 26.04: validated</li>
   </ul>
   <p>macOS Intel x86_64 is intentionally not supported.</p>
 
@@ -46,6 +46,9 @@ bash ./tools/run-xpc.sh doctor
     <li>macOS Apple Silicon uses the real compiler <code>ppca64</code>, explicit FPC unit paths, and macOS SDK link flags.</li>
     <li>Linux x86_64 prefers <code>ppcx64</code> before <code>fpc</code> and has a pinned snapshot SHA256.</li>
   </ul>
+
+  <h2>Merged Bootstrap Baseline</h2>
+  <p>PR #8 merged the bootstrap baseline into <code>main</code> after fresh validation on Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. Follow-up issue #9 tracks final Windows/macOS snapshot SHA256 pinning before release packaging.</p>
 
   <h2>What The Scripts Do</h2>
   <ul>

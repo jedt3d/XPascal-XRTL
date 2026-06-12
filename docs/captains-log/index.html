@@ -101,7 +101,7 @@
   <section class="entry">
     <h2>2026-06-12 06:47 ICT - Merge Readiness Review</h2>
     <p>Reviewed GitHub issues #1 through #7. Each issue now has proposal references, scope, non-scope, acceptance criteria, implementation evidence, validation status, and close criteria. Two non-blocking follow-ups were created: <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> for final Windows/macOS FPC artifact checksums before release packaging, and <a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10</a> for copying exact Linux host details into this log.</p>
-    <p>Checked PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>: it is mergeable, has no review threads, and GitHub Actions passed at review time. The PR remains draft and must be marked ready for review before merge. Use the PR checks as the source of truth for the current head.</p>
+    <p>Checked PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>: it was mergeable, had no review threads, and GitHub Actions passed at review time. The next step was to mark the PR ready for review and merge it after the three-platform validation pass.</p>
   </section>
 
   <section class="entry">
@@ -113,6 +113,13 @@
       <li>Ubuntu host <code>ubuntu2604lts</code>: Ubuntu <code>26.04 LTS</code>, Linux kernel <code>7.0.0-22-generic</code>, architecture <code>x86_64</code>, shell <code>/bin/bash</code>. FPC compiler <code>ppcx64</code>, version <code>3.3.1</code>. <code>tools/install-fpc.sh</code>, <code>tools/check-toolchain.sh</code>, <code>tools/build-xpc.sh</code>, <code>tools/run-xpc.sh version</code>, <code>tools/run-xpc.sh doctor</code>, and <code>build/hello_xpc</code> passed. <code>xpc version</code> reported <code>target: linux-x86_64</code> and <code>fpc: 3.3.1</code>.</li>
     </ul>
     <p>The Ubuntu validation satisfies follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> remains open for final Windows/macOS snapshot SHA256 pinning before release packaging.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 07:08-07:10 ICT - Bootstrap PR Merged</h2>
+    <p>Marked PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a> ready for review after the three-platform validation pass and GitHub Actions CI run #13 passed. Merged PR #8 into <code>main</code> with merge commit <code>ae2c39813fce7faee354695a459f6c1563d98e22</code>.</p>
+    <p>GitHub auto-closed issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7</a> as completed from the PR body. Follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10</a> was closed after the Linux host report was committed. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> remains open for Windows/macOS FPC snapshot SHA256 finalization before release packaging.</p>
+    <p>After the merge, the operating rule was promoted into repository instructions: start from a GitHub issue, work on a traceable branch/PR, validate the affected platforms, update documentation and the issue map, then compare the completed work back against the issue acceptance criteria before closing.</p>
   </section>
 </body>
 </html>

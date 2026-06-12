@@ -4,6 +4,8 @@ XPascal is a modern FreePascal-powered application platform for desktop, web, an
 
 The project starts with a CLI-first foundation, pinned FreePascal tooling, CI/CD traceability, and an auditable Codex + GLM collaboration workflow. The long-term direction is documented in [docs/proposal.md](docs/proposal.md).
 
+Bootstrap PR #8 has merged into `main`. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
+
 ## First Slice
 
 The current bootstrap focuses on:
@@ -20,6 +22,10 @@ Validated so far:
 - Windows x86_64
 - macOS Apple Silicon aarch64
 - Linux x86_64 / Ubuntu 26.04 LTS
+
+Open follow-up:
+
+- #9 finalizes Windows/macOS FPC 3.3.1 snapshot SHA256 values before release packaging.
 
 ## Requirements
 
