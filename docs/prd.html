@@ -159,7 +159,7 @@
       <tr>
         <td>XRTL.Database local feature stack</td>
         <td>In progress</td>
-        <td>Issue #47 defines the local-only sequence: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, and ORM. Issues #48 and #50 implement the first two slices: public transactions/parameter binding and detached raw row/field/value mapping. PostgreSQL, MySQL/MariaDB, and Firebird remain out of scope.</td>
+        <td>Issue #47 defines the local-only sequence: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, and ORM. Issues #48, #50, and #52 implement the first three slices: public transactions/parameter binding, detached raw row/field/value mapping, and app dataset iteration over detached rows. PostgreSQL, MySQL/MariaDB, and Firebird remain out of scope.</td>
       </tr>
     </tbody>
   </table>
@@ -169,7 +169,7 @@
     <li>When should <code>xpc build</code> move from launcher-managed build orchestration into the Pascal CLI itself?</li>
     <li>When should <code>XRTL.Core</code> revisit dotted Pascal unit names after flat <code>xrtl_core</code> ships?</li>
     <li>When should <code>XRTL.Core</code> add structured error detail or nested causes, and should that wait for <code>XRTL.Diagnostics</code>?</li>
-    <li>What app dataset abstraction should sit on top of the detached raw <code>XRTL.Database</code> result-set layer?</li>
+    <li>What SQLite provider abstraction should sit under the current concrete <code>TXrtlSqliteDatabase</code> API before migrations begin?</li>
     <li>Which FPC HTTP baseline is more practical to modernize for XRTL: the broader FCL-Web package or the narrower <code>fphttpserver</code> unit/provider?</li>
     <li>What Rack/Horse-inspired middleware shape maps cleanly to Pascal without copying either public API?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>

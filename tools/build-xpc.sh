@@ -56,7 +56,7 @@ if [[ -n "${project_path}" ]]; then
 fi
 
 core_tests=(core_smoke core_result_tests core_option_tests)
-database_tests=(database_smoke database_sqlite_tests database_transaction_tests database_raw_mapping_tests)
+database_tests=(database_smoke database_sqlite_tests database_transaction_tests database_raw_mapping_tests database_dataset_tests)
 rm -f "${repo_root}/build/xpc" "${repo_root}/build/hello_xpc"
 for test_name in "${core_tests[@]}"; do
   rm -f "${repo_root}/build/${test_name}"

@@ -70,7 +70,7 @@ if ($ProjectPath) {
 $buildDir = Join-Path $repoRoot "build"
 $unitBuildDir = Join-Path $buildDir "units"
 $coreTests = @("core_smoke", "core_result_tests", "core_option_tests")
-$databaseTests = @("database_smoke", "database_sqlite_tests", "database_transaction_tests", "database_raw_mapping_tests")
+$databaseTests = @("database_smoke", "database_sqlite_tests", "database_transaction_tests", "database_raw_mapping_tests", "database_dataset_tests")
 
 New-Item -ItemType Directory -Force $buildDir, $unitBuildDir | Out-Null
 Remove-Item -Force (Join-Path $buildDir "xpc"), (Join-Path $buildDir "xpc.exe"), (Join-Path $buildDir "hello_xpc"), (Join-Path $buildDir "hello_xpc.exe") -ErrorAction SilentlyContinue

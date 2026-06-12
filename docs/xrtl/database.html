@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> adds detached raw row/field/value mapping. Network databases remain out of scope.</p>
+  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> adds detached raw row/field/value mapping. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> adds a small app dataset abstraction over detached rows. Network databases remain out of scope.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -29,15 +29,16 @@
     <li>Public transaction control for local SQLite.</li>
     <li>Text, int64, and null parameter binding without exposing SQLDB parameter types.</li>
     <li>Detached raw result-set snapshots for local SQLite queries.</li>
+    <li>App-facing cursor-style dataset iteration over detached raw results.</li>
     <li>Error results through <code>XRTL.Core</code> result/error contracts.</li>
     <li>Future migration/query helper surface only after a separate issue defines it.</li>
   </ul>
 
   <h2>Non-Responsibilities</h2>
   <ul>
-    <li>No app-level dataset abstraction yet; raw mapping is a detached result snapshot only.</li>
+    <li>No editable, observable, UI-bound, or SQLDB-backed dataset behavior.</li>
     <li>No web request lifecycle or route handling.</li>
-    <li>No migration, query builder, or ORM behavior in the raw mapping slice.</li>
+    <li>No provider abstraction, migration, query builder, or ORM behavior in the dataset slice.</li>
     <li>No PostgreSQL, MySQL/MariaDB, Firebird, or other network database adapters in v0.</li>
   </ul>
 
@@ -86,6 +87,14 @@
         <td><code>TXrtlSqliteDatabase.QueryRows</code></td>
         <td>Runs a select query and fills a caller-owned detached result set. Parameterized and non-parameterized overloads are available.</td>
       </tr>
+      <tr>
+        <td><code>TXrtlSqliteDataSet</code></td>
+        <td>Small app-facing cursor abstraction over detached raw rows. Supports active state, record/field counts, <code>First</code>, <code>Next</code>, <code>Eof</code>, <code>CurrentRow</code>, and <code>ValueByName</code>.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlSqliteDatabase.QueryDataSet</code></td>
+        <td>Runs a select query and loads a caller-owned detached dataset. Parameterized and non-parameterized overloads are available.</td>
+      </tr>
     </tbody>
   </table>
 
@@ -94,8 +103,8 @@
     <li><strong>Complete:</strong> local SQLite foundation through SQLDB.</li>
     <li><strong>Complete in issue #48:</strong> public transaction API and parameter binding.</li>
     <li><strong>Complete in issue #50:</strong> raw row/field/value mapping data.</li>
-    <li><strong>Next:</strong> app dataset abstraction.</li>
-    <li><strong>Later:</strong> SQLite provider abstraction.</li>
+    <li><strong>Complete in issue #52:</strong> app dataset abstraction.</li>
+    <li><strong>Next:</strong> SQLite provider abstraction.</li>
     <li><strong>Later:</strong> migrations.</li>
     <li><strong>Later:</strong> query builder.</li>
     <li><strong>Last:</strong> ORM after lower layers are stable.</li>
@@ -141,6 +150,7 @@
     <li><code>database_sqlite_tests</code> creates a local SQLite file, creates a table, inserts rows, queries a count, and verifies error paths.</li>
     <li><code>database_transaction_tests</code> verifies public transaction state, commit, rollback, text/int64/null binding, parameter reuse, and binding failures.</li>
     <li><code>database_raw_mapping_tests</code> verifies detached result sets, row/field lookup, text/int64/null values, parameterized raw queries, and lookup failure codes.</li>
+    <li><code>database_dataset_tests</code> verifies detached dataset state, navigation, current value lookup, empty result behavior, raw result loading, and dataset failure codes.</li>
     <li>No PostgreSQL, Firebird, MySQL, or MariaDB tests in v0.</li>
     <li>Network adapters require later issues with service setup, native client libraries, and credentials documented outside tracked files.</li>
   </ul>

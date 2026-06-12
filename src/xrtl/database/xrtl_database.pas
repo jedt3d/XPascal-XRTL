@@ -79,6 +79,29 @@ type
     property Rows[const AIndex: Integer]: TXrtlSqliteRow read GetRow; default;
   end;
 
+  TXrtlSqliteDataSet = class
+  private
+    FRows: TXrtlSqliteResultSet;
+    FCurrentIndex: Integer;
+    FActive: Boolean;
+    function GetRecordCount: Integer;
+    function GetFieldCount: Integer;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear;
+    function LoadFromResultSet(const ASource: TXrtlSqliteResultSet): TXrtlResult;
+    function First: TXrtlResult;
+    function Next: TXrtlResult;
+    function Eof: Boolean;
+    function CurrentRow(out ARow: TXrtlSqliteRow): TXrtlResult;
+    function ValueByName(const AName: string; out AValue: TXrtlSqliteValue): TXrtlResult;
+    property Active: Boolean read FActive;
+    property CurrentIndex: Integer read FCurrentIndex;
+    property RecordCount: Integer read GetRecordCount;
+    property FieldCount: Integer read GetFieldCount;
+  end;
+
   TXrtlSqliteParameterKind = (xspNull, xspText, xspInt64);
 
   TXrtlSqliteParameter = record
@@ -151,6 +174,8 @@ type
     function QueryInt64(const ASql: string; const AParams: TXrtlSqliteParameters; out AValue: Int64): TXrtlResult; overload;
     function QueryRows(const ASql: string; ARows: TXrtlSqliteResultSet): TXrtlResult; overload;
     function QueryRows(const ASql: string; const AParams: TXrtlSqliteParameters; ARows: TXrtlSqliteResultSet): TXrtlResult; overload;
+    function QueryDataSet(const ASql: string; ADataSet: TXrtlSqliteDataSet): TXrtlResult; overload;
+    function QueryDataSet(const ASql: string; const AParams: TXrtlSqliteParameters; ADataSet: TXrtlSqliteDataSet): TXrtlResult; overload;
     property DatabasePath: string read FDatabasePath;
     property IsOpen: Boolean read FIsOpen;
   end;
@@ -349,6 +374,167 @@ begin
 
   ARow := FRows[AIndex];
   Result := TXrtlResult.Ok;
+end;
+
+constructor TXrtlSqliteDataSet.Create;
+begin
+  inherited Create;
+  FRows := TXrtlSqliteResultSet.Create;
+  FCurrentIndex := -1;
+  FActive := False;
+end;
+
+destructor TXrtlSqliteDataSet.Destroy;
+begin
+  FRows.Free;
+  inherited Destroy;
+end;
+
+function TXrtlSqliteDataSet.GetRecordCount: Integer;
+begin
+  Result := FRows.RowCount;
+end;
+
+function TXrtlSqliteDataSet.GetFieldCount: Integer;
+begin
+  Result := FRows.ColumnCount;
+end;
+
+procedure TXrtlSqliteDataSet.Clear;
+begin
+  FRows.Clear;
+  FCurrentIndex := -1;
+  FActive := False;
+end;
+
+function TXrtlSqliteDataSet.LoadFromResultSet(const ASource: TXrtlSqliteResultSet): TXrtlResult;
+var
+  I: Integer;
+  J: Integer;
+  ColumnName: string;
+  SourceRow: TXrtlSqliteRow;
+  TargetRow: TXrtlSqliteRow;
+  Field: TXrtlSqliteField;
+begin
+  Clear;
+  if not Assigned(ASource) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_result_set',
+      'SQLite result set source must not be nil'));
+
+  try
+    for I := 0 to ASource.ColumnCount - 1 do
+    begin
+      Result := ASource.ColumnByIndex(I, ColumnName);
+      if Result.Failed then
+      begin
+        Clear;
+        Exit;
+      end;
+      FRows.AddColumn(ColumnName);
+    end;
+
+    for I := 0 to ASource.RowCount - 1 do
+    begin
+      Result := ASource.RowByIndex(I, SourceRow);
+      if Result.Failed then
+      begin
+        Clear;
+        Exit;
+      end;
+
+      TargetRow := FRows.AddRow;
+      for J := 0 to SourceRow.FieldCount - 1 do
+      begin
+        Result := SourceRow.FieldByIndex(J, Field);
+        if Result.Failed then
+        begin
+          Clear;
+          Exit;
+        end;
+        TargetRow.AddField(Field);
+      end;
+    end;
+
+    FActive := True;
+    if FRows.RowCount > 0 then
+      FCurrentIndex := 0
+    else
+      FCurrentIndex := -1;
+    Result := TXrtlResult.Ok;
+  except
+    on E: Exception do
+    begin
+      Clear;
+      Result := TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'dataset_load_failed',
+        E.Message);
+    end;
+  end;
+end;
+
+function TXrtlSqliteDataSet.First: TXrtlResult;
+begin
+  if not FActive then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'dataset_not_active',
+      'SQLite dataset is not active'));
+
+  if FRows.RowCount > 0 then
+    FCurrentIndex := 0
+  else
+    FCurrentIndex := -1;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlSqliteDataSet.Next: TXrtlResult;
+begin
+  if not FActive then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'dataset_not_active',
+      'SQLite dataset is not active'));
+
+  if FRows.RowCount = 0 then
+    FCurrentIndex := -1
+  else if FCurrentIndex < FRows.RowCount then
+    Inc(FCurrentIndex);
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlSqliteDataSet.Eof: Boolean;
+begin
+  Result := (not FActive) or (FCurrentIndex < 0) or (FCurrentIndex >= FRows.RowCount);
+end;
+
+function TXrtlSqliteDataSet.CurrentRow(out ARow: TXrtlSqliteRow): TXrtlResult;
+begin
+  if not FActive then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'dataset_not_active',
+      'SQLite dataset is not active'));
+  if Eof then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'no_current_row',
+      'SQLite dataset has no current row'));
+
+  Result := FRows.RowByIndex(FCurrentIndex, ARow);
+end;
+
+function TXrtlSqliteDataSet.ValueByName(const AName: string; out AValue: TXrtlSqliteValue): TXrtlResult;
+var
+  Row: TXrtlSqliteRow;
+begin
+  Result := CurrentRow(Row);
+  if Result.Failed then
+    Exit;
+
+  Result := Row.ValueByName(AName, AValue);
 end;
 
 class function TXrtlSqliteParameter.Text(const AName, AValue: string): TXrtlSqliteParameter;
@@ -866,6 +1052,33 @@ begin
     end;
   finally
     Query.Free;
+  end;
+end;
+
+function TXrtlSqliteDatabase.QueryDataSet(const ASql: string; ADataSet: TXrtlSqliteDataSet): TXrtlResult;
+begin
+  Result := QueryDataSet(ASql, nil, ADataSet);
+end;
+
+function TXrtlSqliteDatabase.QueryDataSet(const ASql: string; const AParams: TXrtlSqliteParameters; ADataSet: TXrtlSqliteDataSet): TXrtlResult;
+var
+  Rows: TXrtlSqliteResultSet;
+begin
+  if not Assigned(ADataSet) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_dataset',
+      'SQLite dataset target must not be nil'));
+
+  Rows := TXrtlSqliteResultSet.Create;
+  try
+    Result := QueryRows(ASql, AParams, Rows);
+    if Result.Failed then
+      Exit;
+
+    Result := ADataSet.LoadFromResultSet(Rows);
+  finally
+    Rows.Free;
   end;
 end;
 
