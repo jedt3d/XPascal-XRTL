@@ -11,7 +11,9 @@
 ## Source Of Truth
 
 - Product direction: `docs/proposal.md`
+- Product requirements: `docs/prd.html`
 - Architecture decisions: `docs/decisions/`
+- ADR guide: `docs/adr.html`
 - Toolchain lock: `toolchains/fpc-3.3.1.lock`
 - Agent harness: `docs/agent-harness.html`
 - Codex + GLM task packets and reviews: `ai/`
@@ -28,6 +30,8 @@
 7. Before marking a PR ready, compare the work back against the linked issue acceptance criteria and validation plan.
 8. Record GLM suggestions and Codex review decisions when GLM contributes.
 9. Revisit this file whenever an issue is closed or project status changes, and update the project progress notes below.
+10. Update the PRD when product scope, user workflow, public CLI behavior, platform support, or milestone priority changes.
+11. Create or update ADRs when architecture, toolchain policy, runtime API shape, supported platforms, or repository governance changes.
 
 ## Project Progress
 
@@ -54,6 +58,15 @@
 - Sync local `main` with `origin/main` after merge.
 - Update Captain's Log when the merge changes project state, validation state, or operating rules.
 - Update the Project Progress section in this file whenever the merge closes an issue or changes roadmap status.
+- Update the PRD and ADR guide/records when the issue changes product requirements or architecture decisions.
+
+## PRD And ADR Cadence
+
+- Treat `docs/prd.html` as the living product requirements document for current scope, users, milestones, and open product questions.
+- Treat `docs/adr.html` and `docs/decisions/` as the architecture decision system.
+- Before implementation, check whether the linked issue changes PRD requirements or requires an ADR.
+- During closeout, update PRD/ADR docs in the same PR as the relevant implementation when the change affects product or architecture direction.
+- Keep proposal updates for broad vision changes; keep PRD updates for current requirements; keep ADRs for durable technical decisions.
 
 ## Issue Discipline
 

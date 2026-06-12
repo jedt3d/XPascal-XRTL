@@ -104,6 +104,8 @@ Project documentation starts as static HTML:
 - [Captain's Log](docs/captains-log/index.html)
 - [Agent Harness](docs/agent-harness.html)
 - [Roadmap Gantt](docs/roadmap.html)
+- [Product Requirements](docs/prd.html)
+- [Architecture Decisions](docs/adr.html)
 - [Issue Map](docs/issues/index.html)
 - [Developer Docs EN](docs/en/index.html)
 - [Developer Docs TH](docs/th/index.html)

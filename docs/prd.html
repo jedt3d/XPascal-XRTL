@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product Requirements - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">Documentation Home</a></p>
+  <h1>Product Requirements Document</h1>
+  <p>This is the living PRD for the XPascal/XRTL bootstrap era. It translates the broader proposal into current product requirements, acceptance expectations, and open product questions.</p>
+
+  <h2>Document Cadence</h2>
+  <ul>
+    <li>Update this PRD when an issue changes product scope, user workflow, public CLI behavior, platform support, or milestone priority.</li>
+    <li>Review this PRD before opening a feature PR that changes user-facing behavior.</li>
+    <li>Link relevant GitHub issues and PRs when a requirement is implemented, deferred, or removed.</li>
+    <li>Keep architectural rationale in ADRs; keep product intent and acceptance criteria here.</li>
+  </ul>
+
+  <h2>Current Product Goal</h2>
+  <p>Build a FreePascal-powered, CLI-first application platform with traceable tooling, repeatable bootstrap scripts, and a path toward cross-platform desktop, web, and server development.</p>
+
+  <h2>Primary Users</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Need</th>
+        <th>Current Requirement</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Project maintainer</td>
+        <td>Traceable progress across issues, PRs, CI, and docs.</td>
+        <td>Every non-trivial change starts from a GitHub issue and updates the issue map, Captain's Log, PRD, or ADRs when relevant.</td>
+      </tr>
+      <tr>
+        <td>Platform contributor</td>
+        <td>Reliable bootstrap on supported operating systems.</td>
+        <td>Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64 are the initial supported targets.</td>
+      </tr>
+      <tr>
+        <td>Pascal developer</td>
+        <td>A predictable CLI and toolchain foundation.</td>
+        <td><code>xpc version</code> and <code>xpc doctor</code> must report platform and FPC state clearly and fail loudly when FPC is missing or not <code>3.3.1</code>.</td>
+      </tr>
+      <tr>
+        <td>AI coding agent</td>
+        <td>Plain-text source of truth and repeatable checks.</td>
+        <td>Docs, scripts, lock files, and tests must be reviewable and runnable without hidden IDE state.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>In Scope Now</h2>
+  <ul>
+    <li>Pinned FreePascal <code>3.3.1</code> bootstrap tooling.</li>
+    <li><code>xpc</code> CLI skeleton with <code>version</code> and <code>doctor</code>.</li>
+    <li>Manual validation scripts for Windows, macOS Apple Silicon, and Ubuntu 26.04.</li>
+    <li>Windows CI as the first hosted automation path.</li>
+    <li>Issue-first project management with PR closeout evidence.</li>
+    <li>Captain's Log, issue map, roadmap, PRD, and ADR documentation cadence.</li>
+  </ul>
+
+  <h2>Out Of Scope Now</h2>
+  <ul>
+    <li>macOS Intel support.</li>
+    <li>IDE-dependent workflows.</li>
+    <li>Delphi/Lazarus framework compatibility.</li>
+    <li>Runtime API surface beyond the first CLI/toolchain foundation.</li>
+    <li>Automated GLM integration beyond file-based/manual review exchange.</li>
+  </ul>
+
+  <h2>Milestones</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Milestone</th>
+        <th>Status</th>
+        <th>Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Bootstrap foundation</td>
+        <td>Complete</td>
+        <td>Issues #1-#7, PR #8.</td>
+      </tr>
+      <tr>
+        <td>Post-merge workflow and checksums</td>
+        <td>Complete</td>
+        <td>Issues #9, #11, #14; PRs #12, #13, #15.</td>
+      </tr>
+      <tr>
+        <td>Roadmap and documentation harness</td>
+        <td>In progress</td>
+        <td>Issues #16 and #18.</td>
+      </tr>
+      <tr>
+        <td>Next platform validation evidence refresh</td>
+        <td>Planned</td>
+        <td>Create follow-up issues from <a href="./roadmap.html">Roadmap Gantt</a>.</td>
+      </tr>
+      <tr>
+        <td>First XRTL runtime surface</td>
+        <td>Planned</td>
+        <td>Requires a scoped issue and ADR before implementation.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Open Product Questions</h2>
+  <ul>
+    <li>Which <code>xpc</code> command should come after <code>version</code> and <code>doctor</code>: project creation, build orchestration, or test orchestration?</li>
+    <li>What is the first runtime unit/API that gives the project useful forward motion without overcommitting the framework shape?</li>
+    <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>
+    <li>When should GLM move from file-based manual exchange to automation?</li>
+  </ul>
+</body>
+</html>
