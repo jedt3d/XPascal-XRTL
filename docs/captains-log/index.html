@@ -240,5 +240,11 @@
     <p>After PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/37">#37</a> merged and closed issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a>, started issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> on branch <code>codex/xrtl-db-web-candidate-research</code>. The research adds a source-backed document for database, HTTP, and web candidates without adopting third-party code.</p>
     <p>The recommended next direction is conservative: prototype <code>XRTL.Database</code> over FPC <code>SQLDB</code>, prototype <code>XRTL.HTTP</code> over FPC <code>fcl-web</code>/<code>fphttpserver</code>, and keep <code>XRTL.Web</code> route/middleware contracts provider-neutral. ZeosLib, mORMot 2, Horse, Brook, and Indy remain deferred candidates or design references until implementation-specific proof exists.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 10:59 ICT - XRTL Next Slice Narrowed</h2>
+    <p>The user refined the next phase after issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a>: <code>XRTL.Database</code> should start with local SQLite only through SQLDB, while PostgreSQL, MySQL/MariaDB, Firebird, and other network databases move to later validation.</p>
+    <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/39">#39</a> for documentation sync, issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> for local SQLite Database v0, issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/41">#41</a> for FCL-Web versus <code>fphttpserver</code> research and fork/credit strategy, and issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/42">#42</a> for Rack/Horse-inspired middleware design owned by XRTL.</p>
+  </section>
 </body>
 </html>

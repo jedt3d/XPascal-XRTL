@@ -144,7 +144,12 @@
       <tr>
         <td>XRTL database and web candidate research</td>
         <td>Complete</td>
-        <td>Issue #28 records source-backed recommendations: start XRTL.Database with an XRTL-owned SQLDB-backed prototype, start XRTL.HTTP with an fphttpserver loopback provider, keep XRTL.Web provider-neutral, and defer ZeosLib, mORMot 2, Horse, Brook, and Indy adoption until implementation-specific proof exists.</td>
+        <td>Issue #28 records source-backed candidate research. Issue #39 narrows the actual next work to local SQLite over SQLDB, HTTP baseline research before implementation, and provider-neutral Web middleware design.</td>
+      </tr>
+      <tr>
+        <td>Refined XRTL next-slice scope</td>
+        <td>Complete</td>
+        <td>Issue #39 narrows the next phase: issue #40 is local SQLite only through SQLDB; issue #41 researches FCL-Web versus <code>fphttpserver</code> and fork/credit strategy; issue #42 designs XPascal-owned middleware inspired by Rack and Horse. Network database validation is deferred.</td>
       </tr>
     </tbody>
   </table>
@@ -154,9 +159,9 @@
     <li>When should <code>xpc build</code> move from launcher-managed build orchestration into the Pascal CLI itself?</li>
     <li>When should <code>XRTL.Core</code> revisit dotted Pascal unit names after flat <code>xrtl_core</code> ships?</li>
     <li>When should <code>XRTL.Core</code> add structured error detail or nested causes, and should that wait for <code>XRTL.Diagnostics</code>?</li>
-    <li>What is the smallest <code>XRTL.Database</code> v0 API that can wrap SQLDB without exposing <code>TDataset</code> as the XPascal public contract?</li>
-    <li>What loopback HTTP behavior must be proven before <code>XRTL.Web</code> route and middleware contracts start?</li>
-    <li>When should Horse move from design reference to adapter prototype, if ever?</li>
+    <li>What is the smallest <code>XRTL.Database</code> v0 API that can wrap SQLDB/SQLite without exposing <code>TDataset</code> as the XPascal public contract?</li>
+    <li>Which FPC HTTP baseline is more practical to modernize for XRTL: the broader FCL-Web package or the narrower <code>fphttpserver</code> unit/provider?</li>
+    <li>What Rack/Horse-inspired middleware shape maps cleanly to Pascal without copying either public API?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>
     <li>When should GLM move from file-based manual exchange to automation?</li>
   </ul>

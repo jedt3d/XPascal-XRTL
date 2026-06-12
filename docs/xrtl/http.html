@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.HTTP</h1>
-  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research recommends XRTL-owned HTTP contracts with a first loopback provider over FPC <code>fcl-web</code>/<code>fphttpserver</code>.</p>
+  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/41">#41</a> researches FCL-Web versus <code>fphttpserver</code>, then defines whether XRTL should wrap, fork/modify, or use the chosen baseline as source/design reference.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -48,8 +48,8 @@
     <tbody>
       <tr>
         <td>FPC <code>fphttpserver</code></td>
-        <td>Recommended first loopback provider behind XRTL.HTTP.</td>
-        <td>Part of the FPC ecosystem and practical for a first self-hosted server smoke, while keeping the public API provider-neutral.</td>
+        <td>Primary provider candidate to compare against the broader FCL-Web package.</td>
+        <td>Part of the FPC ecosystem and practical for a first self-hosted server smoke, but issue #41 must decide whether it is modern enough to wrap or fork/modify.</td>
       </tr>
       <tr>
         <td>mORMot 2</td>
@@ -66,6 +66,7 @@
 
   <h2>Wrap Rationale</h2>
   <p>HTTP should wrap provider-specific servers because Web and CLI tests need one stable request/response contract. Directly exposing a provider would couple XPascal applications to provider-specific lifecycle and platform behavior too early.</p>
+  <p>If the selected FPC HTTP baseline is forked or modified, XRTL must preserve upstream copyright/license notices, document the source revision, describe every XPascal-specific enhancement, and credit Free Pascal/FCL as the origin.</p>
 
   <h2>Dependencies</h2>
   <p>HTTP may depend on Core, Diagnostics, Config, Text, IO, Process, and Time. It must not depend on Database or Web.</p>

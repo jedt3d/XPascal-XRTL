@@ -94,17 +94,17 @@
       <tr>
         <td><a href="database.html">XRTL.Database</a></td>
         <td>SQL connection, transaction, adapter, and driver capability boundaries.</td>
-        <td>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> recommends a provider-neutral XRTL API with first prototype over FPC SQLDB; no backend is adopted yet.</td>
+        <td>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> starts local SQLite over SQLDB only. Network databases are deferred.</td>
       </tr>
       <tr>
         <td><a href="http.html">XRTL.HTTP</a></td>
         <td>HTTP request/response, headers, status codes, server/client transport contracts.</td>
-        <td>Issue #28 recommends XRTL-owned HTTP contracts with first loopback provider over FPC fcl-web/fphttpserver; platform smoke belongs to the implementation issue.</td>
+        <td>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/41">#41</a> compares FCL-Web and <code>fphttpserver</code>, including fork/modification credit strategy.</td>
       </tr>
       <tr>
         <td><a href="web.html">XRTL.Web</a></td>
         <td>Routes, middleware, request context, and application web composition.</td>
-        <td>Requires HTTP contracts; database usage must be optional and explicit.</td>
+        <td>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/42">#42</a> designs provider-neutral middleware and routing inspired by Rack/Horse; database usage remains optional and explicit.</td>
       </tr>
     </tbody>
   </table>

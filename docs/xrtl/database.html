@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research recommends an XRTL-owned API with a first prototype adapter over FPC <code>SQLDB</code>.</p>
+  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> is the first implementation slice and is limited to local SQLite through FPC <code>SQLDB</code>.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -49,7 +49,7 @@
       <tr>
         <td>FPC SQLDB</td>
         <td>Recommended first prototype backend behind an XRTL wrapper.</td>
-        <td>Built into the FPC ecosystem, provides a uniform SQL access layer, and includes SQLite, PostgreSQL, MySQL, and Firebird/InterBase connection units in upstream docs.</td>
+        <td>Built into the FPC ecosystem and provides a uniform SQL access layer. For v0, use only the SQLite path.</td>
       </tr>
       <tr>
         <td>ZeosLib</td>
@@ -75,8 +75,8 @@
     <li>Driver-neutral connection config validation tests.</li>
     <li>Data contract mapping tests without a live service.</li>
     <li>SQLite local adapter smoke first through SQLDB.</li>
-    <li>PostgreSQL network smoke second.</li>
-    <li>Firebird and MySQL/MariaDB adapter tests only after service setup, native client libraries, and credentials are documented outside tracked files.</li>
+    <li>No PostgreSQL, Firebird, MySQL, or MariaDB tests in v0.</li>
+    <li>Network adapters require later issues with service setup, native client libraries, and credentials documented outside tracked files.</li>
   </ul>
 </body>
 </html>
