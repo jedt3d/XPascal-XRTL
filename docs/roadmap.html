@@ -63,8 +63,8 @@ gantt
     Expand CI compiler-version enforcement        :ci, after scripts, 3d
 
     section XRTL Runtime
-    XRTL.Core design (#32, PR #33)                :crit, active, core-design, after xcli, 1d
-    XRTL.Core v0 implementation                   :crit, xrtl-core-v0, after core-design, 1w
+    XRTL.Core design (#32, PR #33)                :crit, done, core-design, after xcli, 1d
+    XRTL.Core v0 implementation (#34)             :crit, active, xrtl-core-v0, after core-design, 1w
     XRTL foundation implementation (#24)          :crit, xrtl-foundation, after xrtl-core-v0, 1w
     Dependency provenance (#27)                   :crit, provenance, after xrtlplan, 1w
     Database and web research (#28)               :research, after provenance, 1w
@@ -85,8 +85,8 @@ gantt
     <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> and PRD/ADR cadence issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/18">#18</a> are complete.</li>
     <li>Windows, macOS Apple Silicon, and Ubuntu bootstrap validation evidence exists from the bootstrap and checksum closeout passes. The next CLI v0 PR should refresh affected validation logs instead of reopening a standalone platform gate.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/30">#30</a>. It defines the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy before runtime implementation grows.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> is the accepted design gate for <code>XRTL.Core</code>. It defines flat unit name <code>xrtl_core</code>, Core v0 primitives, and release-note-first FPC research evidence.</li>
-    <li>Runtime implementation should happen in a follow-up issue and PR that reference accepted ADR <code>0006</code> and refresh Windows, macOS Apple Silicon, Ubuntu 26.04, and CI validation.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/33">#33</a>. It defines flat unit name <code>xrtl_core</code>, Core v0 primitives, and release-note-first FPC research evidence.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is the active implementation slice for <code>XRTL.Core</code> v0 and must refresh Windows, macOS Apple Silicon, Ubuntu 26.04, and CI validation before merge.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -127,7 +127,7 @@ gantt
       <tr>
         <td>First XRTL runtime surface</td>
         <td>Implement <code>XRTL.Core</code> v0 primitives and tests from the accepted design.</td>
-        <td>Follow-up implementation issue after #32 / ADR #0006.</td>
+        <td>Issue #34 after #32 / ADR #0006.</td>
       </tr>
     </tbody>
   </table>
