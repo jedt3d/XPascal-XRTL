@@ -80,7 +80,7 @@
       </tr>
       <tr>
         <td>Database</td>
-        <td>Local SQLite smoke first through SQLDB: <code>database_smoke</code>, <code>database_sqlite_tests</code>, <code>database_transaction_tests</code>, <code>database_raw_mapping_tests</code>, <code>database_dataset_tests</code>, <code>database_provider_tests</code>, <code>database_migration_tests</code>, <code>database_query_builder_tests</code>, and <code>database_orm_tests</code>. PostgreSQL, MySQL, Firebird, and other service-backed adapters wait for explicit service setup issues.</td>
+        <td>Local SQLite smoke first through SQLDB: <code>database_smoke</code>, <code>database_sqlite_tests</code>, <code>database_transaction_tests</code>, <code>database_raw_mapping_tests</code>, <code>database_dataset_tests</code>, <code>database_provider_tests</code>, <code>database_migration_tests</code>, <code>database_query_builder_tests</code>, and <code>database_orm_tests</code>. ORM V1 follow-ups should add CRUD mapper, repository, session identity-map/cache invalidation, and attachment metadata tests without loading file bytes through ORM. PostgreSQL, MySQL, Firebird, and other service-backed adapters wait for explicit service setup issues.</td>
       </tr>
       <tr>
         <td>HTTP</td>
@@ -114,6 +114,14 @@ bash ./tools/run-xpc.sh doctor</code></pre>
     <li>Adapter tests must skip with a clear message when no service configuration is provided.</li>
     <li>Credentials, hostnames, and service passwords stay in local ignored files or CI secrets, never in tracked docs.</li>
     <li>Each adapter test must publish the tested backend version in PR evidence.</li>
+  </ul>
+
+  <h2>ORM Cache And Attachment Test Policy</h2>
+  <ul>
+    <li>Every ORM cache must have tests that name its scope and invalidation rule.</li>
+    <li>Schema and generated SQL caches should be deterministic and safe to reuse across calls.</li>
+    <li>Session identity-map tests must cover cache hit, update eviction, delete eviction, rollback clear, and close clear behavior.</li>
+    <li>Attachment tests must separate storage descriptors from ORM metadata and prove that ORM does not read, write, or cache raw file bytes.</li>
   </ul>
 
   <h2>Definition Of Done For A Library PR</h2>

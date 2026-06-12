@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL.Database ORM V1 Specification</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1120px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+    .note { border-left: 4px solid #0969da; padding-left: 1rem; }
+    .warn { border-left: 4px solid #bf8700; padding-left: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">XRTL Home</a> | <a href="database.html">XRTL.Database</a> | <a href="../issues/">Issue Map</a></p>
+  <h1>XRTL.Database ORM V1 Specification</h1>
+  <p><strong>Status:</strong> proposed implementation specification for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a>. This document turns the completed ORM mapping primitives from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> into a staged ORM V1 plan.</p>
+
+  <section class="note">
+    <p><strong>Product pitch:</strong> XRTL ORM should give Pascal developers the business-app productivity they expect from classic data-aware tooling, but with a clean modern shape: explicit mappings, predictable SQLite persistence, testable sessions, simple repositories, and enough caching to make common CRUD screens feel fast without hiding state behind framework magic.</p>
+  </section>
+
+  <h2>Executive Summary</h2>
+  <p>ORM V1 should stay local-first and SQLite-only while becoming complete enough to power real application screens: create, read, update, delete, migrations, repositories, transaction-scoped sessions, identity-map caching, metadata-backed attachments, and a future bridge into XRTL.Data / MVVM data sources.</p>
+  <p>The design benchmark is SQLModel plus SQLAlchemy: SQLModel is the approachable application-facing model used in FastAPI documentation, while SQLAlchemy provides the deeper architectural split between Core, ORM, Session, Unit of Work, and Identity Map. XRTL should learn from those ideas without copying Python APIs or source code. ZeosLib remains a Pascal provider/component reference, not the ORM benchmark.</p>
+
+  <h2>Decisions For V1</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Decision</th>
+        <th>V1 Position</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Database scope</td>
+        <td>SQLite only, through the existing SQLDB-backed XRTL provider facade. PostgreSQL, MySQL/MariaDB, Firebird, and other network databases stay out of scope.</td>
+      </tr>
+      <tr>
+        <td>Architecture style</td>
+        <td>Data Mapper plus Repository and Session/Unit of Work. Do not implement Active Record as the primary public model.</td>
+      </tr>
+      <tr>
+        <td>API posture</td>
+        <td>Explicit, Pascal-native, testable, and small. Prefer boring calls that are easy to debug over clever reflection-heavy behavior.</td>
+      </tr>
+      <tr>
+        <td>Mapping strategy</td>
+        <td>Start with explicit schema/field mappings. Reflection, attributes, code generation, and schema introspection are later conveniences, not V1 foundations.</td>
+      </tr>
+      <tr>
+        <td>Caching</td>
+        <td>Use 80/20 caching first: schema cache, generated SQL cache, and session identity map. Avoid global query result caching in V1.</td>
+      </tr>
+      <tr>
+        <td>Attachments</td>
+        <td>File upload/storage is a separate layer. ORM stores metadata and relationships only; it must not own raw file bytes or upload transport.</td>
+      </tr>
+      <tr>
+        <td>External code</td>
+        <td>Clean-room implementation. External projects may be credited as design references after provenance review, but no source, API text, or docs are copied into XRTL.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Goals</h2>
+  <ul>
+    <li>Support the common local SQLite business-app lifecycle: create tables through migrations, insert records, find by id, query lists, update records, delete records, and wrap changes in a transaction.</li>
+    <li>Make ORM usage feel coherent with the existing XRTL.Database stack: provider facade, migrations, SELECT builder, raw mapping, dataset abstraction, and Core result/error contracts.</li>
+    <li>Give application code a stable place for persistence behavior without leaking SQLDB, SQLite3Conn, TSQLQuery, TSQLTransaction, TField, or TDataset.</li>
+    <li>Make common CRUD screens and future data-aware UI components easy to build without committing to Delphi/Lazarus compatibility.</li>
+    <li>Keep enough explicitness that agents and maintainers can inspect mappings, generated SQL, cache state, and transaction boundaries.</li>
+    <li>Document every public ORM slice with examples and tests before moving to unrelated XRTL areas.</li>
+  </ul>
+
+  <h2>Non-Goals</h2>
+  <ul>
+    <li>No network database providers in this phase.</li>
+    <li>No attempt to clone SQLAlchemy, SQLModel, Django ORM, ActiveRecord, ZeosLib, mORMot, Delphi datasets, or Lazarus components.</li>
+    <li>No global hidden session, process-wide transaction, or automatic lazy loading by default.</li>
+    <li>No file-byte caching, upload HTTP handling, virus scanning, image processing, or object-storage client inside ORM.</li>
+    <li>No schema-diff migration engine, down migration framework, relationship auto-discovery, code generator, or full query language in the first V1 slices.</li>
+    <li>No raw SQL string interpolation helpers that bypass parameter binding.</li>
+  </ul>
+
+  <h2>Benchmark Lessons</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Reference</th>
+        <th>What XRTL Should Learn</th>
+        <th>What XRTL Should Avoid</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FastAPI + SQLModel</td>
+        <td>Simple application-facing model, strong docs, readable examples, and close fit between persistence objects and API/data validation stories.</td>
+        <td>Do not copy Python type-annotation syntax or combine all concerns too early. Pascal may need clearer separation between persistence schema, DTOs, ViewModels, and UI data sources.</td>
+      </tr>
+      <tr>
+        <td>SQLAlchemy Core/ORM</td>
+        <td>Keep a strong lower layer separate from ORM. XRTL already has provider, migration, query builder, and raw mapping primitives; ORM should compose those instead of bypassing them.</td>
+        <td>Do not expose an enormous expression language in V1. Keep the first query/update surface narrow and testable.</td>
+      </tr>
+      <tr>
+        <td>SQLAlchemy Session / Unit of Work</td>
+        <td>Use an explicit session boundary for identity map, pending changes, flush, commit, and rollback behavior.</td>
+        <td>Do not hide database writes behind surprising implicit flushes before the mental model is documented and tested.</td>
+      </tr>
+      <tr>
+        <td>ZeosLib</td>
+        <td>Useful Pascal reference for provider breadth, component integration, and long-lived database ecosystem concerns.</td>
+        <td>Do not treat Zeos as the ORM design benchmark. It is a provider/component candidate with license obligations to review before any adoption.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Layering</h2>
+  <pre><code>Application / ViewModel
+  - owns screen workflows, validation messages, commands
+
+Repository
+  - owns application-specific persistence methods
+  - calls ORM Session and Mapper
+
+ORM Session / UnitOfWork
+  - owns transaction boundary, identity map, dirty changes
+  - uses Mapper and Provider facade
+
+ORM Mapper / Schema
+  - owns table/field/id mapping and generated SQL
+  - uses Query Builder, Parameters, Raw Mapping
+
+XRTL.Database Provider
+  - owns SQLite connection, transactions, execution, raw rows
+
+SQLDB / SQLite
+  - implementation detail only</code></pre>
+
+  <h2>Public Concepts</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>Responsibility</th>
+        <th>First Practical Shape</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Schema</td>
+        <td>Defines table, id column, and field mappings.</td>
+        <td>Extend the existing <code>TXrtlDatabaseOrmSchema</code> with insert/update/delete metadata and optional table creation hints.</td>
+      </tr>
+      <tr>
+        <td>Field</td>
+        <td>Maps application field name to database column, value kind, nullability, and write behavior.</td>
+        <td>Extend <code>TXrtlDatabaseOrmField</code> with required/nullable/default/write flags.</td>
+      </tr>
+      <tr>
+        <td>Record</td>
+        <td>Stores one mapped row as XRTL-owned values.</td>
+        <td>Keep <code>TXrtlDatabaseOrmRecord</code> as the first container; later allow typed object adapters.</td>
+      </tr>
+      <tr>
+        <td>Mapper</td>
+        <td>Converts between records and SQL operations.</td>
+        <td>Add CRUD operations over the provider facade. No direct SQLDB calls.</td>
+      </tr>
+      <tr>
+        <td>Repository</td>
+        <td>Application-facing persistence API for one aggregate or screen.</td>
+        <td>Thin class wrapping mapper/session calls, with names such as <code>FindById</code>, <code>List</code>, <code>Save</code>, <code>Delete</code>.</td>
+      </tr>
+      <tr>
+        <td>Session</td>
+        <td>Transaction-scoped unit of work and cache boundary.</td>
+        <td>Explicit <code>Begin</code>, <code>Commit</code>, <code>Rollback</code>, <code>Find</code>, <code>Save</code>, <code>Delete</code>, and <code>Clear</code>.</td>
+      </tr>
+      <tr>
+        <td>Identity Map</td>
+        <td>Ensures the same table/id loaded within one session resolves to the same cached record snapshot.</td>
+        <td>Key by normalized schema id plus int64 primary key. Clear on rollback and explicit clear.</td>
+      </tr>
+      <tr>
+        <td>Change Set</td>
+        <td>Tracks new, dirty, and deleted records before flush/commit.</td>
+        <td>Simple explicit registration first: <code>Insert</code>, <code>Update</code>, <code>Delete</code>; automatic dirty tracking can come later.</td>
+      </tr>
+      <tr>
+        <td>Attachment Metadata</td>
+        <td>Records file identity, storage URI, owner, size, hash, and media type.</td>
+        <td>ORM maps metadata rows only. Storage/upload code lives outside ORM.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>CRUD Contract</h2>
+  <p>The first write-side ORM surface should be deliberately small. It should support one-table entities with an int64 id, text/int64/null values, explicit parameters, and SQLite-generated or caller-provided ids.</p>
+  <pre><code>// Conceptual shape, not final Pascal syntax.
+Schema := TXrtlDatabaseOrmSchema.Create('customers', 'id')
+  .Field('Name', 'name')
+  .Field('Email', 'email')
+  .Field('StatusId', 'status_id');
+
+Mapper := TXrtlDatabaseOrmMapper.Create(Connection, Schema);
+
+Record := TXrtlDatabaseOrmRecord.Create;
+Record.SetText('Name', 'Ada');
+Record.SetText('Email', 'ada@example.test');
+Record.SetInt64('StatusId', 1);
+
+Result := Mapper.Insert(Record);
+Result := Mapper.FindByInt64Id(1, Record);
+Record.SetText('Email', 'ada@xpascal.test');
+Result := Mapper.Update(Record);
+Result := Mapper.DeleteByInt64Id(1);</code></pre>
+
+  <h2>Repository Contract</h2>
+  <p>Repositories should provide the first user-friendly persistence layer without forcing application code to hand-roll SQL for every screen. A repository is application-specific; XRTL provides base pieces and patterns, not magic generated domain classes in V1.</p>
+  <pre><code>type
+  TCustomerRepository = class
+  private
+    FSession: TXrtlDatabaseOrmSession;
+  public
+    function FindById(const Id: Int64; const OutRecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function ListActive(const OutDataSet: TXrtlDatabaseDataSet): TXrtlResult;
+    function Save(const Record: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function DeleteById(const Id: Int64): TXrtlResult;
+  end;</code></pre>
+  <p>This lets sample apps teach clear code first. Later code generation or typed generic repositories may reduce boilerplate after the pattern is proven on all three platforms.</p>
+
+  <h2>Session And Unit Of Work</h2>
+  <p>The session is the main ORM boundary. It owns one database connection reference, one optional active transaction, an identity map, pending changes, and a mapping registry.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Behavior</th>
+        <th>Rule</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Begin</td>
+        <td>Starts an explicit database transaction through the provider facade. Nested sessions are out of scope.</td>
+      </tr>
+      <tr>
+        <td>Find</td>
+        <td>Checks the identity map first for table/id. On miss, queries through mapper, stores the snapshot, and returns it.</td>
+      </tr>
+      <tr>
+        <td>Insert</td>
+        <td>Registers a new record or writes immediately depending on the first implementation slice. Prefer explicit behavior over hidden flush.</td>
+      </tr>
+      <tr>
+        <td>Update</td>
+        <td>Writes only mapped writable fields. Detect missing id and missing required fields before SQL execution.</td>
+      </tr>
+      <tr>
+        <td>Delete</td>
+        <td>Deletes by schema/id and removes that key from the identity map.</td>
+      </tr>
+      <tr>
+        <td>Commit</td>
+        <td>Flushes pending changes if the session supports deferred writes, commits the provider transaction, and keeps or clears cache according to documented policy.</td>
+      </tr>
+      <tr>
+        <td>Rollback</td>
+        <td>Rolls back the provider transaction, clears pending changes, and clears identity-map entries loaded or changed during the transaction.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>80/20 Caching Plan</h2>
+  <p>V1 should add caching where the benefit is high and the correctness risk is low. The first cache types are structural and session-scoped. Global query result caching is deliberately deferred.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Cache</th>
+        <th>Scope</th>
+        <th>Benefit</th>
+        <th>Invalidation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Schema / mapping cache</td>
+        <td>Process or registry, immutable after registration.</td>
+        <td>Avoid repeated normalization and validation of table/field mapping.</td>
+        <td>Clear only when registry is explicitly rebuilt. Reject mutation after a schema is registered.</td>
+      </tr>
+      <tr>
+        <td>Generated SQL cache</td>
+        <td>Mapper or schema registry.</td>
+        <td>Reuse deterministic SELECT/INSERT/UPDATE/DELETE SQL for the same schema and operation.</td>
+        <td>Key by schema revision and operation. Clear if schema registry is rebuilt.</td>
+      </tr>
+      <tr>
+        <td>Session identity map</td>
+        <td>One ORM session.</td>
+        <td>Avoid duplicate reads and coordinate changes to the same record in one workflow.</td>
+        <td>Evict by table/id on update/delete; clear on rollback, session clear, or close.</td>
+      </tr>
+      <tr>
+        <td>Small lookup cache</td>
+        <td>Optional repository-level helper, not default ORM behavior.</td>
+        <td>Useful for status lists and lookup tables in business screens.</td>
+        <td>Manual TTL or explicit clear only. Not part of the first core ORM implementation.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Do not cache raw file bytes in ORM. Do not cache arbitrary query results in V1. Do not share mutable record instances across sessions.</p>
+
+  <h2>Attachment And Upload Boundary</h2>
+  <p>File attachment support is required at the product-design level, but upload/storage is not ORM's job. The correct split is:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Owns</th>
+        <th>Does Not Own</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Storage / Upload layer</td>
+        <td>Receiving streams, staging files, hash calculation, size limits, media-type sniffing, final storage URI, cleanup of abandoned staged files.</td>
+        <td>Domain relationships, ORM sessions, or object graph behavior.</td>
+      </tr>
+      <tr>
+        <td>ORM / Database layer</td>
+        <td>Attachment metadata rows, ownership relationship to application records, migrations for metadata tables, transaction around metadata writes.</td>
+        <td>HTTP multipart parsing, raw file-byte caching, object-store SDKs, virus scanning, or image processing.</td>
+      </tr>
+      <tr>
+        <td>Application / ViewModel layer</td>
+        <td>User intent: attach, replace, remove, validate required documents, show upload progress, and present errors.</td>
+        <td>Low-level file layout or database driver calls.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Attachment Metadata Shape</h3>
+  <pre><code>xrtl_attachments
+  id             integer primary key
+  owner_type     text not null
+  owner_id       integer not null
+  file_name      text not null
+  media_type     text
+  size_bytes     integer not null
+  sha256         text not null
+  storage_uri    text not null
+  state          text not null
+  created_at_utc text not null</code></pre>
+  <p>The table name, owner fields, and timestamp representation may change during implementation, but the principle must not: ORM maps metadata and relationships; storage owns bytes.</p>
+
+  <h3>Attachment Flow</h3>
+  <ol>
+    <li>Application receives or selects a file and passes a stream/path to the storage layer.</li>
+    <li>Storage layer writes to a staging location, computes SHA256, detects or receives media type, and returns a storage descriptor.</li>
+    <li>Application opens an ORM session and writes the domain record plus attachment metadata in one database transaction.</li>
+    <li>After metadata commit succeeds, storage finalizes or marks the staged file as retained.</li>
+    <li>If metadata commit fails, storage deletes the staged file or records it for cleanup.</li>
+    <li>ORM queries return attachment metadata and storage URI only. File bytes are loaded through storage APIs when explicitly requested.</li>
+  </ol>
+
+  <h2>Relationship Policy</h2>
+  <p>V1 should start with conservative relationships because hidden lazy loading is a common source of hard-to-debug behavior.</p>
+  <ul>
+    <li>Support explicit one-to-many lookup by foreign key only after CRUD/session is stable.</li>
+    <li>Do not auto-load relationships by property access in V1.</li>
+    <li>Provide repository methods such as <code>LoadOrdersForCustomer</code> before magic relationship traversal.</li>
+    <li>Use explicit attachment relationship helpers because attachment storage side effects need careful cleanup.</li>
+  </ul>
+
+  <h2>Implementation Phases</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Slice</th>
+        <th>Outcome</th>
+        <th>Suggested Child Issue</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0</td>
+        <td>Specification and ADR</td>
+        <td>This document, ADR 0016, issue map, PRD, roadmap, dependency register, and Captain's Log are updated.</td>
+        <td>#62</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>CRUD mapper</td>
+        <td>Insert, update, delete, find by id, required-field validation, generated SQL cache, and tests over SQLite.</td>
+        <td>Create after #62 merges.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Repository pattern</td>
+        <td>Documented base repository pattern and example customer repository with list/find/save/delete.</td>
+        <td>Create after CRUD mapper.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Session and identity map</td>
+        <td>Explicit session boundary, identity map, pending changes, commit/rollback behavior, cache invalidation tests.</td>
+        <td>Create after repository slice.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>ORM migrations</td>
+        <td>Helpers for creating the tables needed by ORM examples and attachment metadata, built on existing migration primitives.</td>
+        <td>Create after session slice.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Attachment metadata and storage boundary</td>
+        <td>Metadata schema, attachment repository helpers, storage descriptor interface, and no-byte-in-ORM tests.</td>
+        <td>Create after ORM migrations.</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Validation and hooks</td>
+        <td>Before-save validation, required field checks, optional application hooks, and diagnostics.</td>
+        <td>Create after attachment metadata or in parallel if scope is small.</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>DataSource bridge plan</td>
+        <td>Define how ORM records feed XRTL.Data / MVVM data-aware screens without exposing ORM internals to UI components.</td>
+        <td>Create after session and repository behavior is stable.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Test Strategy</h2>
+  <ul>
+    <li><strong>Unit tests:</strong> schema validation, field metadata, generated SQL cache keys, identity-map keys, invalid identifiers, missing required fields, and cache invalidation behavior.</li>
+    <li><strong>SQLite integration tests:</strong> CRUD mapper inserts/updates/deletes rows, transaction rollback restores state, session commit persists changes, and session rollback clears dirty state.</li>
+    <li><strong>Attachment tests:</strong> metadata migrations create tables, attachment metadata inserts and queries correctly, deleting owner records follows documented policy, and ORM never loads or caches file bytes.</li>
+    <li><strong>Repository tests:</strong> sample repository methods produce predictable records and failure results.</li>
+    <li><strong>Cross-platform validation:</strong> Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, all with FPC <code>3.3.1</code>.</li>
+    <li><strong>CI:</strong> Windows CI must build and run the new tests for every merged slice. Remote macOS/Ubuntu evidence stays in PR comments or Captain's Log until hosted runners are configured.</li>
+  </ul>
+
+  <h2>Documentation Requirements</h2>
+  <ul>
+    <li>Each ORM slice updates <a href="database.html">XRTL.Database</a>, this spec, the issue map, PRD, roadmap, ADRs when needed, and Captain's Log.</li>
+    <li>Each new public ORM type must have a short example in the library docs before the implementation PR is marked ready.</li>
+    <li>Attachment docs must clearly show that storage/upload is a separate layer and that ORM owns metadata only.</li>
+    <li>Cache docs must name the cache scope and invalidation rule. If invalidation cannot be explained simply, the cache is too risky for V1.</li>
+  </ul>
+
+  <h2>Licensing And Provenance</h2>
+  <p>SQLModel and SQLAlchemy are design benchmarks only. Their licenses and docs are recorded so the project can credit the references, but XRTL must not copy implementation, public API wording, documentation text, or examples. ZeosLib remains research-only/deferred unless a later provider issue reopens it with license and platform evidence.</p>
+  <p>Any storage library, MIME detector, hashing helper, HTTP multipart parser, or object-storage SDK proposed for attachment support must pass the dependency provenance gate before adoption.</p>
+
+  <h2>Open Questions For Later Slices</h2>
+  <ul>
+    <li>Should typed entity adapters use Pascal classes, records, interfaces, or generated code after the record-container API proves itself?</li>
+    <li>Should sessions flush immediately on <code>Save</code> in early V1, or queue pending changes until explicit <code>Commit</code>?</li>
+    <li>What timestamp format should the attachment metadata table use before XRTL.Time owns a durable timestamp contract?</li>
+    <li>Should attachment owner identity use <code>owner_type</code> strings, explicit join tables per entity, or both?</li>
+    <li>When XRTL.Data begins, how much of ORM should feed data-aware screens directly versus through repositories and ViewModels?</li>
+  </ul>
+
+  <h2>Reference Sources</h2>
+  <ul>
+    <li><a href="https://fastapi.tiangolo.com/tutorial/sql-databases/">FastAPI SQL databases tutorial</a></li>
+    <li><a href="https://sqlmodel.tiangolo.com/">SQLModel documentation</a></li>
+    <li><a href="https://github.com/fastapi/sqlmodel">SQLModel source and license</a></li>
+    <li><a href="https://www.sqlalchemy.org/features.html">SQLAlchemy feature overview</a></li>
+    <li><a href="https://docs.sqlalchemy.org/en/latest/orm/session_basics.html">SQLAlchemy Session basics</a></li>
+    <li><a href="https://docs.sqlalchemy.org/en/latest/tutorial/orm_data_manipulation.html">SQLAlchemy ORM data manipulation and Unit of Work</a></li>
+    <li><a href="https://docs.sqlalchemy.org/en/latest/copyright.html">SQLAlchemy copyright and license</a></li>
+    <li><a href="https://github.com/marsupilami79/zeoslib">ZeosLib repository</a></li>
+    <li><a href="https://github.com/marsupilami79/zeoslib/blob/master/COPYING.ZEOS">ZeosLib COPYING.ZEOS</a></li>
+  </ul>
+</body>
+</html>

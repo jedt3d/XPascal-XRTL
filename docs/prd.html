@@ -161,6 +161,11 @@
         <td>Complete</td>
         <td>Issue #47 defines the local-only sequence: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, and ORM. Issues #48, #50, #52, #54, #56, #58, and #60 implement the full local-only stack: public transactions/parameter binding, detached raw row/field/value mapping, app dataset iteration over detached rows, a SQLite-only provider facade, apply-only migration primitives, SELECT query builder primitives, and ORM mapping primitives. PostgreSQL, MySQL/MariaDB, and Firebird remain out of scope.</td>
       </tr>
+      <tr>
+        <td>XRTL.Database ORM V1 specification</td>
+        <td>In progress</td>
+        <td>Issue #62 defines the next ORM phase before implementation continues: SQLite-only CRUD mapper, repository pattern, explicit Session/Unit of Work, 80/20 caching, attachment metadata separated from storage/upload, and clean-room benchmark posture against SQLModel/SQLAlchemy.</td>
+      </tr>
     </tbody>
   </table>
 
@@ -169,7 +174,7 @@
     <li>When should <code>xpc build</code> move from launcher-managed build orchestration into the Pascal CLI itself?</li>
     <li>When should <code>XRTL.Core</code> revisit dotted Pascal unit names after flat <code>xrtl_core</code> ships?</li>
     <li>When should <code>XRTL.Core</code> add structured error detail or nested causes, and should that wait for <code>XRTL.Diagnostics</code>?</li>
-    <li>What should the next Database follow-up be after the local-only stack: write-side ORM operations, richer query builder features, or delayed network provider validation?</li>
+    <li>After issue #62 lands, which ORM child issue should be implemented first: CRUD mapper, repository pattern, Session/Unit of Work, attachment metadata, or XRTL.Data bridge planning?</li>
     <li>Which FPC HTTP baseline is more practical to modernize for XRTL: the broader FCL-Web package or the narrower <code>fphttpserver</code> unit/provider?</li>
     <li>What Rack/Horse-inspired middleware shape maps cleanly to Pascal without copying either public API?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>

@@ -68,6 +68,8 @@ bash ./tools/run-xpc.sh doctor
     <li>Do not duplicate helpers across libraries. Shared status, errors, config, diagnostics, timeouts, paths, process execution, data rows, HTTP primitives, and Web routing each have an owner.</li>
     <li>If a library needs a helper owned elsewhere, refactor toward the owner or open a follow-up issue. Do not silently create a second version.</li>
     <li>Keep Database and Web candidates research-only until licensing, maintenance, platform, and test evidence is recorded.</li>
+    <li>For ORM V1 work, keep execution SQLite-only until a future network-provider issue exists. Start with explicit CRUD, repository, session, and cache behavior from <a href="./xrtl/database-orm-v1-spec.html">the ORM V1 spec</a>.</li>
+    <li>Do not put file upload transport or raw file bytes inside ORM. Attachments are storage/upload plus ORM metadata, not an ORM-owned byte pipeline.</li>
   </ul>
 
   <h2>PR Closeout</h2>
