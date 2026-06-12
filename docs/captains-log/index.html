@@ -203,5 +203,11 @@
     <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> to design the <code>XRTL.Core</code> foundation contract. This is a design-only gate: runtime Pascal units wait until the design has been reviewed.</p>
     <p>The proposal keeps Core narrow: status/result shape, error identity, optional presence markers, possible capability markers, and contract version identity. Core explicitly does not own logging, time, text encoding, IO, process execution, data values, database behavior, HTTP, or web routing.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 09:55 ICT - FPC Release-Note Sweep Refines XRTL.Core</h2>
+    <p>Revisited <code>XRTL.Core</code> after review feedback that compiler research should start from FreePascal release announcements and release-candidate notes, not from source-code guessing or stale wiki summaries. The useful release evidence is that official stable FreePascal remains <code>3.2.2</code>, FPC <code>3.2.4-rc1</code> is a 2025 fixes-branch release candidate, and project-required <code>3.3.1</code> remains a development snapshot that must be validated directly on supported platforms.</p>
+    <p>The design now chooses a conservative modern style: flat unit name <code>xrtl_core</code>, ObjFPC advanced records for value-like primitives, simple generics only if they pass Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64, and no anonymous-function or function-reference APIs in Core v0. ADR <code>0006</code> moved from proposed to accepted for the follow-up implementation issue.</p>
+  </section>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # Task
 
-Review the proposed `XRTL.Core` foundation contract for XPascal/XRTL. Codex remains the source of truth and will accept, modify, or reject your suggestions before any repository change.
+Review the accepted `XRTL.Core` foundation contract for XPascal/XRTL before runtime implementation begins. Codex remains the source of truth and will accept, modify, or reject your suggestions before any repository change.
 
 # Source Of Truth
 
@@ -33,6 +33,19 @@ Proposed non-responsibilities:
 - No filesystem, process execution, OS/CPU detection, database, HTTP, or web behavior.
 - No runtime implementation before design review.
 
+Release-note-first compiler research:
+- Official stable FreePascal is still `3.2.2`.
+- FPC `3.2.4-rc1` is a 2025 fixes-branch release candidate with bug fixes, glibc/Darwin debug improvements, and no intentional broad compatibility break claimed in the announcement.
+- The project intentionally pins FPC `3.3.1`, but upstream treats `3.3.x` as development/snapshot and warns there is no support guarantee for development versions.
+- macOS Apple Silicon compatibility feedback in the 3.2.4-rc1 thread exposed generic callback signature sensitivity, so generic Core APIs must be accepted only with direct supported-platform validation.
+
+Resolved Core v0 choices after review:
+- Use flat unit name `xrtl_core` first; dotted unit names require a later ADR.
+- Use advanced records for small value-like primitives.
+- Allow simple generic option/value-result records only if they compile and run on Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.
+- Include a minimal neutral capability marker.
+- Defer structured error detail, nested causes, anonymous functions, and function references.
+
 # Constraints
 
 - FreePascal must remain version `3.3.1`.
@@ -49,7 +62,7 @@ Proposed non-responsibilities:
 Return this structure:
 
 ```markdown
-# GLM XRTL.Core Review
+# GLM XRTL.Core Implementation-Risk Review
 
 ## Strong Agreements
 - ...
@@ -71,7 +84,7 @@ Return this structure:
 - Only include questions that block the design from being accepted.
 
 ## Verdict
-Ready as proposed | Ready with small edits | Needs another design pass
+Ready for implementation | Ready with small implementation guardrails | Needs another design pass
 ```
 
 # Quality Bar
