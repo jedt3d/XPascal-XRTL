@@ -33,7 +33,7 @@
       <li>Unsupported by decision: macOS Intel x86_64</li>
       <li>Tested Windows host: Windows with Git 2.54.0, GitHub CLI 2.94.0 installed, FPC snapshot compiler <code>ppcrossx64.exe</code></li>
       <li>Tested Mac host: macOS 26.5.1 on Apple Silicon M2, Darwin arm64</li>
-      <li>Linux validation: passed via Side Chat on Linux x86_64 / Ubuntu 26.04; exact host details still need to be copied into this log when available</li>
+      <li>Linux validation: passed on Ubuntu 26.04 LTS x86_64; exact host details were captured during the three-platform validation pass</li>
     </ul>
   </section>
 
@@ -102,6 +102,17 @@
     <h2>2026-06-12 06:47 ICT - Merge Readiness Review</h2>
     <p>Reviewed GitHub issues #1 through #7. Each issue now has proposal references, scope, non-scope, acceptance criteria, implementation evidence, validation status, and close criteria. Two non-blocking follow-ups were created: <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> for final Windows/macOS FPC artifact checksums before release packaging, and <a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10</a> for copying exact Linux host details into this log.</p>
     <p>Checked PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>: it is mergeable, has no review threads, and GitHub Actions passed at review time. The PR remains draft and must be marked ready for review before merge. Use the PR checks as the source of truth for the current head.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 07:20 ICT - Three-Platform Validation Pass</h2>
+    <p>Ran a fresh bootstrap validation pass for PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a> on Windows, macOS Apple Silicon, and Ubuntu. All three platforms checked out branch <code>codex/bootstrap-xpascal-foundation</code> at commit <code>e77fb6fb9e465fa9e2756713bf9cb7f87f98c94d</code> or fast-forwarded to that branch before validation.</p>
+    <ul>
+      <li>Windows x86_64 local workspace: FPC compiler <code>ppcrossx64.exe</code>, version <code>3.3.1</code>. <code>tools/check-toolchain.ps1</code>, <code>tools/build-xpc.ps1</code>, <code>tools/run-xpc.ps1 version</code>, <code>tools/run-xpc.ps1 doctor</code>, and <code>build/hello_xpc.exe</code> passed. <code>xpc version</code> reported <code>target: windows-x86_64</code> and <code>fpc: 3.3.1</code>.</li>
+      <li>macOS Apple Silicon host <code>M2Air.local</code>: macOS <code>26.5.1</code>, Darwin <code>25.5.0</code>, architecture <code>arm64</code>, shell <code>/bin/zsh</code>. FPC compiler <code>ppca64</code>, version <code>3.3.1</code>. <code>tools/check-toolchain.sh</code>, <code>tools/build-xpc.sh</code>, <code>tools/run-xpc.sh version</code>, <code>tools/run-xpc.sh doctor</code>, and <code>build/hello_xpc</code> passed. <code>xpc version</code> reported <code>target: macos-aarch64</code> and <code>fpc: 3.3.1</code>.</li>
+      <li>Ubuntu host <code>ubuntu2604lts</code>: Ubuntu <code>26.04 LTS</code>, Linux kernel <code>7.0.0-22-generic</code>, architecture <code>x86_64</code>, shell <code>/bin/bash</code>. FPC compiler <code>ppcx64</code>, version <code>3.3.1</code>. <code>tools/install-fpc.sh</code>, <code>tools/check-toolchain.sh</code>, <code>tools/build-xpc.sh</code>, <code>tools/run-xpc.sh version</code>, <code>tools/run-xpc.sh doctor</code>, and <code>build/hello_xpc</code> passed. <code>xpc version</code> reported <code>target: linux-x86_64</code> and <code>fpc: 3.3.1</code>.</li>
+    </ul>
+    <p>The Ubuntu validation satisfies follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> remains open for final Windows/macOS snapshot SHA256 pinning before release packaging.</p>
   </section>
 </body>
 </html>
