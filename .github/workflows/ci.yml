@@ -63,3 +63,5 @@ jobs:
           ./build/database_migration_tests.exe
           ./build/database_query_builder_tests.exe
           ./build/database_orm_tests.exe
+          ./build/database_orm_v1_tests.exe
+          ./build/database_attachment_tests.exe

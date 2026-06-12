@@ -19,15 +19,51 @@
 <body>
   <p><a href="./">XRTL Home</a> | <a href="database.html">XRTL.Database</a> | <a href="../issues/">Issue Map</a></p>
   <h1>XRTL.Database ORM V1 Specification</h1>
-  <p><strong>Status:</strong> proposed implementation specification for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a>. This document turns the completed ORM mapping primitives from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> into a staged ORM V1 plan.</p>
+  <p><strong>Status:</strong> accepted specification from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a>, now being implemented by issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a>. This document turns the completed ORM mapping primitives from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> into the staged ORM V1 contract.</p>
 
   <section class="note">
     <p><strong>Product pitch:</strong> XRTL ORM should give Pascal developers the business-app productivity they expect from classic data-aware tooling, but with a clean modern shape: explicit mappings, predictable SQLite persistence, testable sessions, simple repositories, and enough caching to make common CRUD screens feel fast without hiding state behind framework magic.</p>
   </section>
 
   <h2>Executive Summary</h2>
-  <p>ORM V1 should stay local-first and SQLite-only while becoming complete enough to power real application screens: create, read, update, delete, migrations, repositories, transaction-scoped sessions, identity-map caching, metadata-backed attachments, and a future bridge into XRTL.Data / MVVM data sources.</p>
+  <p>ORM V1 stays local-first and SQLite-only while becoming complete enough to power real application screens: create, read, update, delete, migrations, repositories, transaction-scoped sessions, identity-map caching, metadata-backed attachments, and a future bridge into XRTL.Data / MVVM data sources.</p>
   <p>The design benchmark is SQLModel plus SQLAlchemy: SQLModel is the approachable application-facing model used in FastAPI documentation, while SQLAlchemy provides the deeper architectural split between Core, ORM, Session, Unit of Work, and Identity Map. XRTL should learn from those ideas without copying Python APIs or source code. ZeosLib remains a Pascal provider/component reference, not the ORM benchmark.</p>
+
+  <h2>Issue #64 Implementation Slice</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Implemented Contract</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mapper CRUD</td>
+        <td><code>TXrtlDatabaseOrmMapper.Insert</code>, <code>FindByInt64Id</code>, <code>Update</code>, and <code>DeleteByInt64Id</code> over <code>TXrtlDatabaseConnection</code>.</td>
+      </tr>
+      <tr>
+        <td>Field and record ergonomics</td>
+        <td><code>TXrtlDatabaseOrmField.Required</code>, <code>Writable</code>, and typed record setters for text, int64, and null values.</td>
+      </tr>
+      <tr>
+        <td>80/20 caching</td>
+        <td><code>TXrtlDatabaseOrmSqlCache</code> for generated CRUD SQL, <code>TXrtlDatabaseOrmSchemaCache</code> for schema signatures, and <code>TXrtlDatabaseOrmSession</code> identity-map snapshots.</td>
+      </tr>
+      <tr>
+        <td>Repository/session</td>
+        <td><code>TXrtlDatabaseOrmSession</code> owns explicit transaction calls and cache clearing on rollback. <code>TXrtlDatabaseOrmRepository</code> is a thin reusable wrapper.</td>
+      </tr>
+      <tr>
+        <td>Attachments</td>
+        <td><code>TXrtlDatabaseAttachmentMetadataStore</code> persists metadata only. Raw files, upload transport, byte caching, scanning, and storage clients are separate future layers.</td>
+      </tr>
+      <tr>
+        <td>Tests</td>
+        <td><code>database_orm_v1_tests</code> and <code>database_attachment_tests</code> are part of the Windows CI and cross-platform build scripts.</td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>Decisions For V1</h2>
   <table>
@@ -203,25 +239,27 @@ SQLDB / SQLite
   </table>
 
   <h2>CRUD Contract</h2>
-  <p>The first write-side ORM surface should be deliberately small. It should support one-table entities with an int64 id, text/int64/null values, explicit parameters, and SQLite-generated or caller-provided ids.</p>
-  <pre><code>// Conceptual shape, not final Pascal syntax.
-Schema := TXrtlDatabaseOrmSchema.Create('customers', 'id')
-  .Field('Name', 'name')
-  .Field('Email', 'email')
-  .Field('StatusId', 'status_id');
+  <p>The first write-side ORM surface is deliberately small. It supports one-table entities with an int64 id, text/int64/null values, explicit parameters, and SQLite-generated ids.</p>
+  <pre><code>// Current Pascal shape.
+Schema := TXrtlDatabaseOrmSchema.Create;
+Result := Schema.Configure('customers', 'id');
+Result := Schema.AddField('id', 'id', False, False);
+Result := Schema.AddField('name', 'name', True, True);
+Result := Schema.AddField('email', 'email', True, True);
+Result := Schema.AddField('statusId', 'status_id', True, True);
 
-Mapper := TXrtlDatabaseOrmMapper.Create(Connection, Schema);
+Mapper := TXrtlDatabaseOrmMapper.Create;
 
 Record := TXrtlDatabaseOrmRecord.Create;
-Record.SetText('Name', 'Ada');
-Record.SetText('Email', 'ada@example.test');
-Record.SetInt64('StatusId', 1);
+Record.SetText('name', 'Ada');
+Record.SetText('email', 'ada@example.test');
+Record.SetInt64('statusId', 1);
 
-Result := Mapper.Insert(Record);
-Result := Mapper.FindByInt64Id(1, Record);
-Record.SetText('Email', 'ada@xpascal.test');
-Result := Mapper.Update(Record);
-Result := Mapper.DeleteByInt64Id(1);</code></pre>
+Result := Mapper.Insert(Connection, Schema, Record, Id);
+Result := Mapper.FindByInt64Id(Connection, Schema, Id, Record);
+Record.SetText('email', 'ada@xpascal.test');
+Result := Mapper.Update(Connection, Schema, Id, Record);
+Result := Mapper.DeleteByInt64Id(Connection, Schema, Id);</code></pre>
 
   <h2>Repository Contract</h2>
   <p>Repositories should provide the first user-friendly persistence layer without forcing application code to hand-roll SQL for every screen. A repository is application-specific; XRTL provides base pieces and patterns, not magic generated domain classes in V1.</p>
@@ -399,55 +437,43 @@ Result := Mapper.DeleteByInt64Id(1);</code></pre>
       </tr>
       <tr>
         <td>1</td>
-        <td>CRUD mapper</td>
-        <td>Insert, update, delete, find by id, required-field validation, generated SQL cache, and tests over SQLite.</td>
-        <td>Create after #62 merges.</td>
+        <td>ORM V1 first implementation</td>
+        <td>Issue #64 implements insert, update, delete, find by id, required-field validation, generated SQL cache, schema cache, repository/session behavior, identity-map snapshots, attachment metadata, and tests over SQLite.</td>
+        <td>#64</td>
       </tr>
       <tr>
         <td>2</td>
-        <td>Repository pattern</td>
-        <td>Documented base repository pattern and example customer repository with list/find/save/delete.</td>
-        <td>Create after CRUD mapper.</td>
+        <td>Query/list support</td>
+        <td>Add explicit list queries, filtered lookups, and pagination-friendly shapes after the CRUD/session contract is stable.</td>
+        <td>Create after #64.</td>
       </tr>
       <tr>
         <td>3</td>
-        <td>Session and identity map</td>
-        <td>Explicit session boundary, identity map, pending changes, commit/rollback behavior, cache invalidation tests.</td>
-        <td>Create after repository slice.</td>
+        <td>Validation and hooks</td>
+        <td>Add pre-save validation hooks and lifecycle extension points without hidden global sessions or implicit network behavior.</td>
+        <td>Create after query/list support.</td>
       </tr>
       <tr>
         <td>4</td>
-        <td>ORM migrations</td>
-        <td>Helpers for creating the tables needed by ORM examples and attachment metadata, built on existing migration primitives.</td>
-        <td>Create after session slice.</td>
+        <td>Typed adapters</td>
+        <td>Explore typed object/DTO adapters over the current record container after the untyped mapper contract has enough tests.</td>
+        <td>Create after validation/hooks.</td>
       </tr>
       <tr>
         <td>5</td>
-        <td>Attachment metadata and storage boundary</td>
-        <td>Metadata schema, attachment repository helpers, storage descriptor interface, and no-byte-in-ORM tests.</td>
-        <td>Create after ORM migrations.</td>
-      </tr>
-      <tr>
-        <td>6</td>
-        <td>Validation and hooks</td>
-        <td>Before-save validation, required field checks, optional application hooks, and diagnostics.</td>
-        <td>Create after attachment metadata or in parallel if scope is small.</td>
-      </tr>
-      <tr>
-        <td>7</td>
-        <td>DataSource bridge plan</td>
-        <td>Define how ORM records feed XRTL.Data / MVVM data-aware screens without exposing ORM internals to UI components.</td>
-        <td>Create after session and repository behavior is stable.</td>
+        <td>Migration helpers and XRTL.Data bridge</td>
+        <td>Add higher-level migration helpers and plan the bridge from ORM records into XRTL.Data/MVVM data sources.</td>
+        <td>Create after typed adapters.</td>
       </tr>
     </tbody>
   </table>
 
   <h2>Test Strategy</h2>
   <ul>
-    <li><strong>Unit tests:</strong> schema validation, field metadata, generated SQL cache keys, identity-map keys, invalid identifiers, missing required fields, and cache invalidation behavior.</li>
-    <li><strong>SQLite integration tests:</strong> CRUD mapper inserts/updates/deletes rows, transaction rollback restores state, session commit persists changes, and session rollback clears dirty state.</li>
-    <li><strong>Attachment tests:</strong> metadata migrations create tables, attachment metadata inserts and queries correctly, deleting owner records follows documented policy, and ORM never loads or caches file bytes.</li>
-    <li><strong>Repository tests:</strong> sample repository methods produce predictable records and failure results.</li>
+    <li><strong>Unit tests:</strong> schema validation, field metadata, generated SQL cache keys, identity-map keys, invalid identifiers, missing required fields, and cache behavior.</li>
+    <li><strong>SQLite integration tests:</strong> CRUD mapper inserts/updates/deletes rows, transaction rollback restores state, session commit persists changes, and session rollback clears identity-map state.</li>
+    <li><strong>Attachment tests:</strong> metadata schema creation, attachment metadata inserts and queries correctly, validation fails loudly, and ORM never loads or caches file bytes.</li>
+    <li><strong>Repository tests:</strong> repository wrapper methods produce predictable records and failure results.</li>
     <li><strong>Cross-platform validation:</strong> Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, all with FPC <code>3.3.1</code>.</li>
     <li><strong>CI:</strong> Windows CI must build and run the new tests for every merged slice. Remote macOS/Ubuntu evidence stays in PR comments or Captain's Log until hosted runners are configured.</li>
   </ul>

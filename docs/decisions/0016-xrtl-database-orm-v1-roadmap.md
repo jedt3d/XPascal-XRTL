@@ -4,7 +4,7 @@ Date: 2026-06-12
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -39,6 +39,7 @@ Define ORM V1 as a staged Data Mapper architecture over the existing XRTL.Databa
 - Related issues:
   - https://github.com/jedt3d/XPascal-XRTL/issues/47
   - https://github.com/jedt3d/XPascal-XRTL/issues/60
+  - https://github.com/jedt3d/XPascal-XRTL/issues/64
 - Related docs:
   - ../xrtl/database.html
   - ../xrtl/database-orm-v1-spec.html

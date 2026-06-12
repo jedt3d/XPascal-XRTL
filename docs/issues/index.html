@@ -273,7 +273,13 @@
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62 Define XRTL.Database ORM v1 specification</a></td>
         <td>#60 / Database follow-up</td>
         <td>Write the long-form ORM V1 implementation spec before moving to other runtime areas. Scope includes SQLite-only CRUD/repository/session design, 80/20 caching, attachment metadata separation, benchmark/provenance notes, and child issue plan.</td>
-        <td>In progress on branch <code>codex/xrtl-orm-v1-spec</code>. Close criteria: spec, ADR, issue map, PRD, roadmap, dependency register, proposal, Captain's Log, and GLM review packet updated without committing secrets.</td>
+        <td>Closed by the ORM V1 specification PR. Evidence: <a href="../xrtl/database-orm-v1-spec.html">ORM V1 spec</a>, ADR #0016, PRD, roadmap, dependency register, proposal, Captain's Log, and GLM review packet updated without committing secrets.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64 Implement XRTL.Database ORM V1</a></td>
+        <td>#62 / Database follow-up</td>
+        <td>Implement the first SQLite-only ORM V1 contract: CRUD mapper, repository/session/unit-of-work, schema/generated-SQL/session identity-map caching, and attachment metadata support without file upload/storage bytes.</td>
+        <td>In progress on branch <code>codex/xrtl-database-orm-v1</code>. Evidence target: <code>TXrtlDatabaseOrmMapper.Insert/Update/DeleteByInt64Id</code>, <code>TXrtlDatabaseOrmSession</code>, <code>TXrtlDatabaseOrmRepository</code>, SQL/schema caches, <code>TXrtlDatabaseAttachmentMetadataStore</code>, <code>database_orm_v1_tests</code>, <code>database_attachment_tests</code>, ADR #0017, and updated docs.</td>
       </tr>
     </tbody>
   </table>

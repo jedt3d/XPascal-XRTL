@@ -336,10 +336,17 @@ type
   private
     FName: string;
     FColumnName: string;
+    FRequired: Boolean;
+    FWritable: Boolean;
   public
-    class function Create(const AName, AColumnName: string): TXrtlDatabaseOrmField; static;
+    class function Create(
+      const AName, AColumnName: string;
+      const ARequired: Boolean = False;
+      const AWritable: Boolean = True): TXrtlDatabaseOrmField; static;
     property Name: string read FName;
     property ColumnName: string read FColumnName;
+    property Required: Boolean read FRequired;
+    property Writable: Boolean read FWritable;
   end;
 
   TXrtlDatabaseOrmSchema = class
@@ -352,7 +359,10 @@ type
   public
     procedure Clear;
     function Configure(const ATableName, AIdColumnName: string): TXrtlResult;
-    function AddField(const AName, AColumnName: string): TXrtlResult;
+    function AddField(
+      const AName, AColumnName: string;
+      const ARequired: Boolean = False;
+      const AWritable: Boolean = True): TXrtlResult;
     function IndexOfField(const AName: string): Integer;
     function IndexOfColumn(const AColumnName: string): Integer;
     function Validate: TXrtlResult;
@@ -380,21 +390,184 @@ type
   public
     procedure Clear;
     procedure SetValue(const AName: string; const AValue: TXrtlDatabaseValue);
+    procedure SetNull(const AName: string);
+    procedure SetText(const AName, AValue: string);
+    procedure SetInt64(const AName: string; const AValue: Int64);
+    procedure CopyFrom(const ASource: TXrtlDatabaseOrmRecord);
     function IndexOfValue(const AName: string): Integer;
     function ValueByName(const AName: string; out AValue: TXrtlDatabaseValue): TXrtlResult;
     property ValueCount: Integer read GetValueCount;
     property Values[const AIndex: Integer]: TXrtlDatabaseOrmRecordValue read GetValue; default;
   end;
 
+  TXrtlDatabaseOrmSqlCache = class
+  private
+    FSelectByIdKey: string;
+    FSelectByIdSql: string;
+    FInsertKey: string;
+    FInsertSql: string;
+    FUpdateKey: string;
+    FUpdateSql: string;
+    FDeleteByIdKey: string;
+    FDeleteByIdSql: string;
+    FHitCount: Integer;
+    FMissCount: Integer;
+  public
+    procedure Clear;
+    function SelectByIdSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+    function InsertSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+    function UpdateSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+    function DeleteByIdSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+    property HitCount: Integer read FHitCount;
+    property MissCount: Integer read FMissCount;
+  end;
+
+  TXrtlDatabaseOrmSchemaCache = class
+  private
+    FKeys: array of string;
+    FHitCount: Integer;
+    FMissCount: Integer;
+    function GetCount: Integer;
+  public
+    procedure Clear;
+    function IndexOfSchema(const ASchema: TXrtlDatabaseOrmSchema): Integer;
+    function RegisterSchema(const ASchema: TXrtlDatabaseOrmSchema; out AIndex: Integer): TXrtlResult;
+    property Count: Integer read GetCount;
+    property HitCount: Integer read FHitCount;
+    property MissCount: Integer read FMissCount;
+  end;
+
   TXrtlDatabaseOrmMapper = class
   private
+    FSqlCache: TXrtlDatabaseOrmSqlCache;
     function MapRow(const ASchema: TXrtlDatabaseOrmSchema; const ARow: TXrtlDatabaseRow; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function ValidateWriteRecord(const ASchema: TXrtlDatabaseOrmSchema; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function BindWriteParameters(const ASchema: TXrtlDatabaseOrmSchema; const ARecord: TXrtlDatabaseOrmRecord; const AParams: TXrtlDatabaseParameters): TXrtlResult;
+    function BindIdParameter(const AParams: TXrtlDatabaseParameters; const AId: Int64): TXrtlResult;
+    function EnsureRecordExists(const AConnection: TXrtlDatabaseConnection; const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64): TXrtlResult;
   public
+    constructor Create;
+    destructor Destroy; override;
     function FindByInt64Id(
       const AConnection: TXrtlDatabaseConnection;
       const ASchema: TXrtlDatabaseOrmSchema;
       const AId: Int64;
       const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function Insert(
+      const AConnection: TXrtlDatabaseConnection;
+      const ASchema: TXrtlDatabaseOrmSchema;
+      const ARecord: TXrtlDatabaseOrmRecord;
+      out AId: Int64): TXrtlResult;
+    function Update(
+      const AConnection: TXrtlDatabaseConnection;
+      const ASchema: TXrtlDatabaseOrmSchema;
+      const AId: Int64;
+      const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function DeleteByInt64Id(
+      const AConnection: TXrtlDatabaseConnection;
+      const ASchema: TXrtlDatabaseOrmSchema;
+      const AId: Int64): TXrtlResult;
+    property SqlCache: TXrtlDatabaseOrmSqlCache read FSqlCache;
+  end;
+
+  TXrtlDatabaseOrmIdentityMapEntry = record
+  private
+    FSchemaKey: string;
+    FId: Int64;
+    FRecord: TXrtlDatabaseOrmRecord;
+  public
+    property SchemaKey: string read FSchemaKey;
+    property Id: Int64 read FId;
+    property RecordData: TXrtlDatabaseOrmRecord read FRecord;
+  end;
+
+  TXrtlDatabaseOrmSession = class
+  private
+    FConnection: TXrtlDatabaseConnection;
+    FMapper: TXrtlDatabaseOrmMapper;
+    FSchemaCache: TXrtlDatabaseOrmSchemaCache;
+    FIdentityMap: array of TXrtlDatabaseOrmIdentityMapEntry;
+    FIdentityMapHitCount: Integer;
+    function GetIdentityMapCount: Integer;
+    function RequireConnection: TXrtlResult;
+    function IndexOfIdentity(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64): Integer;
+    procedure PutIdentity(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64; const ARecord: TXrtlDatabaseOrmRecord);
+    procedure RemoveIdentity(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64);
+  public
+    constructor Create(const AConnection: TXrtlDatabaseConnection);
+    destructor Destroy; override;
+    procedure Clear;
+    function BeginWork: TXrtlResult;
+    function Commit: TXrtlResult;
+    function Rollback: TXrtlResult;
+    function FindByInt64Id(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function Insert(const ASchema: TXrtlDatabaseOrmSchema; const ARecord: TXrtlDatabaseOrmRecord; out AId: Int64): TXrtlResult;
+    function Update(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function DeleteByInt64Id(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64): TXrtlResult;
+    property Connection: TXrtlDatabaseConnection read FConnection;
+    property Mapper: TXrtlDatabaseOrmMapper read FMapper;
+    property SchemaCache: TXrtlDatabaseOrmSchemaCache read FSchemaCache;
+    property IdentityMapCount: Integer read GetIdentityMapCount;
+    property IdentityMapHitCount: Integer read FIdentityMapHitCount;
+  end;
+
+  TXrtlDatabaseOrmRepository = class
+  private
+    FSession: TXrtlDatabaseOrmSession;
+    FSchema: TXrtlDatabaseOrmSchema;
+  public
+    constructor Create(const ASession: TXrtlDatabaseOrmSession; const ASchema: TXrtlDatabaseOrmSchema);
+    function FindByInt64Id(const AId: Int64; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function Insert(const ARecord: TXrtlDatabaseOrmRecord; out AId: Int64): TXrtlResult;
+    function Update(const AId: Int64; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+    function DeleteByInt64Id(const AId: Int64): TXrtlResult;
+    property Session: TXrtlDatabaseOrmSession read FSession;
+    property Schema: TXrtlDatabaseOrmSchema read FSchema;
+  end;
+
+  TXrtlDatabaseAttachmentMetadata = record
+  private
+    FId: Int64;
+    FOwnerType: string;
+    FOwnerId: Int64;
+    FFileName: string;
+    FMediaType: string;
+    FSizeBytes: Int64;
+    FSha256: string;
+    FStorageUri: string;
+    FState: string;
+    FCreatedAtUtc: string;
+  public
+    class function Create(
+      const AOwnerType: string;
+      const AOwnerId: Int64;
+      const AFileName, AMediaType: string;
+      const ASizeBytes: Int64;
+      const ASha256, AStorageUri, AState, ACreatedAtUtc: string): TXrtlDatabaseAttachmentMetadata; static;
+    procedure Clear;
+    property Id: Int64 read FId write FId;
+    property OwnerType: string read FOwnerType write FOwnerType;
+    property OwnerId: Int64 read FOwnerId write FOwnerId;
+    property FileName: string read FFileName write FFileName;
+    property MediaType: string read FMediaType write FMediaType;
+    property SizeBytes: Int64 read FSizeBytes write FSizeBytes;
+    property Sha256: string read FSha256 write FSha256;
+    property StorageUri: string read FStorageUri write FStorageUri;
+    property State: string read FState write FState;
+    property CreatedAtUtc: string read FCreatedAtUtc write FCreatedAtUtc;
+  end;
+
+  TXrtlDatabaseAttachmentMetadataStore = class
+  private
+    FConnection: TXrtlDatabaseConnection;
+    function RequireConnection: TXrtlResult;
+    function ValidateMetadata(const AMetadata: TXrtlDatabaseAttachmentMetadata): TXrtlResult;
+  public
+    constructor Create(const AConnection: TXrtlDatabaseConnection);
+    function EnsureSchema: TXrtlResult;
+    function Insert(const AMetadata: TXrtlDatabaseAttachmentMetadata; out AId: Int64): TXrtlResult;
+    function FindByInt64Id(const AId: Int64; out AMetadata: TXrtlDatabaseAttachmentMetadata): TXrtlResult;
+    property Connection: TXrtlDatabaseConnection read FConnection;
   end;
 
 implementation
@@ -469,6 +642,71 @@ begin
       Result := Result + ASeparator;
     Result := Result + AItems[I];
   end;
+end;
+
+function XrtlDatabaseOrmSchemaKey(const ASchema: TXrtlDatabaseOrmSchema): string;
+var
+  I: Integer;
+  FieldFlags: string;
+begin
+  Result := '';
+  if not Assigned(ASchema) then
+    Exit;
+
+  Result := LowerCase(ASchema.TableName) + '|' + LowerCase(ASchema.IdColumnName);
+  for I := 0 to ASchema.FieldCount - 1 do
+  begin
+    FieldFlags := '';
+    if ASchema[I].Required then
+      FieldFlags := FieldFlags + 'r'
+    else
+      FieldFlags := FieldFlags + '-';
+    if ASchema[I].Writable then
+      FieldFlags := FieldFlags + 'w'
+    else
+      FieldFlags := FieldFlags + '-';
+    Result := Result + '|' + LowerCase(ASchema[I].Name) + ':' +
+      LowerCase(ASchema[I].ColumnName) + ':' + FieldFlags;
+  end;
+end;
+
+function XrtlDatabaseOrmIsIdField(
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AField: TXrtlDatabaseOrmField): Boolean;
+begin
+  Result := Assigned(ASchema) and SameText(AField.ColumnName, ASchema.IdColumnName);
+end;
+
+function XrtlDatabaseOrmParameterName(const AFieldName: string): string;
+begin
+  Result := 'xrtl_orm_' + AFieldName;
+end;
+
+function XrtlDatabaseAddValueParameter(
+  const AParams: TXrtlDatabaseParameters;
+  const AName: string;
+  const AValue: TXrtlDatabaseValue): TXrtlResult;
+begin
+  if not Assigned(AParams) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameters',
+      'Database parameters must not be nil'));
+  if not XrtlDatabaseIsValidIdentifier(AName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameter',
+      'Database parameter identifier is invalid: ' + AName));
+
+  case AValue.Kind of
+    xsvNull:
+      AParams.AddNull(AName);
+    xsvText:
+      AParams.AddText(AName, AValue.TextValue);
+    xsvInt64:
+      AParams.AddInt64(AName, AValue.Int64ValueData);
+  end;
+  Result := TXrtlResult.Ok;
 end;
 
 class function TXrtlSqliteValue.Null: TXrtlSqliteValue;
@@ -1469,10 +1707,15 @@ begin
   Result := TXrtlResult.Ok;
 end;
 
-class function TXrtlDatabaseOrmField.Create(const AName, AColumnName: string): TXrtlDatabaseOrmField;
+class function TXrtlDatabaseOrmField.Create(
+  const AName, AColumnName: string;
+  const ARequired: Boolean;
+  const AWritable: Boolean): TXrtlDatabaseOrmField;
 begin
   Result.FName := AName;
   Result.FColumnName := AColumnName;
+  Result.FRequired := ARequired;
+  Result.FWritable := AWritable;
 end;
 
 procedure TXrtlDatabaseOrmSchema.Clear;
@@ -1532,7 +1775,10 @@ begin
       Exit(I);
 end;
 
-function TXrtlDatabaseOrmSchema.AddField(const AName, AColumnName: string): TXrtlResult;
+function TXrtlDatabaseOrmSchema.AddField(
+  const AName, AColumnName: string;
+  const ARequired: Boolean;
+  const AWritable: Boolean): TXrtlResult;
 begin
   if not XrtlDatabaseIsValidIdentifier(AName) then
     Exit(TXrtlResult.Fail(
@@ -1556,7 +1802,7 @@ begin
       'ORM column name is duplicated: ' + AColumnName));
 
   SetLength(FFields, Length(FFields) + 1);
-  FFields[High(FFields)] := TXrtlDatabaseOrmField.Create(AName, AColumnName);
+  FFields[High(FFields)] := TXrtlDatabaseOrmField.Create(AName, AColumnName, ARequired, AWritable);
   Result := TXrtlResult.Ok;
 end;
 
@@ -1628,6 +1874,32 @@ begin
   end;
 end;
 
+procedure TXrtlDatabaseOrmRecord.SetNull(const AName: string);
+begin
+  SetValue(AName, TXrtlDatabaseValue.Null);
+end;
+
+procedure TXrtlDatabaseOrmRecord.SetText(const AName, AValue: string);
+begin
+  SetValue(AName, TXrtlDatabaseValue.Text(AValue));
+end;
+
+procedure TXrtlDatabaseOrmRecord.SetInt64(const AName: string; const AValue: Int64);
+begin
+  SetValue(AName, TXrtlDatabaseValue.Int64Value(AValue));
+end;
+
+procedure TXrtlDatabaseOrmRecord.CopyFrom(const ASource: TXrtlDatabaseOrmRecord);
+var
+  I: Integer;
+begin
+  Clear;
+  if not Assigned(ASource) then
+    Exit;
+  for I := 0 to ASource.ValueCount - 1 do
+    SetValue(ASource[I].Name, ASource[I].Value);
+end;
+
 function TXrtlDatabaseOrmRecord.ValueByName(const AName: string; out AValue: TXrtlDatabaseValue): TXrtlResult;
 var
   Index: Integer;
@@ -1640,6 +1912,221 @@ begin
       'ORM record field was not found: ' + AName));
 
   AValue := FValues[Index].Value;
+  Result := TXrtlResult.Ok;
+end;
+
+procedure TXrtlDatabaseOrmSqlCache.Clear;
+begin
+  FSelectByIdKey := '';
+  FSelectByIdSql := '';
+  FInsertKey := '';
+  FInsertSql := '';
+  FUpdateKey := '';
+  FUpdateSql := '';
+  FDeleteByIdKey := '';
+  FDeleteByIdSql := '';
+  FHitCount := 0;
+  FMissCount := 0;
+end;
+
+function TXrtlDatabaseOrmSqlCache.SelectByIdSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+var
+  I: Integer;
+  Key: string;
+  Columns: array of string;
+begin
+  ASql := '';
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  Key := XrtlDatabaseOrmSchemaKey(ASchema) + '|select_by_id';
+  if (Key = FSelectByIdKey) and (FSelectByIdSql <> '') then
+  begin
+    Inc(FHitCount);
+    ASql := FSelectByIdSql;
+    Exit(TXrtlResult.Ok);
+  end;
+
+  SetLength(Columns, ASchema.FieldCount);
+  for I := 0 to ASchema.FieldCount - 1 do
+    Columns[I] := ASchema[I].ColumnName;
+
+  FSelectByIdKey := Key;
+  FSelectByIdSql := 'select ' + XrtlDatabaseJoinStrings(Columns, ', ') +
+    ' from ' + ASchema.TableName +
+    ' where ' + ASchema.IdColumnName + ' = :xrtl_orm_id limit 1';
+  Inc(FMissCount);
+  ASql := FSelectByIdSql;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSqlCache.InsertSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+var
+  I: Integer;
+  Key: string;
+  Columns: array of string;
+  Parameters: array of string;
+begin
+  ASql := '';
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  Key := XrtlDatabaseOrmSchemaKey(ASchema) + '|insert';
+  if (Key = FInsertKey) and (FInsertSql <> '') then
+  begin
+    Inc(FHitCount);
+    ASql := FInsertSql;
+    Exit(TXrtlResult.Ok);
+  end;
+
+  for I := 0 to ASchema.FieldCount - 1 do
+  begin
+    if XrtlDatabaseOrmIsIdField(ASchema, ASchema[I]) or (not ASchema[I].Writable) then
+      Continue;
+    SetLength(Columns, Length(Columns) + 1);
+    SetLength(Parameters, Length(Parameters) + 1);
+    Columns[High(Columns)] := ASchema[I].ColumnName;
+    Parameters[High(Parameters)] := ':' + XrtlDatabaseOrmParameterName(ASchema[I].Name);
+  end;
+
+  if Length(Columns) = 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema must include at least one writable non-id field'));
+
+  FInsertKey := Key;
+  FInsertSql := 'insert into ' + ASchema.TableName + '(' +
+    XrtlDatabaseJoinStrings(Columns, ', ') + ') values (' +
+    XrtlDatabaseJoinStrings(Parameters, ', ') + ')';
+  Inc(FMissCount);
+  ASql := FInsertSql;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSqlCache.UpdateSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+var
+  I: Integer;
+  Key: string;
+  Assignments: array of string;
+begin
+  ASql := '';
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  Key := XrtlDatabaseOrmSchemaKey(ASchema) + '|update';
+  if (Key = FUpdateKey) and (FUpdateSql <> '') then
+  begin
+    Inc(FHitCount);
+    ASql := FUpdateSql;
+    Exit(TXrtlResult.Ok);
+  end;
+
+  for I := 0 to ASchema.FieldCount - 1 do
+  begin
+    if XrtlDatabaseOrmIsIdField(ASchema, ASchema[I]) or (not ASchema[I].Writable) then
+      Continue;
+    SetLength(Assignments, Length(Assignments) + 1);
+    Assignments[High(Assignments)] := ASchema[I].ColumnName + ' = :' +
+      XrtlDatabaseOrmParameterName(ASchema[I].Name);
+  end;
+
+  if Length(Assignments) = 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema must include at least one writable non-id field'));
+
+  FUpdateKey := Key;
+  FUpdateSql := 'update ' + ASchema.TableName + ' set ' +
+    XrtlDatabaseJoinStrings(Assignments, ', ') +
+    ' where ' + ASchema.IdColumnName + ' = :xrtl_orm_id';
+  Inc(FMissCount);
+  ASql := FUpdateSql;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSqlCache.DeleteByIdSql(const ASchema: TXrtlDatabaseOrmSchema; out ASql: string): TXrtlResult;
+var
+  Key: string;
+begin
+  ASql := '';
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  Key := XrtlDatabaseOrmSchemaKey(ASchema) + '|delete_by_id';
+  if (Key = FDeleteByIdKey) and (FDeleteByIdSql <> '') then
+  begin
+    Inc(FHitCount);
+    ASql := FDeleteByIdSql;
+    Exit(TXrtlResult.Ok);
+  end;
+
+  FDeleteByIdKey := Key;
+  FDeleteByIdSql := 'delete from ' + ASchema.TableName +
+    ' where ' + ASchema.IdColumnName + ' = :xrtl_orm_id';
+  Inc(FMissCount);
+  ASql := FDeleteByIdSql;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSchemaCache.GetCount: Integer;
+begin
+  Result := Length(FKeys);
+end;
+
+procedure TXrtlDatabaseOrmSchemaCache.Clear;
+begin
+  SetLength(FKeys, 0);
+  FHitCount := 0;
+  FMissCount := 0;
+end;
+
+function TXrtlDatabaseOrmSchemaCache.IndexOfSchema(const ASchema: TXrtlDatabaseOrmSchema): Integer;
+var
+  I: Integer;
+  Key: string;
+begin
+  Result := -1;
+  Key := XrtlDatabaseOrmSchemaKey(ASchema);
+  if Key = '' then
+    Exit;
+  for I := 0 to High(FKeys) do
+    if FKeys[I] = Key then
+      Exit(I);
+end;
+
+function TXrtlDatabaseOrmSchemaCache.RegisterSchema(const ASchema: TXrtlDatabaseOrmSchema; out AIndex: Integer): TXrtlResult;
+var
+  Key: string;
+begin
+  AIndex := -1;
+  if not Assigned(ASchema) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema cache requires a schema'));
+
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  AIndex := IndexOfSchema(ASchema);
+  if AIndex >= 0 then
+  begin
+    Inc(FHitCount);
+    Exit(TXrtlResult.Ok);
+  end;
+
+  Key := XrtlDatabaseOrmSchemaKey(ASchema);
+  SetLength(FKeys, Length(FKeys) + 1);
+  FKeys[High(FKeys)] := Key;
+  AIndex := High(FKeys);
+  Inc(FMissCount);
   Result := TXrtlResult.Ok;
 end;
 
@@ -1667,18 +2154,153 @@ begin
   Result := TXrtlResult.Ok;
 end;
 
+function TXrtlDatabaseOrmMapper.ValidateWriteRecord(const ASchema: TXrtlDatabaseOrmSchema; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+var
+  I: Integer;
+  WritableCount: Integer;
+  Value: TXrtlDatabaseValue;
+begin
+  if not Assigned(ASchema) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM mapper requires a schema'));
+  if not Assigned(ARecord) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_record',
+      'ORM mapper requires a record'));
+
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  WritableCount := 0;
+  for I := 0 to ASchema.FieldCount - 1 do
+  begin
+    if XrtlDatabaseOrmIsIdField(ASchema, ASchema[I]) or (not ASchema[I].Writable) then
+      Continue;
+    Inc(WritableCount);
+    Result := ARecord.ValueByName(ASchema[I].Name, Value);
+    if Result.Failed then
+    begin
+      if ASchema[I].Required then
+        Exit(TXrtlResult.Fail(
+          XRTL_DATABASE_ERROR_DOMAIN,
+          'orm_required_field_missing',
+          'Required ORM field is missing: ' + ASchema[I].Name));
+      Continue;
+    end;
+    if ASchema[I].Required and Value.IsNull then
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'orm_required_field_missing',
+        'Required ORM field is null: ' + ASchema[I].Name));
+  end;
+
+  if WritableCount = 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM schema must include at least one writable non-id field'));
+
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmMapper.BindWriteParameters(
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const ARecord: TXrtlDatabaseOrmRecord;
+  const AParams: TXrtlDatabaseParameters): TXrtlResult;
+var
+  I: Integer;
+  Value: TXrtlDatabaseValue;
+  ParameterName: string;
+begin
+  if not Assigned(AParams) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameters',
+      'ORM mapper requires parameters'));
+
+  AParams.Clear;
+  for I := 0 to ASchema.FieldCount - 1 do
+  begin
+    if XrtlDatabaseOrmIsIdField(ASchema, ASchema[I]) or (not ASchema[I].Writable) then
+      Continue;
+    Result := ARecord.ValueByName(ASchema[I].Name, Value);
+    if Result.Failed then
+      Value := TXrtlDatabaseValue.Null;
+    ParameterName := XrtlDatabaseOrmParameterName(ASchema[I].Name);
+    Result := XrtlDatabaseAddValueParameter(AParams, ParameterName, Value);
+    if Result.Failed then
+      Exit;
+  end;
+
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmMapper.BindIdParameter(const AParams: TXrtlDatabaseParameters; const AId: Int64): TXrtlResult;
+begin
+  if not Assigned(AParams) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameters',
+      'ORM mapper requires parameters'));
+  AParams.AddInt64('xrtl_orm_id', AId);
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmMapper.EnsureRecordExists(
+  const AConnection: TXrtlDatabaseConnection;
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+  Count: Int64;
+begin
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Params.AddInt64('xrtl_orm_id', AId);
+    Result := AConnection.QueryInt64(
+      'select count(*) from ' + ASchema.TableName +
+      ' where ' + ASchema.IdColumnName + ' = :xrtl_orm_id',
+      Params,
+      Count);
+    if Result.Failed then
+      Exit;
+    if Count = 0 then
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'orm_record_not_found',
+        'ORM record was not found'));
+    Result := TXrtlResult.Ok;
+  finally
+    Params.Free;
+  end;
+end;
+
+constructor TXrtlDatabaseOrmMapper.Create;
+begin
+  inherited Create;
+  FSqlCache := TXrtlDatabaseOrmSqlCache.Create;
+end;
+
+destructor TXrtlDatabaseOrmMapper.Destroy;
+begin
+  FSqlCache.Free;
+  inherited Destroy;
+end;
+
 function TXrtlDatabaseOrmMapper.FindByInt64Id(
   const AConnection: TXrtlDatabaseConnection;
   const ASchema: TXrtlDatabaseOrmSchema;
   const AId: Int64;
   const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
 var
-  Builder: TXrtlDatabaseSelectBuilder;
   Params: TXrtlDatabaseParameters;
   Rows: TXrtlDatabaseResultSet;
   Row: TXrtlDatabaseRow;
   Sql: string;
-  I: Integer;
 begin
   if not Assigned(AConnection) then
     Exit(TXrtlResult.Fail(
@@ -1700,28 +2322,13 @@ begin
   if Result.Failed then
     Exit;
 
-  Builder := TXrtlDatabaseSelectBuilder.Create;
   Params := TXrtlDatabaseParameters.Create;
   Rows := TXrtlDatabaseResultSet.Create;
   try
-    Result := Builder.FromTable(ASchema.TableName);
+    Result := FSqlCache.SelectByIdSql(ASchema, Sql);
     if Result.Failed then
       Exit;
-    for I := 0 to ASchema.FieldCount - 1 do
-    begin
-      Result := Builder.AddColumn(ASchema[I].ColumnName);
-      if Result.Failed then
-        Exit;
-    end;
-    Result := Builder.WhereInt64Equals(ASchema.IdColumnName, 'xrtl_orm_id', AId);
-    if Result.Failed then
-      Exit;
-    Result := Builder.SetLimit(1);
-    if Result.Failed then
-      Exit;
-    Result := Builder.Build(Sql, Params);
-    if Result.Failed then
-      Exit;
+    Params.AddInt64('xrtl_orm_id', AId);
 
     Result := AConnection.QueryRows(Sql, Params, Rows);
     if Result.Failed then
@@ -1740,7 +2347,660 @@ begin
   finally
     Rows.Free;
     Params.Free;
-    Builder.Free;
+  end;
+end;
+
+function TXrtlDatabaseOrmMapper.Insert(
+  const AConnection: TXrtlDatabaseConnection;
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const ARecord: TXrtlDatabaseOrmRecord;
+  out AId: Int64): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+  Sql: string;
+  IdFieldIndex: Integer;
+begin
+  AId := 0;
+  if not Assigned(AConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'ORM mapper requires a database connection'));
+
+  Result := ValidateWriteRecord(ASchema, ARecord);
+  if Result.Failed then
+    Exit;
+
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Result := FSqlCache.InsertSql(ASchema, Sql);
+    if Result.Failed then
+      Exit;
+    Result := BindWriteParameters(ASchema, ARecord, Params);
+    if Result.Failed then
+      Exit;
+    Result := AConnection.Execute(Sql, Params);
+    if Result.Failed then
+      Exit;
+    Result := AConnection.QueryInt64('select last_insert_rowid()', AId);
+    if Result.Failed then
+      Exit;
+    IdFieldIndex := ASchema.IndexOfColumn(ASchema.IdColumnName);
+    if IdFieldIndex >= 0 then
+      ARecord.SetInt64(ASchema[IdFieldIndex].Name, AId);
+  finally
+    Params.Free;
+  end;
+end;
+
+function TXrtlDatabaseOrmMapper.Update(
+  const AConnection: TXrtlDatabaseConnection;
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64;
+  const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+  Sql: string;
+begin
+  if not Assigned(AConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'ORM mapper requires a database connection'));
+
+  Result := ValidateWriteRecord(ASchema, ARecord);
+  if Result.Failed then
+    Exit;
+
+  Result := EnsureRecordExists(AConnection, ASchema, AId);
+  if Result.Failed then
+    Exit;
+
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Result := FSqlCache.UpdateSql(ASchema, Sql);
+    if Result.Failed then
+      Exit;
+    Result := BindWriteParameters(ASchema, ARecord, Params);
+    if Result.Failed then
+      Exit;
+    Result := BindIdParameter(Params, AId);
+    if Result.Failed then
+      Exit;
+    Result := AConnection.Execute(Sql, Params);
+  finally
+    Params.Free;
+  end;
+end;
+
+function TXrtlDatabaseOrmMapper.DeleteByInt64Id(
+  const AConnection: TXrtlDatabaseConnection;
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+  Sql: string;
+begin
+  if not Assigned(AConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'ORM mapper requires a database connection'));
+  if not Assigned(ASchema) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_schema',
+      'ORM mapper requires a schema'));
+
+  Result := ASchema.Validate;
+  if Result.Failed then
+    Exit;
+
+  Result := EnsureRecordExists(AConnection, ASchema, AId);
+  if Result.Failed then
+    Exit;
+
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Result := FSqlCache.DeleteByIdSql(ASchema, Sql);
+    if Result.Failed then
+      Exit;
+    Result := BindIdParameter(Params, AId);
+    if Result.Failed then
+      Exit;
+    Result := AConnection.Execute(Sql, Params);
+  finally
+    Params.Free;
+  end;
+end;
+
+function TXrtlDatabaseOrmSession.GetIdentityMapCount: Integer;
+begin
+  Result := Length(FIdentityMap);
+end;
+
+function TXrtlDatabaseOrmSession.RequireConnection: TXrtlResult;
+begin
+  if not Assigned(FConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'ORM session requires a database connection'));
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseOrmSession.IndexOfIdentity(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64): Integer;
+var
+  I: Integer;
+  Key: string;
+begin
+  Result := -1;
+  Key := XrtlDatabaseOrmSchemaKey(ASchema);
+  if Key = '' then
+    Exit;
+  for I := 0 to High(FIdentityMap) do
+    if (FIdentityMap[I].FSchemaKey = Key) and (FIdentityMap[I].FId = AId) then
+      Exit(I);
+end;
+
+procedure TXrtlDatabaseOrmSession.PutIdentity(
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64;
+  const ARecord: TXrtlDatabaseOrmRecord);
+var
+  Index: Integer;
+begin
+  if not Assigned(ARecord) then
+    Exit;
+
+  Index := IndexOfIdentity(ASchema, AId);
+  if Index < 0 then
+  begin
+    SetLength(FIdentityMap, Length(FIdentityMap) + 1);
+    Index := High(FIdentityMap);
+    FIdentityMap[Index].FSchemaKey := XrtlDatabaseOrmSchemaKey(ASchema);
+    FIdentityMap[Index].FId := AId;
+    FIdentityMap[Index].FRecord := TXrtlDatabaseOrmRecord.Create;
+  end;
+  FIdentityMap[Index].FRecord.CopyFrom(ARecord);
+end;
+
+procedure TXrtlDatabaseOrmSession.RemoveIdentity(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64);
+var
+  Index: Integer;
+  I: Integer;
+begin
+  Index := IndexOfIdentity(ASchema, AId);
+  if Index < 0 then
+    Exit;
+
+  FIdentityMap[Index].FRecord.Free;
+  for I := Index to High(FIdentityMap) - 1 do
+    FIdentityMap[I] := FIdentityMap[I + 1];
+  SetLength(FIdentityMap, Length(FIdentityMap) - 1);
+end;
+
+constructor TXrtlDatabaseOrmSession.Create(const AConnection: TXrtlDatabaseConnection);
+begin
+  inherited Create;
+  FConnection := AConnection;
+  FMapper := TXrtlDatabaseOrmMapper.Create;
+  FSchemaCache := TXrtlDatabaseOrmSchemaCache.Create;
+end;
+
+destructor TXrtlDatabaseOrmSession.Destroy;
+begin
+  Clear;
+  FSchemaCache.Free;
+  FMapper.Free;
+  inherited Destroy;
+end;
+
+procedure TXrtlDatabaseOrmSession.Clear;
+var
+  I: Integer;
+begin
+  for I := 0 to High(FIdentityMap) do
+    FIdentityMap[I].FRecord.Free;
+  SetLength(FIdentityMap, 0);
+  FIdentityMapHitCount := 0;
+end;
+
+function TXrtlDatabaseOrmSession.BeginWork: TXrtlResult;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := FConnection.BeginTransaction;
+end;
+
+function TXrtlDatabaseOrmSession.Commit: TXrtlResult;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := FConnection.Commit;
+end;
+
+function TXrtlDatabaseOrmSession.Rollback: TXrtlResult;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := FConnection.Rollback;
+  if Result.Succeeded then
+    Clear;
+end;
+
+function TXrtlDatabaseOrmSession.FindByInt64Id(
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64;
+  const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+var
+  Index: Integer;
+  SchemaIndex: Integer;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  if not Assigned(ARecord) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_record',
+      'ORM session requires an output record'));
+
+  Result := FSchemaCache.RegisterSchema(ASchema, SchemaIndex);
+  if Result.Failed then
+    Exit;
+
+  Index := IndexOfIdentity(ASchema, AId);
+  if Index >= 0 then
+  begin
+    Inc(FIdentityMapHitCount);
+    ARecord.CopyFrom(FIdentityMap[Index].FRecord);
+    Exit(TXrtlResult.Ok);
+  end;
+
+  Result := FMapper.FindByInt64Id(FConnection, ASchema, AId, ARecord);
+  if Result.Succeeded then
+    PutIdentity(ASchema, AId, ARecord);
+end;
+
+function TXrtlDatabaseOrmSession.Insert(
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const ARecord: TXrtlDatabaseOrmRecord;
+  out AId: Int64): TXrtlResult;
+var
+  SchemaIndex: Integer;
+begin
+  AId := 0;
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := FSchemaCache.RegisterSchema(ASchema, SchemaIndex);
+  if Result.Failed then
+    Exit;
+  Result := FMapper.Insert(FConnection, ASchema, ARecord, AId);
+  if Result.Succeeded then
+    PutIdentity(ASchema, AId, ARecord);
+end;
+
+function TXrtlDatabaseOrmSession.Update(
+  const ASchema: TXrtlDatabaseOrmSchema;
+  const AId: Int64;
+  const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+var
+  SchemaIndex: Integer;
+  IdFieldIndex: Integer;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := FSchemaCache.RegisterSchema(ASchema, SchemaIndex);
+  if Result.Failed then
+    Exit;
+  Result := FMapper.Update(FConnection, ASchema, AId, ARecord);
+  if Result.Succeeded then
+  begin
+    IdFieldIndex := ASchema.IndexOfColumn(ASchema.IdColumnName);
+    if IdFieldIndex >= 0 then
+      ARecord.SetInt64(ASchema[IdFieldIndex].Name, AId);
+    PutIdentity(ASchema, AId, ARecord);
+  end;
+end;
+
+function TXrtlDatabaseOrmSession.DeleteByInt64Id(const ASchema: TXrtlDatabaseOrmSchema; const AId: Int64): TXrtlResult;
+var
+  SchemaIndex: Integer;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := FSchemaCache.RegisterSchema(ASchema, SchemaIndex);
+  if Result.Failed then
+    Exit;
+  Result := FMapper.DeleteByInt64Id(FConnection, ASchema, AId);
+  if Result.Succeeded then
+    RemoveIdentity(ASchema, AId);
+end;
+
+constructor TXrtlDatabaseOrmRepository.Create(
+  const ASession: TXrtlDatabaseOrmSession;
+  const ASchema: TXrtlDatabaseOrmSchema);
+begin
+  inherited Create;
+  FSession := ASession;
+  FSchema := ASchema;
+end;
+
+function TXrtlDatabaseOrmRepository.FindByInt64Id(
+  const AId: Int64;
+  const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+begin
+  if not Assigned(FSession) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_session',
+      'ORM repository requires a session'));
+  Result := FSession.FindByInt64Id(FSchema, AId, ARecord);
+end;
+
+function TXrtlDatabaseOrmRepository.Insert(const ARecord: TXrtlDatabaseOrmRecord; out AId: Int64): TXrtlResult;
+begin
+  AId := 0;
+  if not Assigned(FSession) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_session',
+      'ORM repository requires a session'));
+  Result := FSession.Insert(FSchema, ARecord, AId);
+end;
+
+function TXrtlDatabaseOrmRepository.Update(const AId: Int64; const ARecord: TXrtlDatabaseOrmRecord): TXrtlResult;
+begin
+  if not Assigned(FSession) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_session',
+      'ORM repository requires a session'));
+  Result := FSession.Update(FSchema, AId, ARecord);
+end;
+
+function TXrtlDatabaseOrmRepository.DeleteByInt64Id(const AId: Int64): TXrtlResult;
+begin
+  if not Assigned(FSession) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_orm_session',
+      'ORM repository requires a session'));
+  Result := FSession.DeleteByInt64Id(FSchema, AId);
+end;
+
+class function TXrtlDatabaseAttachmentMetadata.Create(
+  const AOwnerType: string;
+  const AOwnerId: Int64;
+  const AFileName, AMediaType: string;
+  const ASizeBytes: Int64;
+  const ASha256, AStorageUri, AState, ACreatedAtUtc: string): TXrtlDatabaseAttachmentMetadata;
+begin
+  Result.Clear;
+  Result.FOwnerType := AOwnerType;
+  Result.FOwnerId := AOwnerId;
+  Result.FFileName := AFileName;
+  Result.FMediaType := AMediaType;
+  Result.FSizeBytes := ASizeBytes;
+  Result.FSha256 := ASha256;
+  Result.FStorageUri := AStorageUri;
+  Result.FState := AState;
+  Result.FCreatedAtUtc := ACreatedAtUtc;
+end;
+
+procedure TXrtlDatabaseAttachmentMetadata.Clear;
+begin
+  FId := 0;
+  FOwnerType := '';
+  FOwnerId := 0;
+  FFileName := '';
+  FMediaType := '';
+  FSizeBytes := 0;
+  FSha256 := '';
+  FStorageUri := '';
+  FState := '';
+  FCreatedAtUtc := '';
+end;
+
+constructor TXrtlDatabaseAttachmentMetadataStore.Create(const AConnection: TXrtlDatabaseConnection);
+begin
+  inherited Create;
+  FConnection := AConnection;
+end;
+
+function TXrtlDatabaseAttachmentMetadataStore.RequireConnection: TXrtlResult;
+begin
+  if not Assigned(FConnection) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_connection',
+      'Attachment metadata store requires a database connection'));
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseAttachmentMetadataStore.ValidateMetadata(
+  const AMetadata: TXrtlDatabaseAttachmentMetadata): TXrtlResult;
+begin
+  if AMetadata.OwnerType = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment owner type is required'));
+  if AMetadata.OwnerId <= 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment owner id must be positive'));
+  if AMetadata.FileName = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment file name is required'));
+  if AMetadata.MediaType = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment media type is required'));
+  if AMetadata.SizeBytes < 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment size must not be negative'));
+  if AMetadata.Sha256 = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment SHA256 is required'));
+  if AMetadata.StorageUri = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment storage URI is required'));
+  if AMetadata.State = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment state is required'));
+  if AMetadata.CreatedAtUtc = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_attachment_metadata',
+      'Attachment created timestamp is required'));
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseAttachmentMetadataStore.EnsureSchema: TXrtlResult;
+begin
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+
+  Result := FConnection.Execute(
+    'create table if not exists xrtl_attachments (' +
+    'id integer primary key autoincrement, ' +
+    'owner_type text not null, ' +
+    'owner_id integer not null, ' +
+    'file_name text not null, ' +
+    'media_type text not null, ' +
+    'size_bytes integer not null, ' +
+    'sha256 text not null, ' +
+    'storage_uri text not null, ' +
+    'state text not null, ' +
+    'created_at_utc text not null)');
+end;
+
+function TXrtlDatabaseAttachmentMetadataStore.Insert(
+  const AMetadata: TXrtlDatabaseAttachmentMetadata;
+  out AId: Int64): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+begin
+  AId := 0;
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+  Result := ValidateMetadata(AMetadata);
+  if Result.Failed then
+    Exit;
+
+  Params := TXrtlDatabaseParameters.Create;
+  try
+    Params.AddText('owner_type', AMetadata.OwnerType);
+    Params.AddInt64('owner_id', AMetadata.OwnerId);
+    Params.AddText('file_name', AMetadata.FileName);
+    Params.AddText('media_type', AMetadata.MediaType);
+    Params.AddInt64('size_bytes', AMetadata.SizeBytes);
+    Params.AddText('sha256', AMetadata.Sha256);
+    Params.AddText('storage_uri', AMetadata.StorageUri);
+    Params.AddText('state', AMetadata.State);
+    Params.AddText('created_at_utc', AMetadata.CreatedAtUtc);
+    Result := FConnection.Execute(
+      'insert into xrtl_attachments(' +
+      'owner_type, owner_id, file_name, media_type, size_bytes, sha256, storage_uri, state, created_at_utc) ' +
+      'values (:owner_type, :owner_id, :file_name, :media_type, :size_bytes, :sha256, :storage_uri, :state, :created_at_utc)',
+      Params);
+    if Result.Failed then
+      Exit;
+    Result := FConnection.QueryInt64('select last_insert_rowid()', AId);
+  finally
+    Params.Free;
+  end;
+end;
+
+function TXrtlDatabaseAttachmentMetadataStore.FindByInt64Id(
+  const AId: Int64;
+  out AMetadata: TXrtlDatabaseAttachmentMetadata): TXrtlResult;
+var
+  Params: TXrtlDatabaseParameters;
+  Rows: TXrtlDatabaseResultSet;
+  Row: TXrtlDatabaseRow;
+  Value: TXrtlDatabaseValue;
+begin
+  AMetadata.Clear;
+  Result := RequireConnection;
+  if Result.Failed then
+    Exit;
+
+  Params := TXrtlDatabaseParameters.Create;
+  Rows := TXrtlDatabaseResultSet.Create;
+  try
+    Params.AddInt64('id', AId);
+    Result := FConnection.QueryRows(
+      'select id, owner_type, owner_id, file_name, media_type, size_bytes, sha256, storage_uri, state, created_at_utc ' +
+      'from xrtl_attachments where id = :id limit 1',
+      Params,
+      Rows);
+    if Result.Failed then
+      Exit;
+    if Rows.RowCount = 0 then
+      Exit(TXrtlResult.Fail(
+        XRTL_DATABASE_ERROR_DOMAIN,
+        'attachment_not_found',
+        'Attachment metadata was not found'));
+
+    Result := Rows.RowByIndex(0, Row);
+    if Result.Failed then
+      Exit;
+
+    Result := Row.ValueByName('id', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvInt64 then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment id is not int64'));
+    AMetadata.Id := Value.Int64ValueData;
+
+    Result := Row.ValueByName('owner_type', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment owner type is not text'));
+    AMetadata.OwnerType := Value.TextValue;
+
+    Result := Row.ValueByName('owner_id', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvInt64 then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment owner id is not int64'));
+    AMetadata.OwnerId := Value.Int64ValueData;
+
+    Result := Row.ValueByName('file_name', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment file name is not text'));
+    AMetadata.FileName := Value.TextValue;
+
+    Result := Row.ValueByName('media_type', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment media type is not text'));
+    AMetadata.MediaType := Value.TextValue;
+
+    Result := Row.ValueByName('size_bytes', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvInt64 then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment size is not int64'));
+    AMetadata.SizeBytes := Value.Int64ValueData;
+
+    Result := Row.ValueByName('sha256', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment SHA256 is not text'));
+    AMetadata.Sha256 := Value.TextValue;
+
+    Result := Row.ValueByName('storage_uri', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment storage URI is not text'));
+    AMetadata.StorageUri := Value.TextValue;
+
+    Result := Row.ValueByName('state', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment state is not text'));
+    AMetadata.State := Value.TextValue;
+
+    Result := Row.ValueByName('created_at_utc', Value);
+    if Result.Failed then
+      Exit;
+    if Value.Kind <> xsvText then
+      Exit(TXrtlResult.Fail(XRTL_DATABASE_ERROR_DOMAIN, 'attachment_map_failed', 'Attachment timestamp is not text'));
+    AMetadata.CreatedAtUtc := Value.TextValue;
+  finally
+    Rows.Free;
+    Params.Free;
   end;
 end;
 

@@ -77,10 +77,9 @@ gantt
     Database migrations (#56)                     :done, db-migrations, after db-provider, 1d
     Database query builder (#58)                  :done, db-query, after db-migrations, 1d
     Database ORM mapping (#60)                    :done, db-orm, after db-query, 1d
-    Database ORM V1 spec (#62)                    :active, db-orm-v1-spec, after db-orm, 1d
-    ORM CRUD mapper                               :db-orm-crud, after db-orm-v1-spec, 3d
-    ORM repository and session                    :db-orm-session, after db-orm-crud, 1w
-    ORM attachment metadata boundary              :db-orm-attachments, after db-orm-session, 3d
+    Database ORM V1 spec (#62)                    :done, db-orm-v1-spec, after db-orm, 1d
+    Database ORM V1 implementation (#64)          :active, db-orm-v1, after db-orm-v1-spec, 3d
+    ORM query/list and validation hooks           :db-orm-next, after db-orm-v1, 1w
     XRTL.HTTP FCL-Web/fphttpserver research (#41) :http-scope, after refine-scope, 1w
     XRTL.Web middleware design (#42)              :web-scope, after http-scope, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
@@ -107,6 +106,7 @@ gantt
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45</a> completes the macOS Apple Silicon rerun for Database SQLite v0 on merged <code>main</code>; the SQLite tests passed with FPC <code>3.3.1</code>.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/47">#47</a> defines the local-only Database feature-stack sequence. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> implements public transactions and parameter binding as the first slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> implements detached raw row/field/value mapping as the second slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> implements app dataset iteration over detached rows as the third slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> implements the SQLite-only provider facade as the fourth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> implements apply-only migration primitives as the fifth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> implements SELECT query builder primitives as the sixth slice. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> completes the epic with ORM mapping primitives. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a> defines the ORM V1 implementation strategy before more Database implementation proceeds. It keeps execution SQLite-only, starts caching with schema/generated-SQL/session identity-map caches, separates attachment upload/storage from ORM metadata, and uses SQLModel/SQLAlchemy as clean-room benchmarks.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a> implements that first ORM V1 slice: CRUD mapper, repository/session/unit-of-work, schema/generated-SQL/session identity-map caching, and attachment metadata without file bytes.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -166,13 +166,18 @@ gantt
       </tr>
       <tr>
         <td>Database ORM V1 specification</td>
-        <td>Issue #62 defines the long-form ORM implementation spec before further ORM code: CRUD mapper, repositories, sessions, 80/20 caching, attachment metadata boundary, tests, and child issue plan.</td>
+        <td>Completed by issue #62: long-form ORM implementation spec, CRUD/repository/session/cache/attachment plan, benchmark posture, and child issue plan.</td>
         <td>After #60 and before ORM CRUD/session implementation.</td>
       </tr>
       <tr>
-        <td>Database ORM child issues</td>
-        <td>Create focused follow-up issues for CRUD mapper, repository pattern, Session/Unit of Work, ORM migrations, attachment metadata, validation/hooks, and XRTL.Data bridge planning.</td>
+        <td>Database ORM V1 implementation</td>
+        <td>Issue #64 implements CRUD mapper, repository pattern, Session/Unit of Work, schema/generated-SQL/session identity-map caching, attachment metadata, and tests.</td>
         <td>After #62.</td>
+      </tr>
+      <tr>
+        <td>Database ORM next child issues</td>
+        <td>Create focused follow-up issues after #64 for query/list support, validation hooks, typed adapters, migration helpers, and XRTL.Data bridge planning.</td>
+        <td>After #64.</td>
       </tr>
       <tr>
         <td>XRTL.Web v0</td>
