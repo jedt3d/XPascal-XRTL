@@ -328,5 +328,11 @@
     <p>Added <code>database_orm_v1_tests</code> and <code>database_attachment_tests</code>, wired both into Windows CI and the Windows/macOS/Linux build scripts, and updated ADR #0017 plus the Database, PRD, roadmap, issue map, proposal, dependency, testing, README, and agent harness docs. Windows local validation passed <code>./tools/run-xpc.ps1 build</code> with FPC <code>3.3.1</code> and the full Core/Database test suite including the new ORM V1 and attachment metadata tests.</p>
     <p>Remote validation also passed on commit <code>aabbb6f</code> from temporary worktrees. macOS reported <code>Darwin 25.5.0 arm64</code> using <code>ppca64</code> FPC <code>3.3.1</code>; Ubuntu reported <code>Linux 7.0.0-22-generic x86_64</code> using <code>ppcx64</code> FPC <code>3.3.1</code>. Both ran <code>check-toolchain.sh</code>, <code>run-xpc.sh build</code>, <code>version</code>, <code>doctor</code>, <code>database_orm_v1_tests</code>, and <code>database_attachment_tests</code>. Hostnames, IPs, passwords, and host keys remained local-only in ignored <code>.secrets</code>.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 13:59 ICT - ORM V1 Merge Closeout</h2>
+    <p>PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/65">#65</a> merged into <code>main</code> at commit <code>91004e8</code>, closing issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a>. Local <code>main</code> was fast-forwarded to the merge commit after the PR merged.</p>
+    <p>Opened issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/66">#66</a> for the immediate post-merge status cleanup so the issue map, PRD, roadmap, Database docs, README, AGENT.md, and this log describe ORM V1 as complete. Future ORM work should start from new focused issues after #64, not by silently expanding the completed V1 slice.</p>
+  </section>
 </body>
 </html>
