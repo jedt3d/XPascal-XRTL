@@ -15,6 +15,7 @@ case "${platform}" in
       ;;
     macos-aarch64)
       archive_url="https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
+      sha256="${sha256:-6a7705ce896d5e2e9201f9a58551a2124aa6bfc7b5263c27dd44881a7162897a}"
       ;;
     macos-x86_64)
       echo "macOS Intel x86_64 is intentionally not supported by XPascal/XRTL bootstrap." >&2
@@ -45,15 +46,24 @@ else
   exit 1
 fi
 
-if [[ -n "${sha256}" && "${sha256}" != "PENDING" ]]; then
+if [[ -z "${sha256}" || "${sha256}" == "PENDING" ]]; then
+  echo "SHA256 is required for FPC archives. Set FPC_ARCHIVE_SHA256 for custom FPC_ARCHIVE_URL values." >&2
+  exit 1
+fi
+
+if command -v sha256sum >/dev/null 2>&1; then
   actual="$(sha256sum "${archive_path}" | awk '{print tolower($1)}')"
-  expected="$(printf '%s' "${sha256}" | tr '[:upper:]' '[:lower:]')"
-  if [[ "${actual}" != "${expected}" ]]; then
-    echo "SHA256 mismatch. Expected ${expected}, got ${actual}." >&2
-    exit 1
-  fi
+elif command -v shasum >/dev/null 2>&1; then
+  actual="$(shasum -a 256 "${archive_path}" | awk '{print tolower($1)}')"
 else
-  echo "warning: no SHA256 provided yet. This is allowed only during bootstrap." >&2
+  echo "sha256sum or shasum is required for checksum verification." >&2
+  exit 1
+fi
+
+expected="$(printf '%s' "${sha256}" | tr '[:upper:]' '[:lower:]')"
+if [[ "${actual}" != "${expected}" ]]; then
+  echo "SHA256 mismatch. Expected ${expected}, got ${actual}." >&2
+  exit 1
 fi
 
 echo "Extracting ${archive_path}"

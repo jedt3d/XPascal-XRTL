@@ -9,7 +9,7 @@ expected_fpc_iv = "3.3.1"
 [[artifact]]
 platform = "windows-x86_64"
 url = "https://downloads.freepascal.org/fpc/snapshot/v33/x86_64-win64/fpc-3.3.1.x86_64-win64.built.on.i386-win32.zip"
-sha256 = "PENDING"
+sha256 = "b3bf9859e3130c8196513a04891d5718b62fa637f7a093bb4d37d86863ecece8"
 
 [[artifact]]
 platform = "linux-x86_64"
@@ -19,7 +19,7 @@ sha256 = "b275cb2b1604c79d70c210e3a2360efdc6e0caac0aa6e763f93ff1b5249788bc"
 [[artifact]]
 platform = "macos-aarch64"
 url = "https://downloads.freepascal.org/fpc/snapshot/v33/aarch64-darwin/fpc-3.3.1.aarch64-darwin.tar.gz"
-sha256 = "PENDING"
+sha256 = "6a7705ce896d5e2e9201f9a58551a2124aa6bfc7b5263c27dd44881a7162897a"
 
 [[artifact]]
 platform = "macos-x86_64"
@@ -28,5 +28,5 @@ sha256 = "UNSUPPORTED"
 note = "macOS Intel x86_64 is intentionally not supported by XPascal/XRTL bootstrap."
 
 # Checksum policy:
-# - PENDING is allowed during bootstrap only.
-# - Before release packaging, every artifact must have a SHA256 and installer scripts must verify it.
+# - Every supported artifact must have a SHA256.
+# - Installer scripts must verify the archive before extracting it.

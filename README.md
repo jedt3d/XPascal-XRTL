@@ -23,9 +23,9 @@ Validated so far:
 - macOS Apple Silicon aarch64
 - Linux x86_64 / Ubuntu 26.04 LTS
 
-Open follow-up:
+Checksum status:
 
-- #9 finalizes Windows/macOS FPC 3.3.1 snapshot SHA256 values before release packaging.
+- Windows, macOS Apple Silicon, and Linux FPC 3.3.1 snapshot SHA256 values are pinned in `toolchains/fpc-3.3.1.lock`.
 
 ## Requirements
 
