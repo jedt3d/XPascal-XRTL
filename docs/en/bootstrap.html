@@ -27,7 +27,7 @@
   <h2>Windows</h2>
   <pre><code>./tools/install-fpc.ps1
 ./tools/check-toolchain.ps1
-./tools/build-xpc.ps1
+./tools/run-xpc.ps1 build
 ./tools/run-xpc.ps1 version
 ./tools/run-xpc.ps1 doctor
 ./build/hello_xpc.exe</code></pre>
@@ -35,7 +35,7 @@
   <h2>macOS Apple Silicon And Linux</h2>
   <pre><code>bash ./tools/install-fpc.sh
 bash ./tools/check-toolchain.sh
-bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh build
 bash ./tools/run-xpc.sh version
 bash ./tools/run-xpc.sh doctor
 ./build/hello_xpc</code></pre>
@@ -54,7 +54,7 @@ bash ./tools/run-xpc.sh doctor
   <ul>
     <li><code>install-fpc</code> downloads and extracts the locked FPC 3.3.1 snapshot for the current platform.</li>
     <li><code>check-toolchain</code> verifies that the selected compiler reports <code>3.3.1</code>.</li>
-    <li><code>build-xpc</code> builds the bootstrap CLI and smoke executable.</li>
+    <li><code>run-xpc build</code> builds the bootstrap CLI and smoke executable through the public CLI v0 launcher path.</li>
     <li><code>run-xpc</code> launches the CLI with verified compiler metadata.</li>
   </ul>
 </body>

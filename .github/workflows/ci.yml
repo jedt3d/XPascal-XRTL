@@ -27,11 +27,12 @@ jobs:
 
       - name: Build CLI and smoke test
         shell: pwsh
-        run: ./tools/build-xpc.ps1
+        run: ./tools/run-xpc.ps1 build
 
       - name: Run CLI smoke checks
         shell: pwsh
         run: |
+          ./tools/run-xpc.ps1 build
           ./tools/run-xpc.ps1 version
           ./tools/run-xpc.ps1 doctor
           ./build/hello_xpc.exe

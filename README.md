@@ -42,7 +42,7 @@ Windows:
 ```powershell
 ./tools/install-fpc.ps1
 ./tools/check-toolchain.ps1
-./tools/build-xpc.ps1
+./tools/run-xpc.ps1 build
 ./tools/run-xpc.ps1 version
 ./tools/run-xpc.ps1 doctor
 ```
@@ -52,7 +52,7 @@ macOS / Ubuntu:
 ```bash
 bash ./tools/install-fpc.sh
 bash ./tools/check-toolchain.sh
-bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh build
 bash ./tools/run-xpc.sh version
 bash ./tools/run-xpc.sh doctor
 ```

@@ -74,6 +74,33 @@ begin
   Result := 0;
 end;
 
+function Build: Integer;
+var
+  FpcVersion: string;
+begin
+  WriteLn('xpc build');
+  WriteLn('target: ', TargetOs, '-', TargetCpu);
+
+  FpcVersion := GetEnvironmentVariable('FPC_VERSION');
+  if FpcVersion = '' then
+  begin
+    WriteLn('fail: FreePascal version was not verified');
+    WriteLn('hint: run xpc build through tools/run-xpc after tools/check-toolchain');
+    Exit(1);
+  end;
+
+  WriteLn('fpc: ', FpcVersion);
+  if FpcVersion <> RequiredFpcVersion then
+  begin
+    WriteLn('fail: expected fpc ', RequiredFpcVersion);
+    Exit(1);
+  end;
+
+  WriteLn('fail: direct in-process build is not available in bootstrap CLI v0');
+  WriteLn('hint: use tools/run-xpc build so the platform launcher can invoke the correct build script');
+  Result := 1;
+end;
+
 procedure PrintHelp;
 begin
   WriteLn('xpc - XPascal bootstrap CLI');
@@ -81,6 +108,7 @@ begin
   WriteLn('Usage:');
   WriteLn('  xpc version');
   WriteLn('  xpc doctor');
+  WriteLn('  xpc build');
   WriteLn('  xpc help');
 end;
 
@@ -102,6 +130,8 @@ begin
       end;
     'doctor':
       Halt(Doctor);
+    'build':
+      Halt(Build);
     'help', '--help', '-h':
       begin
         PrintHelp;

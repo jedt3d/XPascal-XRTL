@@ -46,7 +46,7 @@ gantt
     section Roadmap And Planning
     Roadmap Gantt (#16, PR #17)                   :done, roadmap, after harness, 1d
     PRD and ADR cadence (#18, PR #19)             :done, prdadr, after roadmap, 1d
-    Status closeout (#20)                         :active, closeout, after prdadr, 1d
+    Status closeout (#20, PR #21)                 :done, closeout, after prdadr, 1d
 
     section Platform Validation
     Windows bootstrap validation evidence         :done, winval, 2026-06-12, 1d
@@ -55,7 +55,7 @@ gantt
     Cross-platform validation summary             :done, evidence, after macval, 1d
 
     section CLI And Toolchain
-    CLI v0 build command epic                     :crit, cliv0, after closeout, 1w
+    CLI v0 build command (#22)                    :crit, active, cliv0, after closeout, 1w
     Stabilize xpc CLI skeleton                    :cli, after cliv0, 1w
     Harden install/check/build scripts            :scripts, after cliv0, 1w
     Expand CI compiler-version enforcement        :ci, after scripts, 3d
@@ -92,8 +92,8 @@ gantt
     <tbody>
       <tr>
         <td>CLI v0 build command</td>
-        <td>Define and implement <code>xpc build</code> as the first public CLI v0 command after <code>version</code> and <code>doctor</code>.</td>
-        <td>Status closeout issue #20.</td>
+        <td>Implement <code>xpc build</code> as the first public CLI v0 command after <code>version</code> and <code>doctor</code>.</td>
+        <td>Issue #22.</td>
       </tr>
       <tr>
         <td>Windows validation refresh</td>
