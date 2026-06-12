@@ -3,45 +3,257 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>XRTL.Core Plan</title>
+  <title>XRTL.Core Design</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 960px; padding: 0 1rem; color: #202124; }
-    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
   </style>
 </head>
 <body>
-  <p><a href="./">XRTL Home</a></p>
+  <p><a href="./">XRTL Home</a> | <a href="architecture.html">Shared Architecture</a> | <a href="testing.html">Test Strategy</a></p>
   <h1>XRTL.Core</h1>
-  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+  <p><strong>Status:</strong> accepted design gate for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a>, revised after a release-note-first FPC research pass. Runtime implementation belongs in a follow-up issue and PR.</p>
 
   <h2>Purpose</h2>
-  <p>Core owns the smallest shared runtime primitives that other XRTL libraries need to communicate without depending on each other.</p>
+  <p>Core owns the smallest shared runtime primitives that let XRTL libraries communicate without depending on each other. It should be boring, stable, dependency-free inside XRTL, and portable across Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</p>
 
-  <h2>Responsibilities</h2>
+  <h2>Design Position</h2>
   <ul>
-    <li>Result status and error records.</li>
-    <li>Option/null value shape where FPC defaults are not sufficient for public APIs.</li>
-    <li>Feature flags and capability markers.</li>
-    <li>Small cross-library constants that do not belong to a domain library.</li>
+    <li>Core is a foundation library, not a utility drawer.</li>
+    <li>Core APIs should be stable enough for every later XRTL library to depend on.</li>
+    <li>Core must not perform IO, process execution, logging, config loading, encoding conversion, database work, HTTP parsing, or web routing.</li>
+    <li>Core should prefer plain records, enums, constants, and small functions over object hierarchies.</li>
+    <li>Core should avoid public exception flow. XRTL libraries return status/error contracts for expected failures.</li>
+  </ul>
+
+  <h2>Compiler Research Notes</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Research Point</th>
+        <th>Finding</th>
+        <th>Design Impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Release stream</td>
+        <td>The latest official stable release remains FPC <code>3.2.2</code>. The only recent release-style notice found in the last three years is FPC <code>3.2.4-rc1</code>, a fixes-branch release candidate announced in June 2025. The project pins development snapshot <code>3.3.1</code>, while upstream notes development versions have no support guarantee and snapshots may contain bugs.</td>
+        <td>Use <code>3.3.1</code> intentionally, but keep Core's first implementation on proven language features that compile in the pinned snapshot across all supported platforms. Treat 3.2.4 fixes-branch notes as compatibility signals and trunk-only features as opt-in after tests, not as default style.</td>
+      </tr>
+      <tr>
+        <td>Release-note priority</td>
+        <td>Official announcements and mailing-list release notes carry more weight than wiki pages. The 3.2.4-rc1 thread itself noted broken wiki links, so this design uses the announcement text and FPC docs as primary evidence.</td>
+        <td>Future compiler research should cite release announcements, release-candidate threads, official docs, and local compiler validation before citing wiki summaries.</td>
+      </tr>
+      <tr>
+        <td>Cross-compilation</td>
+        <td>FPC exposes target CPU/OS options and compile-time target defines. Cross-compiling also changes the target define set and may define <code>FPC_CROSSCOMPILING</code>.</td>
+        <td>Core must not infer behavior from the host machine. Any future platform conditional must key off target/compiler defines and be validated by the three-platform matrix.</td>
+      </tr>
+      <tr>
+        <td>Modern records</td>
+        <td>FPC extended records support methods, properties, and operators; ObjFPC mode requires <code>{$modeswitch advancedrecords}</code>. Record methods do not change the record memory layout.</td>
+        <td>Core should use advanced records for value-like APIs such as error/result/option/capability. This is modern Object Pascal without paying class allocation or inheritance costs.</td>
+      </tr>
+      <tr>
+        <td>Generics</td>
+        <td>FPC generics are supported but have scope rules: identifiers beyond template placeholders must be known when the generic is declared, and generic code cannot assume fields or methods on an unrestricted template type.</td>
+        <td>Generic Core types are allowed only when self-contained and simple. First implementation may include generic option/value-result shapes, but they must not depend on consumer-specific operations.</td>
+      </tr>
+      <tr>
+        <td>Anonymous functions and function references</td>
+        <td>FPC <code>3.3.1</code> supports anonymous functions and function references through mode switches, but closure capture has interface-backed behavior and non-trivial performance/ownership implications.</td>
+        <td>Do not use anonymous functions or function references in the first Core implementation. They can become APIs later for callbacks, iterators, or diagnostics only after a focused ADR and platform tests.</td>
+      </tr>
+      <tr>
+        <td>Newest trunk experiments</td>
+        <td>Recent trunk work includes features such as record composition and managed-record move optimizations, but they are not needed to express the first Core contract.</td>
+        <td>Do not base Core's first public contract on features that are newer than the project's validation evidence. Prefer readable records and functions that remain easy to debug.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Initial Public Contract</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Proposed Shape</th>
+        <th>Rationale</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Status</td>
+        <td><code>TXrtlStatus = (xsOk, xsError)</code> and helper predicates such as <code>XrtlStatusOk</code>.</td>
+        <td>One success/failure shape prevents each library from inventing incompatible booleans, integers, or exception conventions.</td>
+      </tr>
+      <tr>
+        <td>Error identity</td>
+        <td><code>TXrtlError</code> record with stable machine fields: <code>Domain</code>, <code>Code</code>, and human field <code>Message</code>.</td>
+        <td>Domain and code are for program decisions; message is for humans and diagnostics. Core does not own logging output.</td>
+      </tr>
+      <tr>
+        <td>Result</td>
+        <td><code>TXrtlResult</code> record containing <code>Status</code> and <code>Error</code>. Value-returning APIs may use <code>generic TXrtlValueResult&lt;T&gt;</code> after cross-platform validation.</td>
+        <td>A non-generic result stays the common denominator; a small generic value-result lets modern APIs avoid separate status/value variables when it remains self-contained.</td>
+      </tr>
+      <tr>
+        <td>Presence</td>
+        <td><code>TXrtlPresence = (xpMissing, xpPresent)</code> plus <code>generic TXrtlOption&lt;T&gt;</code> for optional values.</td>
+        <td>Presence remains the shared low-level marker, while a generic option record provides a modern type-safe API for simple optional values.</td>
+      </tr>
+      <tr>
+        <td>Capability identity</td>
+        <td><code>TXrtlCapability</code> record with <code>Name</code> and <code>Supported</code>, plus optional <code>Detail</code>.</td>
+        <td>Adapters can report backend support without forcing Core to know about databases, HTTP servers, or operating systems.</td>
+      </tr>
+      <tr>
+        <td>Version identity</td>
+        <td>Constants for XRTL library contract version, separate from compiler and package version.</td>
+        <td>Consumers need a stable way to reason about the contract a unit was built against.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Resolved Design Choices For V0</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Question</th>
+        <th>Decision</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Unit name</td>
+        <td>Use flat Pascal unit name <code>xrtl_core</code> for the first implementation.</td>
+        <td>It avoids coupling the first runtime surface to dotted-unit behavior before this repo has its own cross-platform evidence.</td>
+      </tr>
+      <tr>
+        <td>Generic option/value result</td>
+        <td>Include simple generic records only if they compile and run on Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</td>
+        <td>This gives modern, type-safe APIs while preserving a hard validation gate. If generics fail on any supported platform, Core v0 falls back to non-generic result/presence primitives.</td>
+      </tr>
+      <tr>
+        <td>Capability marker</td>
+        <td>Include a minimal <code>TXrtlCapability</code> marker in Core v0.</td>
+        <td>Database, HTTP, Web, and process adapters will need a shared way to report support without forcing those libraries to duplicate capability contracts.</td>
+      </tr>
+      <tr>
+        <td>Structured error detail</td>
+        <td>Defer structured error detail, nested causes, and ownership-heavy diagnostics.</td>
+        <td>Core v0 should settle stable error identity first. Detail fields need a later ADR once Diagnostics and Text requirements are clearer.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Proposed Unit Boundary</h2>
+  <p>The library is named <code>XRTL.Core</code>. The first implementation should use a conservative flat Pascal unit name until FPC <code>3.3.1</code> dotted-unit behavior is proven in this repository.</p>
+  <pre><code>src/xrtl/core/
+  xrtl_core.pas
+
+tests/xrtl/core/
+  core_smoke.pas
+  core_result_tests.pas
+  core_error_tests.pas</code></pre>
+  <p>The first unit may contain the whole contract. Split into more units only after the implementation has real pressure to separate error, result, or capability code.</p>
+
+  <h2>Error Rules</h2>
+  <ul>
+    <li>Error <code>Domain</code> values should use stable lowercase names such as <code>xrtl.core</code>, <code>xrtl.io</code>, or <code>xrtl.database</code>.</li>
+    <li>Error <code>Code</code> values should be stable machine-readable identifiers such as <code>invalid_argument</code> or <code>unsupported_capability</code>.</li>
+    <li>Error <code>Message</code> values are not stable API and may change for clarity.</li>
+    <li>Core must not store nested heap-owned error causes in the first implementation. Chained errors need a later ADR because ownership rules matter.</li>
+    <li>Expected failures should return <code>TXrtlResult</code>. Exceptions remain reserved for programming errors, compiler/runtime failures, or unrecoverable allocation behavior.</li>
   </ul>
 
   <h2>Non-Responsibilities</h2>
-  <ul>
-    <li>No logging implementation; use Diagnostics.</li>
-    <li>No text encoding helpers; use Text.</li>
-    <li>No file, process, network, or database access.</li>
-  </ul>
+  <table>
+    <thead>
+      <tr>
+        <th>Concern</th>
+        <th>Owner</th>
+        <th>Core Boundary</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Clock, timestamps, durations, timeouts</td>
+        <td><a href="time.html">XRTL.Time</a></td>
+        <td>Core may return result/errors for time functions, but it must not define time primitives.</td>
+      </tr>
+      <tr>
+        <td>Logging, trace ids, redacted diagnostic output</td>
+        <td><a href="diagnostics.html">XRTL.Diagnostics</a></td>
+        <td>Core defines error shape only. Diagnostics decides how failures are emitted.</td>
+      </tr>
+      <tr>
+        <td>UTF-8, escaping, line endings, formatting helpers</td>
+        <td><a href="text.html">XRTL.Text</a></td>
+        <td>Core uses strings but does not own text policy.</td>
+      </tr>
+      <tr>
+        <td>OS, CPU, executable lookup, process execution</td>
+        <td><a href="process.html">XRTL.Process</a></td>
+        <td>Core may expose a capability marker shape, but Process owns detection and execution.</td>
+      </tr>
+      <tr>
+        <td>Paths, streams, files, temporary directories</td>
+        <td><a href="io.html">XRTL.IO</a></td>
+        <td>Core must not own filesystem abstractions.</td>
+      </tr>
+      <tr>
+        <td>Driver-neutral data values and records</td>
+        <td><a href="data.html">XRTL.Data</a></td>
+        <td>Core result/errors can wrap data failures, but data values are not Core primitives.</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <h2>Dependencies</h2>
-  <p>Core must not depend on other XRTL libraries. It may use FPC RTL features only when they are stable across supported platforms.</p>
-
-  <h2>Refactor Check</h2>
-  <p>Any new XRTL library that wants its own status, error, optional value, or capability type must first check whether Core should own it. Duplicating those shapes creates incompatible contracts and should require an ADR.</p>
+  <h2>Implementation Gate</h2>
+  <ol>
+    <li>Merge the accepted design through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and the design PR.</li>
+    <li>Create a follow-up implementation issue that references this accepted contract and ADR <code>0006</code>.</li>
+    <li>Implement <code>src/xrtl/core/xrtl_core.pas</code> plus focused tests in that follow-up PR.</li>
+    <li>Validate Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, and CI before marking the implementation PR ready.</li>
+  </ol>
 
   <h2>First Tests</h2>
   <ul>
-    <li>Compile smoke for the Core unit.</li>
-    <li>Unit tests for result success/failure, error identity, and optional value behavior.</li>
+    <li>Compile smoke for the Core unit on Windows, macOS Apple Silicon, and Ubuntu.</li>
+    <li>Unit tests for status success/failure helpers.</li>
+    <li>Unit tests for error domain/code/message construction and comparison.</li>
+    <li>Unit tests for optional presence markers.</li>
+    <li>Negative test for invalid or empty error identity values if constructors enforce validation.</li>
+  </ul>
+
+  <h2>Open Review Questions</h2>
+  <ul>
+    <li>None blocking for Core v0. The resolved choices above define the implementation starting point.</li>
+    <li>Follow-up ADR candidates: dotted unit names, structured error detail, callback/function-reference APIs, and Diagnostics-owned rendering.</li>
+  </ul>
+
+  <h2>Research Sources</h2>
+  <ul>
+    <li><a href="https://www.freepascal.org/">Free Pascal home/news</a>: stable release and platform overview.</li>
+    <li><a href="https://sourceforge.net/p/freepascal/news/2021/06/free-pascal-322-released/">Free Pascal 3.2.2 release announcement</a>: stable-release highlights including aarch64 Darwin and package updates.</li>
+    <li><a href="https://lists.freepascal.org/pipermail/fpc-devel/2025-June/045993.html">FPC 3.2.4-rc1 announcement excerpt</a>: fixes-branch RC notes, compatibility claim, glibc and Darwin debug highlights.</li>
+    <li><a href="https://lists.freepascal.org/pipermail/fpc-devel/2025-June/045994.html">FPC 3.2.4-rc1 macOS M2 compatibility feedback</a>: callback signature change evidence affecting generics-based code.</li>
+    <li><a href="https://www.freepascal.org/download.html">Free Pascal download page</a>: official releases, snapshots, and development snapshot warning.</li>
+    <li><a href="https://www.freepascal.org/develop.var">Free Pascal development page</a>: <code>3.3.x</code> development source/snapshot policy and support warning.</li>
+    <li><a href="https://www.freepascal.org/docs-html/user/usersu15.html">FPC user guide output options</a>: target CPU/OS and cross-compilation-related options.</li>
+    <li><a href="https://www.freepascal.org/docs-html/prog/progap7.html">FPC programmer guide compiler defines</a>: target, endianness, and <code>FPC_CROSSCOMPILING</code> defines.</li>
+    <li><a href="https://www.freepascal.org/docs-html/ref/refse61.html">FPC reference guide extended records</a>: advanced record behavior in ObjFPC mode.</li>
+    <li><a href="https://www.freepascal.org/docs-html/ref/refse59.html">FPC reference guide generics scope</a>: generic type scope restrictions.</li>
+    <li><a href="https://www.freepascal.org/~michael/articles/anonymous/anonymous.pdf">Anonymous functions in Free Pascal</a>: function references, anonymous functions, and closure implications.</li>
   </ul>
 </body>
 </html>

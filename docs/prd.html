@@ -128,8 +128,8 @@
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>
-        <td>Planned</td>
-        <td>Issues #24, #26, #27, and #28 define the XRTL foundation, documentation, test strategy, dependency provenance, and database/web research.</td>
+        <td>Design accepted; implementation next</td>
+        <td>Issue #32 and PR #33 define the <code>XRTL.Core</code> foundation contract, accepted ADR #0006, release-note-first FPC research, and the follow-up implementation boundary.</td>
       </tr>
     </tbody>
   </table>
@@ -137,8 +137,8 @@
   <h2>Open Product Questions</h2>
   <ul>
     <li>When should <code>xpc build</code> move from launcher-managed build orchestration into the Pascal CLI itself?</li>
-    <li>What minimal generated project should XCLI create first?</li>
-    <li>Which XRTL foundation library should be implemented first after the shared architecture gate: Core, Time, Diagnostics, Config, IO, or Process?</li>
+    <li>When should <code>XRTL.Core</code> revisit dotted Pascal unit names after flat <code>xrtl_core</code> ships?</li>
+    <li>Should generic option/value-result types remain in Core v0 after three-platform validation, or should they be deferred if compiler behavior is unstable?</li>
     <li>How much of FPC SQLDB should XRTL.Database expose directly versus hide behind XRTL.Data contracts?</li>
     <li>Should XRTL.Web wrap Horse, only use it as design inspiration, or defer Web until HTTP contracts are proven?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>
