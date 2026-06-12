@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> is the first implementation slice and is limited to local SQLite through FPC <code>SQLDB</code>.</p>
+  <p><strong>Status:</strong> implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. The first slice is limited to local SQLite through FPC <code>SQLDB</code>.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -23,9 +23,10 @@
 
   <h2>Responsibilities</h2>
   <ul>
-    <li>Connection and transaction contracts built on XRTL.Data values.</li>
-    <li>Adapter boundary for PostgreSQL, MySQL/MariaDB, SQLite, and Firebird.</li>
-    <li>Driver capability detection and diagnostic reporting.</li>
+    <li>SQLite file and in-memory connection configuration.</li>
+    <li>Open/close behavior for local SQLite databases through SQLDB.</li>
+    <li>Simple execute and scalar query operations for bootstrap smoke coverage.</li>
+    <li>Error results through <code>XRTL.Core</code> result/error contracts.</li>
     <li>Future migration/query helper surface only after a separate issue defines it.</li>
   </ul>
 
@@ -34,7 +35,36 @@
     <li>No generic row/field/value contracts; Data owns those.</li>
     <li>No web request lifecycle or route handling.</li>
     <li>No ORM in the first implementation slice.</li>
+    <li>No PostgreSQL, MySQL/MariaDB, Firebird, or other network database adapters in v0.</li>
   </ul>
+
+  <h2>Public V0 Surface</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type Or Member</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>TXrtlSqliteConnectionConfig</code></td>
+        <td>Creates file or <code>:memory:</code> SQLite connection configs without exposing SQLDB types.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlSqliteDatabase.Open</code> / <code>Close</code></td>
+        <td>Owns local SQLite connection lifecycle and reports failures through <code>TXrtlResult</code>.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlSqliteDatabase.Execute</code></td>
+        <td>Runs a non-query SQL statement inside an internal SQLDB transaction.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlSqliteDatabase.QueryInt64</code></td>
+        <td>Runs the first scalar query shape needed by bootstrap tests, such as <code>select count(*)</code>.</td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>Initial Candidate Posture</h2>
   <table>
@@ -48,8 +78,8 @@
     <tbody>
       <tr>
         <td>FPC SQLDB</td>
-        <td>Recommended first prototype backend behind an XRTL wrapper.</td>
-        <td>Built into the FPC ecosystem and provides a uniform SQL access layer. For v0, use only the SQLite path.</td>
+        <td>Wrapped for local SQLite v0.</td>
+        <td>Built into the FPC ecosystem and provides the SQLDB/SQLite3Conn path. SQLDB and SQLite3Conn remain implementation details, not public XRTL types.</td>
       </tr>
       <tr>
         <td>ZeosLib</td>
@@ -72,11 +102,17 @@
 
   <h2>First Tests</h2>
   <ul>
-    <li>Driver-neutral connection config validation tests.</li>
-    <li>Data contract mapping tests without a live service.</li>
-    <li>SQLite local adapter smoke first through SQLDB.</li>
+    <li><code>database_smoke</code> checks library metadata and SQLite config behavior.</li>
+    <li><code>database_sqlite_tests</code> creates a local SQLite file, creates a table, inserts rows, queries a count, and verifies error paths.</li>
     <li>No PostgreSQL, Firebird, MySQL, or MariaDB tests in v0.</li>
     <li>Network adapters require later issues with service setup, native client libraries, and credentials documented outside tracked files.</li>
+  </ul>
+
+  <h2>Platform Runtime Notes</h2>
+  <ul>
+    <li>Windows test hosts need <code>sqlite3.dll</code> on <code>PATH</code>; CI installs the SQLite runtime through the Windows vcpkg image.</li>
+    <li>macOS Apple Silicon normally resolves <code>libsqlite3.dylib</code> from the platform SDK/runtime.</li>
+    <li>Ubuntu validation needs <code>libsqlite3-dev</code> so FPC's SQLite loader can resolve <code>libsqlite3.so</code>.</li>
   </ul>
 </body>
 </html>

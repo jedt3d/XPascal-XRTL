@@ -20,7 +20,7 @@
 
   <h2>Recommendation</h2>
   <ul>
-    <li><strong>Database:</strong> issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> starts <code>XRTL.Database</code> with local database only: SQLite through FPC <code>SQLDB</code>. PostgreSQL, Firebird, and MySQL/MariaDB service tests are deferred.</li>
+    <li><strong>Database:</strong> issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> implements <code>XRTL.Database</code> with local database only: SQLite through FPC <code>SQLDB</code>. PostgreSQL, Firebird, and MySQL/MariaDB service tests are deferred.</li>
     <li><strong>HTTP:</strong> issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/41">#41</a> starts with focused research comparing the broader FCL-Web package against the narrower <code>fphttpserver</code> unit/provider. If code is forked or modified, the fork must preserve upstream credit and document changes.</li>
     <li><strong>Web:</strong> issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/42">#42</a> starts with an XPascal-owned middleware and routing design, inspired by Rack and Horse where useful, but not copying either public API.</li>
     <li><strong>Deferred candidates:</strong> keep network databases, ZeosLib, mORMot 2, Brook, Indy, and Horse adapters out of scope until a later small issue proves need, licensing, and platform behavior.</li>
@@ -193,7 +193,7 @@
 
   <h2>Next Implementation Issues</h2>
   <ul>
-    <li><strong>Issue #40, XRTL.Database v0:</strong> define connection config, transaction, command/query, row/value mapping, and SQLite local smoke over SQLDB only.</li>
+    <li><strong>Issue #40, XRTL.Database v0:</strong> implemented local SQLite config, open/close, command execution, scalar query, and SQLite local smoke over SQLDB only.</li>
     <li><strong>Issue #41, XRTL.HTTP research:</strong> compare FCL-Web and <code>fphttpserver</code>, inspect fork/modification feasibility, and write credit/NOTICE rules before implementation.</li>
     <li><strong>Issue #42, XRTL.Web middleware:</strong> define route matching, middleware order, context, and error-to-response mapping. Credit Rack and Horse as design references.</li>
   </ul>

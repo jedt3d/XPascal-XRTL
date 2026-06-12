@@ -25,6 +25,14 @@ jobs:
         shell: pwsh
         run: ./tools/check-toolchain.ps1
 
+      - name: Install SQLite runtime for XRTL.Database tests
+        shell: pwsh
+        run: |
+          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
+          if (-not $vcpkgRoot) { $vcpkgRoot = "C:\vcpkg" }
+          & "$vcpkgRoot\vcpkg.exe" install sqlite3:x64-windows
+          Add-Content -Path $env:GITHUB_PATH -Value "$vcpkgRoot\installed\x64-windows\bin"
+
       - name: Build CLI and smoke test
         shell: pwsh
         run: ./tools/run-xpc.ps1 build
@@ -40,9 +48,11 @@ jobs:
           ./sample_app/build/sample_app.exe
           ./build/hello_xpc.exe
 
-      - name: Run XRTL.Core tests
+      - name: Run XRTL tests
         shell: pwsh
         run: |
           ./build/core_smoke.exe
           ./build/core_result_tests.exe
           ./build/core_option_tests.exe
+          ./build/database_smoke.exe
+          ./build/database_sqlite_tests.exe

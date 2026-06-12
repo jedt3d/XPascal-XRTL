@@ -156,6 +156,20 @@
         <td>No third-party runtime dependency.</td>
         <td>Core stays dependency-free so later libraries can depend on it safely.</td>
       </tr>
+      <tr>
+        <td>FPC SQLDB / SQLite3Conn</td>
+        <td>Implementation provider for <code>XRTL.Database</code> v0 local SQLite only.</td>
+        <td><a href="./xrtl/database.html">XRTL.Database docs</a>, ADR <a href="./decisions/0008-xrtl-database-sqlite-contract.md">0008</a>, issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>.</td>
+        <td><code>wrapped</code>; part of the pinned FPC/FCL package set. Native SQLite runtime availability remains a platform packaging concern.</td>
+        <td>SQLDB and SQLite3Conn are implementation details behind XRTL-owned types. Network database providers remain deferred.</td>
+      </tr>
+      <tr>
+        <td>SQLite native runtime</td>
+        <td>Runtime library needed by the local SQLite provider tests and applications.</td>
+        <td><a href="https://sqlite.org/copyright.html">SQLite copyright</a>, <a href="./xrtl/database.html">XRTL.Database docs</a>.</td>
+        <td><code>platform-package</code>; installed or provided per OS rather than vendored in the repository.</td>
+        <td>Windows needs <code>sqlite3.dll</code> on <code>PATH</code>; macOS uses <code>libsqlite3.dylib</code>; Ubuntu needs <code>libsqlite3-dev</code> to provide <code>libsqlite3.so</code>.</td>
+      </tr>
     </tbody>
   </table>
 
@@ -179,9 +193,9 @@
         <td>FPC SQLDB</td>
         <td><a href="https://www.freepascal.org/docs-html/fcl/sqldb/usingsqldb.html">Free Pascal SQLDB docs</a></td>
         <td>Part of the FPC/FCL ecosystem; FPC states packages and runtime library use a modified Library GPL that permits static linking. Native database client libraries still need per-platform review.</td>
-        <td>Recommended first prototype baseline for local SQLite only behind an XRTL wrapper.</td>
-        <td><code>research-only</code>; issue #40 may prototype SQLite over SQLDB, not network databases.</td>
-        <td>Issue #40.</td>
+        <td>Wrapped for local SQLite only behind an XRTL-owned public API.</td>
+        <td><code>wrapped</code> for the SQLite path only; network SQLDB providers remain deferred.</td>
+        <td>Issue #40 and ADR #0008.</td>
       </tr>
       <tr>
         <td>Database</td>

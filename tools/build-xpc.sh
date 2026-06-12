@@ -56,8 +56,12 @@ if [[ -n "${project_path}" ]]; then
 fi
 
 core_tests=(core_smoke core_result_tests core_option_tests)
+database_tests=(database_smoke database_sqlite_tests)
 rm -f "${repo_root}/build/xpc" "${repo_root}/build/hello_xpc"
 for test_name in "${core_tests[@]}"; do
+  rm -f "${repo_root}/build/${test_name}"
+done
+for test_name in "${database_tests[@]}"; do
   rm -f "${repo_root}/build/${test_name}"
 done
 
@@ -69,8 +73,16 @@ for test_name in "${core_tests[@]}"; do
   "${repo_root}/build/${test_name}"
 done
 
+for test_name in "${database_tests[@]}"; do
+  "${fpc_bin}" "${compiler_args[@]}" -Fu"${repo_root}/src/xrtl/core" -Fu"${repo_root}/src/xrtl/database" -FU"${repo_root}/build/units" -FE"${repo_root}/build" -o"${repo_root}/build/${test_name}" "${repo_root}/tests/xrtl/database/${test_name}.pas"
+  "${repo_root}/build/${test_name}"
+done
+
 echo "built: build/xpc"
 echo "built: build/hello_xpc"
 for test_name in "${core_tests[@]}"; do
+  echo "built: build/${test_name}"
+done
+for test_name in "${database_tests[@]}"; do
   echo "built: build/${test_name}"
 done
