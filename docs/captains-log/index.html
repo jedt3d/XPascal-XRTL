@@ -157,5 +157,11 @@
     <p>Added ADR <code>docs/decisions/0003-cli-v0-build-command.md</code> to record that direct in-process Pascal build orchestration is deferred until project files, target selection, and process execution policy are designed.</p>
     <p>Validation passed on Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. Each platform ran toolchain verification, <code>run-xpc build</code>, <code>xpc version</code>, <code>xpc doctor</code>, and <code>hello_xpc</code>. Validation host network details stayed local-only in ignored <code>.secrets/</code>.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 08:05 ICT - XCLI Then XRTL Direction Set</h2>
+    <p>After <code>xpc build</code>, the project direction is XCLI project creation first, then XRTL. XRTL means XPascal Extended RunTime Library; the shorter name XRT should not be used for this phase.</p>
+    <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a> as the project creation and XRTL foundation epic, with child issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/25">#25</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a>. Added XRTL documentation rules and a dependency provenance register so each future XRTL library has its own docs, test expectations, licensing notes, and wrap/direct-use rationale.</p>
+  </section>
 </body>
 </html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL - XPascal Extended RunTime Library</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="../">Documentation Home</a></p>
+  <h1>XRTL</h1>
+  <p>XRTL means <strong>XPascal Extended RunTime Library</strong>. Do not abbreviate this phase as XRT.</p>
+
+  <h2>Development Order</h2>
+  <ol>
+    <li><code>xpc build</code> closeout.</li>
+    <li>XCLI project creation.</li>
+    <li>XRTL foundation and libraries.</li>
+  </ol>
+
+  <h2>Per-Library Documentation Rule</h2>
+  <p>Every XRTL library gets its own documentation file when it is created. The file should live under this directory and cover purpose, public API, examples, tests, platform notes, dependencies, and provenance links.</p>
+
+  <h2>Library Documentation Template</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Section</th>
+        <th>Required Content</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Purpose</td>
+        <td>What problem the library solves and what it deliberately does not solve.</td>
+      </tr>
+      <tr>
+        <td>Public API</td>
+        <td>Units, main types, functions, command interactions, and stability expectations.</td>
+      </tr>
+      <tr>
+        <td>Examples</td>
+        <td>Minimal usage examples that can become tests or smoke fixtures.</td>
+      </tr>
+      <tr>
+        <td>Tests</td>
+        <td>Unit tests, smoke tests, platform matrix, and failure cases.</td>
+      </tr>
+      <tr>
+        <td>Dependencies</td>
+        <td>Internal and third-party dependencies, with links to provenance records.</td>
+      </tr>
+      <tr>
+        <td>Wrap Rationale</td>
+        <td>If wrapping open source, explain why wrapping is needed, what is wrapped, and why direct use was not chosen.</td>
+      </tr>
+      <tr>
+        <td>Future Compatibility</td>
+        <td>Known extension points and risks that affect long-term survival.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Initial Candidate Areas</h2>
+  <ul>
+    <li>Database access candidates: PostgreSQL, MySQL, SQLite, and Firebird when suitable maintained Pascal/FPC integration options are confirmed.</li>
+    <li>Web server candidates: practical Pascal/FPC-compatible HTTP server libraries with cross-platform behavior on Windows, macOS Apple Silicon, and Ubuntu 26.04.</li>
+  </ul>
+
+  <h2>Quality Bias</h2>
+  <p>XRTL should not rebuild what active, compatible open source already solves well. It also should not become a fragile pile of wrappers chosen only because they are fast to assemble. Long-term maintainability, testability, and licensing clarity come first.</p>
+</body>
+</html>

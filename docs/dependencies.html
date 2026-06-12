@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dependency Provenance - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="./">Documentation Home</a></p>
+  <h1>Dependency Provenance Register</h1>
+  <p>This register records third-party projects considered or adopted by XCLI and XRTL. No source should be copied, vendored, linked, or wrapped before license and provenance notes exist.</p>
+
+  <h2>Evaluation Rules</h2>
+  <ul>
+    <li>Prefer maintained projects with clear licenses and active upstreams.</li>
+    <li>Check cross-platform behavior for Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</li>
+    <li>Document attribution, copyright, and NOTICE obligations before adoption.</li>
+    <li>Record whether each project is adopted, wrapped, referenced, or only used as design inspiration.</li>
+    <li>When wrapping, document why a wrapper protects XPascal/XRTL better than direct use.</li>
+  </ul>
+
+  <h2>Candidate Register</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Candidates</th>
+        <th>Status</th>
+        <th>Required Next Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Database</td>
+        <td>PostgreSQL, MySQL, SQLite, Firebird</td>
+        <td>Research planned in issue #28.</td>
+        <td>Upstream URLs, licenses, maintenance signals, Pascal/FPC integration options, and testability notes.</td>
+      </tr>
+      <tr>
+        <td>Web server / HTTP</td>
+        <td>Pascal/FPC-compatible server libraries to be researched.</td>
+        <td>Research planned in issue #28.</td>
+        <td>Cross-platform behavior, maintenance activity, API fit, licensing, and wrapper/direct-use recommendation.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Provenance Template</h2>
+  <ul>
+    <li>Project name and upstream URL</li>
+    <li>License and compatibility notes</li>
+    <li>Maintenance signal: recent releases, commits, issue activity, or maintainer status</li>
+    <li>Feature fit and missing capabilities</li>
+    <li>Cross-platform notes</li>
+    <li>Attribution and NOTICE obligations</li>
+    <li>Decision: adopt, wrap, reference, inspire only, reject, or defer</li>
+    <li>Rationale and linked issue/ADR</li>
+  </ul>
+</body>
+</html>
