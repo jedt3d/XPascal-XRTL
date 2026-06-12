@@ -67,8 +67,10 @@ gantt
     XRTL.Core v0 implementation (#34, PR #35)     :crit, done, xrtl-core-v0, after core-design, 1w
     Dependency provenance (#27, PR #36)           :crit, done, provenance, after xrtl-core-v0, 1d
     XRTL foundation closeout (#24)                :crit, done, xrtl-foundation, after provenance, 1d
-    Database and web research (#28)               :research, after xrtl-foundation, 1w
-    Define first runtime surface area             :runtime-scope, after core-design, 1w
+    Database and web research (#28)               :done, research, after xrtl-foundation, 1d
+    Define XRTL.Database v0 SQLDB wrapper         :runtime-scope, after research, 1w
+    Define XRTL.HTTP v0 fphttpserver loopback     :http-scope, after research, 1w
+    Define XRTL.Web v0 routing contract           :web-scope, after http-scope, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
     Add conformance and smoke coverage            :runtime-tests, after runtime-impl, 2w
 
@@ -87,7 +89,7 @@ gantt
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/30">#30</a>. It defines the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy before runtime implementation grows.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/33">#33</a>. It defines flat unit name <code>xrtl_core</code>, Core v0 primitives, and release-note-first FPC research evidence.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a>. It added <code>XRTL.Core</code> v0, Core tests, build-script integration, and three-platform validation.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/36">#36</a>. Epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a> closes after the foundation closeout PR; issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> starts next.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/36">#36</a>. Epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/37">#37</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> records source-backed Database/Web recommendations without adopting third-party code.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -101,14 +103,19 @@ gantt
     </thead>
     <tbody>
       <tr>
-        <td>XRTL foundation epic closeout</td>
-        <td>Close issue #24 now that project creation, XRTL architecture, XRTL.Core v0, and dependency provenance are complete.</td>
-        <td>After #27/PR #36.</td>
+        <td>XRTL.Database v0</td>
+        <td>Open an implementation issue for a provider-neutral database API with first SQLDB-backed SQLite and PostgreSQL smoke.</td>
+        <td>After #28 research.</td>
       </tr>
       <tr>
-        <td>Database and web research</td>
-        <td>Start issue #28 only after #24 closes, using the dependency register as the research template.</td>
-        <td>After #24 closes.</td>
+        <td>XRTL.HTTP v0</td>
+        <td>Open an implementation issue for request/response/header contracts and fphttpserver loopback smoke.</td>
+        <td>After #28 research.</td>
+      </tr>
+      <tr>
+        <td>XRTL.Web v0</td>
+        <td>Open a design/implementation issue for routing, middleware order, context, and error mapping, using Horse only as an ergonomic reference.</td>
+        <td>After XRTL.HTTP v0 contract.</td>
       </tr>
     </tbody>
   </table>

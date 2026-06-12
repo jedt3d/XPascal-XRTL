@@ -919,7 +919,7 @@ Before any third-party code is copied, vendored, linked, wrapped, or exposed thr
 - rationale for direct use, wrapper use, inspiration-only use, or rejection
 - linked issue, PR, and ADR when the choice affects public behavior
 
-The register lives at `docs/dependencies.html`. Database and web server candidates remain research-only until issue #28 completes and the project accepts a specific adoption decision.
+The register lives at `docs/dependencies.html`. Issue #28 records database and web server candidate research, but candidates remain research-only until a later implementation issue accepts a specific adoption decision.
 
 This keeps the platform practical without turning XRTL into an unreviewed bundle of borrowed code.
 

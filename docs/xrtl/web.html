@@ -15,7 +15,8 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Web</h1>
-  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research recommends an independent route/middleware contract; Horse is a design reference and possible future adapter, not the first public API.</p>
+  <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
   <p>Web owns application-level web composition: routing, middleware, request context, handler execution, and web-specific diagnostics.</p>
@@ -47,17 +48,17 @@
     <tbody>
       <tr>
         <td>Horse</td>
-        <td>Research-only candidate and design reference.</td>
-        <td>Minimal Express-inspired API, MIT license, Lazarus/FPC quickstart, and provider model are attractive. XRTL still needs to decide whether wrapping or independent API design is safer.</td>
+        <td>Design reference and possible future adapter.</td>
+        <td>Minimal Express-inspired API, MIT license, and Lazarus/FPC quickstart are attractive, but XRTL should prove its own provider-neutral route and middleware contracts first.</td>
       </tr>
       <tr>
         <td>Brook</td>
-        <td>Research-only candidate.</td>
+        <td>Deferred framework candidate.</td>
         <td>Pascal microframework with LGPL-2.1 license and broad feature set. Needs maintenance and dependency review before adoption.</td>
       </tr>
       <tr>
         <td>mORMot 2</td>
-        <td>Research-only candidate for full-stack server apps.</td>
+        <td>Deferred full-stack server candidate.</td>
         <td>Powerful ORM/SOA/MVC stack. Risk is locking XRTL.Web to a comprehensive framework before XPascal's minimal web contract is proven.</td>
       </tr>
     </tbody>
