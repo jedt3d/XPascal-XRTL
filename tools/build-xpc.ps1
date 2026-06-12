@@ -1,3 +1,7 @@
+param(
+    [string]$ProjectPath = ""
+)
+
 $ErrorActionPreference = "Stop"
 
 ./tools/check-toolchain.ps1
@@ -11,6 +15,30 @@ $fpc = if ($env:FPC_BIN -and (Test-Path $env:FPC_BIN)) {
     } else {
         (Get-ChildItem -Path ".toolchains" -Recurse -Include "fpc.exe","ppc*.exe" -File | Sort-Object Name | Select-Object -First 1).FullName
     }
+}
+
+if ($ProjectPath) {
+    $projectRoot = (Resolve-Path $ProjectPath).Path
+    $projectFile = Join-Path $projectRoot "xproject.toml"
+    $mainFile = Join-Path $projectRoot "src\main.pas"
+    $projectName = Split-Path $projectRoot -Leaf
+    $projectBuild = Join-Path $projectRoot "build"
+    $projectOutput = Join-Path $projectBuild $projectName
+    $projectExe = Join-Path $projectBuild "$projectName.exe"
+
+    if (-not (Test-Path $projectFile)) { throw "Expected xproject.toml in $projectRoot." }
+    if (-not (Test-Path $mainFile)) { throw "Expected src/main.pas in $projectRoot." }
+
+    New-Item -ItemType Directory -Force $projectBuild | Out-Null
+    Remove-Item -Force $projectOutput, $projectExe -ErrorAction SilentlyContinue
+    & $fpc -Mobjfpc -Sh "-FE$projectBuild" "-o$projectOutput" $mainFile
+    if ($LASTEXITCODE -ne 0) { throw "Failed to build project $projectName." }
+    if (Test-Path $projectOutput) {
+        Move-Item -LiteralPath $projectOutput -Destination $projectExe -Force
+    }
+    if (-not (Test-Path $projectExe)) { throw "Expected project executable to be created." }
+    Write-Host "built: $projectName/build/$projectName.exe"
+    exit 0
 }
 
 New-Item -ItemType Directory -Force build | Out-Null

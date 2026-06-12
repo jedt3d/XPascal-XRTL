@@ -5,7 +5,8 @@ xpc="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/build/xpc"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [[ "${1:-}" == "build" ]]; then
-  exec bash "${repo_root}/tools/build-xpc.sh"
+  shift
+  exec bash "${repo_root}/tools/build-xpc.sh" "$@"
 fi
 
 if [[ ! -x "${xpc}" ]]; then

@@ -56,8 +56,8 @@ gantt
 
     section CLI And Toolchain
     CLI v0 build command (#22, PR #23)            :done, cliv0, after closeout, 1d
-    XRTL library planning gate (#26)              :crit, xrtlplan, after cliv0, 1d
-    XCLI project creation (#25)                   :crit, xcli, after xrtlplan, 1w
+    XRTL library planning gate (#26, PR #30)      :done, xrtlplan, after cliv0, 1d
+    XCLI project creation (#25, PR #31)           :done, xcli, after xrtlplan, 1d
     Stabilize xpc CLI skeleton                    :cli, after xcli, 1w
     Harden install/check/build scripts            :scripts, after cliv0, 1w
     Expand CI compiler-version enforcement        :ci, after scripts, 3d
@@ -82,7 +82,7 @@ gantt
     <li>Post-merge workflow <a href="https://github.com/jedt3d/XPascal-XRTL/issues/11">#11</a>, FPC checksum finalization <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a>, and agent harness refresh <a href="https://github.com/jedt3d/XPascal-XRTL/issues/14">#14</a> are complete.</li>
     <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> and PRD/ADR cadence issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/18">#18</a> are complete.</li>
     <li>Windows, macOS Apple Silicon, and Ubuntu bootstrap validation evidence exists from the bootstrap and checksum closeout passes. The next CLI v0 PR should refresh affected validation logs instead of reopening a standalone platform gate.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy must be documented before runtime implementation grows.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/30">#30</a>. It defines the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy before runtime implementation grows.</li>
     <li>Runtime implementation should wait until the first runtime surface area is defined in an issue and, where needed, an architecture decision record.</li>
   </ul>
 
@@ -98,27 +98,27 @@ gantt
     <tbody>
       <tr>
         <td>XCLI project creation</td>
-        <td>Implement the first project creation workflow after <code>xpc build</code>.</td>
+        <td>Implement <code>xpc new &lt;project_name&gt;</code> and generated project build support.</td>
         <td>Issue #25.</td>
       </tr>
       <tr>
-        <td>Windows validation refresh</td>
-        <td>Capture current Windows validation logs for the CLI v0 build command.</td>
-        <td>CLI v0 build command epic.</td>
+        <td>Windows generated-project validation</td>
+        <td>Capture current Windows validation logs for <code>xpc new</code> and generated project build/run.</td>
+        <td>Issue #25.</td>
       </tr>
       <tr>
-        <td>macOS Apple Silicon validation refresh</td>
-        <td>Capture current macOS Apple Silicon validation logs for the CLI v0 build command.</td>
-        <td>CLI v0 build command epic.</td>
+        <td>macOS Apple Silicon generated-project validation</td>
+        <td>Captured current macOS Apple Silicon validation logs for <code>xpc new</code> and generated project build/run; the retry also hardened POSIX installer behavior for clean temporary worktrees.</td>
+        <td>Issue #25 / PR #31.</td>
       </tr>
       <tr>
-        <td>Ubuntu 26.04 validation refresh</td>
-        <td>Capture current Ubuntu 26.04 validation logs for the CLI v0 build command.</td>
-        <td>CLI v0 build command epic.</td>
+        <td>Ubuntu 26.04 generated-project validation</td>
+        <td>Capture current Ubuntu 26.04 validation logs for <code>xpc new</code> and generated project build/run.</td>
+        <td>Issue #25.</td>
       </tr>
       <tr>
         <td>Script hardening</td>
-        <td>Make installer/check/build scripts more robust only where CLI v0 build exposes concrete gaps.</td>
+        <td>Make installer/check/build scripts more robust only where CLI v0 build exposes concrete gaps; macOS clean-worktree validation fixed <code>.toolchains/current.env</code> directory creation in <code>tools/install-fpc.sh</code>.</td>
         <td>XCLI project creation and generated-project validation.</td>
       </tr>
       <tr>

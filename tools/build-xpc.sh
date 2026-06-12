@@ -2,6 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+project_path="${1:-}"
 bash "${repo_root}/tools/check-toolchain.sh"
 
 if [[ -f "${repo_root}/.toolchains/current.env" ]]; then
@@ -28,6 +29,29 @@ fi
 if [[ "$(bash "${repo_root}/tools/platform-id.sh")" == macos-* ]]; then
   sdk_path="$(xcrun --show-sdk-path)"
   compiler_args+=(-k"-syslibroot" -k"${sdk_path}" -k"-lSystem")
+fi
+
+if [[ -n "${project_path}" ]]; then
+  project_root="$(cd "${project_path}" && pwd)"
+  project_name="$(basename "${project_root}")"
+  project_main="${project_root}/src/main.pas"
+  project_file="${project_root}/xproject.toml"
+  project_build="${project_root}/build"
+
+  if [[ ! -f "${project_file}" ]]; then
+    echo "Expected xproject.toml in ${project_root}." >&2
+    exit 1
+  fi
+  if [[ ! -f "${project_main}" ]]; then
+    echo "Expected src/main.pas in ${project_root}." >&2
+    exit 1
+  fi
+
+  mkdir -p "${project_build}"
+  rm -f "${project_build}/${project_name}"
+  "${fpc_bin}" "${compiler_args[@]}" -FE"${project_build}" -o"${project_build}/${project_name}" "${project_main}"
+  echo "built: ${project_name}/build/${project_name}"
+  exit 0
 fi
 
 "${fpc_bin}" "${compiler_args[@]}" -Fu"${repo_root}" -FE"${repo_root}/build" -o"${repo_root}/build/xpc" "${repo_root}/src/xpc/xpc.pas"

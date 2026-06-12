@@ -159,13 +159,13 @@
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/25">#25 XCLI project creation command</a></td>
         <td>#24</td>
         <td>Implement the first project creation workflow after <code>xpc build</code>.</td>
-        <td>Implementation WIP exists locally but is paused until #26 lands the XRTL architecture plan, so generated projects do not bake in unstable runtime assumptions.</td>
+        <td>Closed as completed by PR #31. Windows, Ubuntu, and macOS Apple Silicon generated-project validation passed. A macOS clean-worktree retry also hardened <code>tools/install-fpc.sh</code> so it creates <code>.toolchains</code> before writing <code>current.env</code>.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26 XRTL library architecture, docs, and test strategy</a></td>
         <td>#24</td>
         <td>Define XRTL layout, per-library documentation, tests, and wrap/direct-use rules.</td>
-        <td>Architecture gate defined by shared architecture, test strategy, per-library docs, dependency candidate register, and ADR #0005. The issue closes when this documentation PR merges.</td>
+        <td>Closed as completed after PR #30 merged. Evidence: shared architecture, test strategy, per-library docs, dependency candidate register, and ADR #0005.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27 Third-party dependency and license provenance register</a></td>

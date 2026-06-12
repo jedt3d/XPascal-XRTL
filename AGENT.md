@@ -44,8 +44,9 @@
 - Keep this section current as issues close, PRs merge, or platform validation status changes.
 - Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
 - Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
-- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI/XRTL epic `#24` remains open with child issues `#25`-`#28`.
-- Current XRTL governance gate: issue `#26` defines XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
+- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XCLI/XRTL epic `#24` remains open with child issues `#27` and `#28`.
+- Latest completed implementation slice: issue `#25` adds XCLI project creation through `xpc new <project_name>` and generated project build support.
+- XRTL governance gate: PR `#30` defined XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
 - Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
 
 ## Platform Validation
@@ -56,6 +57,7 @@
 - Linux validation targets Ubuntu 26.04 x86_64 first.
 - Remote validation host details and credentials belong only in `.secrets/validation-hosts.local.md`.
 - Record host, OS, architecture, compiler path/version, commands, and results in `docs/captains-log/index.html`.
+- Temporary-worktree validation is preferred for remote hosts; installer scripts must create their ignored local state directories before writing env files.
 
 ## PR Closeout
 

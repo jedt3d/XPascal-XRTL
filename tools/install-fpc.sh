@@ -115,6 +115,7 @@ if ! "${fpc_bin}" -iV >/dev/null 2>&1; then
   exit 1
 fi
 
+mkdir -p "${repo_root}/.toolchains"
 {
   printf 'XP_PLATFORM=%q\n' "${platform}"
   printf 'FPC_BIN=%q\n' "${fpc_bin}"
