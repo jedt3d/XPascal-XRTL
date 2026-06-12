@@ -1,5 +1,7 @@
 .toolchains/
 build/
+.secrets/
+*.local.md
 *.o
 *.ppu
 *.compiled
