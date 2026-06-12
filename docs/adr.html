@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architecture Decision Records - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 980px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <p><a href="./">Documentation Home</a></p>
+  <h1>Architecture Decision Records</h1>
+  <p>ADRs capture durable technical decisions: what changed, why the project chose it, what alternatives were considered, and what consequences follow.</p>
+
+  <h2>Existing Records</h2>
+  <ul>
+    <li><a href="./decisions/0001-bootstrap-strategy.md">0001: Bootstrap Strategy</a></li>
+    <li><a href="./decisions/0002-supported-platforms.md">0002: Initial Supported Platforms</a></li>
+  </ul>
+
+  <h2>When To Create Or Update An ADR</h2>
+  <ul>
+    <li>Create an ADR when a change affects architecture, supported platforms, public CLI behavior, toolchain policy, repository workflow, or runtime API shape.</li>
+    <li>Update an existing ADR only when the original decision remains valid but needs clarified consequences or status.</li>
+    <li>Supersede an ADR with a new numbered record when the project reverses or materially changes a decision.</li>
+    <li>Reference the linked issue and PR when a decision is implemented.</li>
+    <li>Review ADR impact before merging platform, toolchain, CLI, runtime, or governance changes.</li>
+  </ul>
+
+  <h2>Template</h2>
+  <pre><code># NNNN: Short Decision Title
+
+Date: YYYY-MM-DD
+
+## Status
+
+Proposed | Accepted | Superseded by NNNN
+
+## Context
+
+What problem, constraint, or tradeoff forced this decision?
+
+## Decision
+
+What did the project decide?
+
+## Consequences
+
+What becomes easier, harder, required, or explicitly out of scope?
+
+## Links
+
+- Issue:
+- PR:
+- Related docs:</code></pre>
+</body>
+</html>
