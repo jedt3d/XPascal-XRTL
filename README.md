@@ -4,7 +4,7 @@ XPascal is a modern FreePascal-powered application platform for desktop, web, an
 
 The project starts with a CLI-first foundation, pinned FreePascal tooling, CI/CD traceability, and an auditable Codex + GLM collaboration workflow. The long-term direction is documented in [docs/proposal.md](docs/proposal.md).
 
-Bootstrap PR #8 has merged into `main`. Current foundation work now includes the CLI skeleton, project creation, `xpc build`, `XRTL.Core` v0, and the local-only `XRTL.Database` feature stack through ORM mapping primitives. The next Database planning gate is the ORM V1 specification in issue #62. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
+Bootstrap PR #8 has merged into `main`. Current foundation work now includes the CLI skeleton, project creation, `xpc build`, `XRTL.Core` v0, and the local-only `XRTL.Database` feature stack through ORM mapping primitives. Issue #62 completed the ORM V1 specification; issue #64 implements the first SQLite-only ORM V1 contract. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
 
 ## First Slice
 
@@ -22,7 +22,7 @@ The current foundation focuses on:
 - `XRTL.Database` apply-only migration primitives over the provider facade
 - `XRTL.Database` SELECT query builder primitives
 - `XRTL.Database` ORM mapping primitives
-- `XRTL.Database` ORM V1 specification for SQLite-only CRUD, repositories, sessions, 80/20 caching, and attachment metadata separation
+- `XRTL.Database` ORM V1 specification and implementation for SQLite-only CRUD, repositories, sessions, 80/20 caching, and attachment metadata separation
 - Windows-first CI
 - manual validation scripts for Windows, macOS, and Ubuntu 26.04 LTS
 - GitHub issue, branch, and draft PR workflow

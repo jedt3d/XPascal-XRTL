@@ -23,7 +23,7 @@
   <p>This document is an engineering register, not legal advice. Treat every license note as a verification checklist against the exact upstream source, release, and artifact before adoption or redistribution.</p>
 
   <section class="note">
-    <p><strong>Current dependency posture:</strong> XRTL.Core v0 has no third-party runtime dependency. The project uses the pinned FreePascal <code>3.3.1</code> toolchain. Issue #40 narrows Database v0 to local SQLite through SQLDB only. Issue #62 defines ORM V1 as a clean-room plan inspired by SQLModel/SQLAlchemy architecture, with ZeosLib remaining a provider/component reference rather than an ORM dependency. Issue #41 researches FCL-Web versus <code>fphttpserver</code> before HTTP implementation. Issue #42 designs Web middleware independently while crediting Rack and Horse as references.</p>
+    <p><strong>Current dependency posture:</strong> XRTL.Core v0 has no third-party runtime dependency. The project uses the pinned FreePascal <code>3.3.1</code> toolchain. Issue #40 narrows Database v0 to local SQLite through SQLDB only. Issue #62 defines ORM V1 as a clean-room plan inspired by SQLModel/SQLAlchemy architecture, and issue #64 implements it without adopting an ORM dependency. ZeosLib remains a provider/component reference rather than an ORM dependency. Issue #41 researches FCL-Web versus <code>fphttpserver</code> before HTTP implementation. Issue #42 designs Web middleware independently while crediting Rack and Horse as references.</p>
   </section>
 
   <h2>Register Rules</h2>
@@ -213,7 +213,7 @@
         <td>Upstream repository states MIT; verify exact license file before any source use. Current use is design reference only.</td>
         <td>FastAPI-facing SQL database model that combines an approachable object model with SQLAlchemy and Pydantic foundations.</td>
         <td><code>inspiration-only</code>; no code, API text, or docs copied.</td>
-        <td>Issue #62 and ADR #0016.</td>
+        <td>Issue #62, issue #64, ADR #0016, and ADR #0017.</td>
       </tr>
       <tr>
         <td>Database ORM benchmark</td>
@@ -222,7 +222,7 @@
         <td>Official docs state SQLAlchemy and its documentation are MIT licensed; current use is design reference only.</td>
         <td>Architecture reference for Core/ORM separation, Session, Unit of Work, and Identity Map concepts.</td>
         <td><code>inspiration-only</code>; no code, API text, or docs copied.</td>
-        <td>Issue #62 and ADR #0016.</td>
+        <td>Issue #62, issue #64, ADR #0016, and ADR #0017.</td>
       </tr>
       <tr>
         <td>Database / HTTP / Web</td>

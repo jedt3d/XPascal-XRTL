@@ -15,7 +15,7 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> adds detached raw row/field/value mapping. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> adds a small app dataset abstraction over detached rows. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> adds a SQLite-only provider abstraction facade. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> adds apply-only migration primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> adds SELECT query builder primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> adds ORM mapping primitives and completes the local-only feature stack from issue #47. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a> defines the next ORM V1 plan. Network databases remain out of scope.</p>
+  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> adds detached raw row/field/value mapping. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> adds a small app dataset abstraction over detached rows. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> adds a SQLite-only provider abstraction facade. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> adds apply-only migration primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> adds SELECT query builder primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> adds ORM mapping primitives and completes the local-only feature stack from issue #47. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a> defines the ORM V1 plan, and issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a> implements the first SQLite-only ORM V1 contract. Network databases remain out of scope.</p>
   <p><a href="database-orm-v1-spec.html">Read the ORM V1 specification</a>.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
@@ -35,9 +35,9 @@
     <li>Apply-only migration plans over the provider facade with XRTL-owned metadata.</li>
     <li>Deterministic SELECT query generation with validated identifiers and XRTL-owned parameters.</li>
     <li>Explicit ORM schema, field mapping, and read-only row-to-record mapping primitives.</li>
-    <li>ORM V1 planning for SQLite-only CRUD, repositories, sessions, Unit of Work, identity-map caching, and attachment metadata.</li>
+    <li>ORM V1 implementation for SQLite-only CRUD, repositories, sessions, Unit of Work, schema/generated-SQL/session identity-map caching, and attachment metadata.</li>
     <li>Error results through <code>XRTL.Core</code> result/error contracts.</li>
-    <li>Future ORM implementation only through specific follow-up issues derived from issue #62.</li>
+    <li>Future ORM expansion only through specific follow-up issues derived from issue #64 closeout.</li>
   </ul>
 
   <h2>Non-Responsibilities</h2>
@@ -132,15 +132,27 @@
       </tr>
       <tr>
         <td><code>TXrtlDatabaseOrmSchema</code> / <code>TXrtlDatabaseOrmField</code></td>
-        <td>Defines explicit table/id-column and application-field-to-database-column mappings.</td>
+        <td>Defines explicit table/id-column and application-field-to-database-column mappings, including required and writable field flags for ORM V1 writes.</td>
       </tr>
       <tr>
         <td><code>TXrtlDatabaseOrmRecord</code></td>
-        <td>Stores mapped XRTL-owned values by application field name.</td>
+        <td>Stores mapped XRTL-owned values by application field name, with typed setters and copy support for session snapshots.</td>
       </tr>
       <tr>
-        <td><code>TXrtlDatabaseOrmMapper.FindByInt64Id</code></td>
-        <td>Uses the provider facade and SELECT builder to map one local SQLite row into an ORM record container.</td>
+        <td><code>TXrtlDatabaseOrmMapper</code></td>
+        <td>Uses the provider facade to insert, find by int64 id, update, and delete one-table SQLite records with deterministic parameter binding.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlDatabaseOrmSqlCache</code> / <code>TXrtlDatabaseOrmSchemaCache</code></td>
+        <td>Cache generated CRUD SQL and validated schema signatures as the first 80/20 caching layer.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlDatabaseOrmSession</code> / <code>TXrtlDatabaseOrmRepository</code></td>
+        <td>Provide explicit unit-of-work, rollback clearing, identity-map snapshots, and a thin repository boundary.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlDatabaseAttachmentMetadataStore</code></td>
+        <td>Stores attachment metadata rows only. File upload, storage, byte caching, scanning, and transport remain outside ORM.</td>
       </tr>
     </tbody>
   </table>
@@ -155,17 +167,18 @@
     <li><strong>Complete in issue #56:</strong> migration primitives.</li>
     <li><strong>Complete in issue #58:</strong> query builder primitives.</li>
     <li><strong>Complete in issue #60:</strong> ORM mapping primitives.</li>
-    <li><strong>In progress in issue #62:</strong> ORM V1 specification before CRUD/session implementation continues.</li>
+    <li><strong>Complete in issue #62:</strong> ORM V1 specification.</li>
+    <li><strong>In progress in issue #64:</strong> SQLite-only ORM V1 CRUD, repository/session, caching, and attachment metadata implementation.</li>
   </ol>
 
   <h2>ORM V1 Direction</h2>
-  <p>ORM V1 should grow from the existing mapping primitives into a practical SQLite-only persistence layer. The accepted direction is Data Mapper plus Repository and explicit Session/Unit of Work behavior, not Active Record as the primary model.</p>
+  <p>ORM V1 grows from the existing mapping primitives into a practical SQLite-only persistence layer. The accepted direction is Data Mapper plus Repository and explicit Session/Unit of Work behavior, not Active Record as the primary model.</p>
   <ul>
     <li><strong>CRUD:</strong> insert, update, delete, and find-by-id over the provider facade.</li>
-    <li><strong>Repository:</strong> application-facing persistence classes that keep SQL and mapper details out of ViewModels.</li>
-    <li><strong>Session:</strong> explicit transaction boundary, pending changes, commit/rollback, and cache ownership.</li>
-    <li><strong>80/20 caching:</strong> immutable schema cache, deterministic generated SQL cache, and session identity map before any global query cache.</li>
-    <li><strong>Attachments:</strong> storage/upload stays outside ORM; ORM maps attachment metadata and ownership relationships only.</li>
+    <li><strong>Repository:</strong> thin persistence wrappers that keep SQL and mapper details out of ViewModels.</li>
+    <li><strong>Session:</strong> explicit transaction boundary, commit/rollback, and identity-map cache ownership.</li>
+    <li><strong>80/20 caching:</strong> schema cache, deterministic generated SQL cache, and session identity map before any global query cache.</li>
+    <li><strong>Attachments:</strong> storage/upload stays outside ORM; ORM stores attachment metadata and ownership relationships only.</li>
     <li><strong>Benchmark posture:</strong> learn from SQLModel and SQLAlchemy architecture, treat ZeosLib as a provider/component reference, and keep implementation clean-room.</li>
   </ul>
 
@@ -219,7 +232,8 @@
     <li><code>database_migration_tests</code> verifies empty plans, invalid and duplicate ids, transaction guards, idempotent apply, metadata ordering, out-of-order detection, and rollback after failed migration statements.</li>
     <li><code>database_query_builder_tests</code> verifies SELECT SQL generation, output parameters, query execution through the provider facade, default columns, ordering, limits, no-result queries, invalid identifiers, duplicate parameters, and invalid limits.</li>
     <li><code>database_orm_tests</code> verifies schema validation, duplicate fields/columns, find-by-id mapping, missing records, invalid mapper arguments, and mapped field lookup failures.</li>
-    <li>Future ORM V1 tests should cover CRUD mapper writes, generated SQL cache keys, session identity-map behavior, commit/rollback invalidation, repository examples, and attachment metadata without loading file bytes through ORM.</li>
+    <li><code>database_orm_v1_tests</code> verifies CRUD mapper writes, generated SQL cache reuse, schema cache reuse, repository calls, session identity-map snapshots, commit, rollback, and required-field validation.</li>
+    <li><code>database_attachment_tests</code> verifies attachment metadata schema creation, insert/find behavior, validation failures, and missing metadata lookup without loading file bytes through ORM.</li>
     <li>No PostgreSQL, Firebird, MySQL, or MariaDB tests in v0.</li>
     <li>Network adapters require later issues with service setup, native client libraries, and credentials documented outside tracked files.</li>
   </ul>

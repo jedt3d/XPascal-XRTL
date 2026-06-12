@@ -320,5 +320,13 @@
     <p>The agreed design split is now documented: file upload and storage belong to a future storage/upload layer; ORM owns only attachment metadata and relationships. ORM caching starts with the useful 80/20 set: immutable schema cache, generated SQL cache, and session-scoped identity map. Global query result caching and file-byte caching stay out of V1.</p>
     <p>Updated the ORM spec, ADR #0016, dependency register, PRD, roadmap, issue map, proposal, XRTL docs, and GLM review packet. No validation host credentials or local-only secret details were added to tracked docs.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 13:48 ICT - ORM V1 Implementation Starts</h2>
+    <p>Opened issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a> and branch <code>codex/xrtl-database-orm-v1</code> to implement the first SQLite-only ORM V1 contract from issue #62. The implementation keeps PostgreSQL, MySQL/MariaDB, Firebird, network drivers, relationship loading, schema introspection, and file upload/storage out of scope.</p>
+    <p>Implemented write-side ORM primitives in <code>xrtl_database</code>: required/writable field metadata, typed ORM record setters, CRUD mapper operations, deterministic generated SQL cache, schema cache, explicit session/unit-of-work behavior, repository wrapper, and session identity-map snapshots. Attachment support is limited to <code>TXrtlDatabaseAttachmentMetadataStore</code>, which stores owner/file/hash/storage metadata but never raw file bytes.</p>
+    <p>Added <code>database_orm_v1_tests</code> and <code>database_attachment_tests</code>, wired both into Windows CI and the Windows/macOS/Linux build scripts, and updated ADR #0017 plus the Database, PRD, roadmap, issue map, proposal, dependency, testing, README, and agent harness docs. Windows local validation passed <code>./tools/run-xpc.ps1 build</code> with FPC <code>3.3.1</code> and the full Core/Database test suite including the new ORM V1 and attachment metadata tests.</p>
+    <p>Remote validation also passed on commit <code>aabbb6f</code> from temporary worktrees. macOS reported <code>Darwin 25.5.0 arm64</code> using <code>ppca64</code> FPC <code>3.3.1</code>; Ubuntu reported <code>Linux 7.0.0-22-generic x86_64</code> using <code>ppcx64</code> FPC <code>3.3.1</code>. Both ran <code>check-toolchain.sh</code>, <code>run-xpc.sh build</code>, <code>version</code>, <code>doctor</code>, <code>database_orm_v1_tests</code>, and <code>database_attachment_tests</code>. Hostnames, IPs, passwords, and host keys remained local-only in ignored <code>.secrets</code>.</p>
+  </section>
 </body>
 </html>
