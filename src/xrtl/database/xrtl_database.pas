@@ -180,6 +180,77 @@ type
     property IsOpen: Boolean read FIsOpen;
   end;
 
+  TXrtlDatabaseProviderKind = (xdpSqlite);
+
+  TXrtlDatabaseProviderCapabilities = record
+  private
+    FProviderKind: TXrtlDatabaseProviderKind;
+    FName: string;
+    FLocalOnly: Boolean;
+    FSupportsTransactions: Boolean;
+    FSupportsParameters: Boolean;
+    FSupportsRawResults: Boolean;
+    FSupportsDataSets: Boolean;
+  public
+    class function SQLite: TXrtlDatabaseProviderCapabilities; static;
+    property ProviderKind: TXrtlDatabaseProviderKind read FProviderKind;
+    property Name: string read FName;
+    property LocalOnly: Boolean read FLocalOnly;
+    property SupportsTransactions: Boolean read FSupportsTransactions;
+    property SupportsParameters: Boolean read FSupportsParameters;
+    property SupportsRawResults: Boolean read FSupportsRawResults;
+    property SupportsDataSets: Boolean read FSupportsDataSets;
+  end;
+
+  TXrtlDatabaseConnectionConfig = record
+  private
+    FProviderKind: TXrtlDatabaseProviderKind;
+    FSqliteConfig: TXrtlSqliteConnectionConfig;
+  public
+    class function SQLiteFile(const ADatabasePath: string): TXrtlDatabaseConnectionConfig; static;
+    class function SQLiteInMemory: TXrtlDatabaseConnectionConfig; static;
+    function IsValid: Boolean;
+    property ProviderKind: TXrtlDatabaseProviderKind read FProviderKind;
+    property SqliteConfig: TXrtlSqliteConnectionConfig read FSqliteConfig;
+  end;
+
+  TXrtlDatabaseValueKind = TXrtlSqliteValueKind;
+  TXrtlDatabaseValue = TXrtlSqliteValue;
+  TXrtlDatabaseField = TXrtlSqliteField;
+  TXrtlDatabaseRow = TXrtlSqliteRow;
+  TXrtlDatabaseResultSet = TXrtlSqliteResultSet;
+  TXrtlDatabaseParameterKind = TXrtlSqliteParameterKind;
+  TXrtlDatabaseParameter = TXrtlSqliteParameter;
+  TXrtlDatabaseParameters = TXrtlSqliteParameters;
+  TXrtlDatabaseDataSet = TXrtlSqliteDataSet;
+
+  TXrtlDatabaseConnection = class
+  private
+    FProviderKind: TXrtlDatabaseProviderKind;
+    FSqliteDatabase: TXrtlSqliteDatabase;
+    function GetIsOpen: Boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function Capabilities: TXrtlDatabaseProviderCapabilities;
+    function Open(const AConfig: TXrtlDatabaseConnectionConfig): TXrtlResult;
+    function Close: TXrtlResult;
+    function BeginTransaction: TXrtlResult;
+    function Commit: TXrtlResult;
+    function Rollback: TXrtlResult;
+    function InTransaction: Boolean;
+    function Execute(const ASql: string): TXrtlResult; overload;
+    function Execute(const ASql: string; const AParams: TXrtlDatabaseParameters): TXrtlResult; overload;
+    function QueryInt64(const ASql: string; out AValue: Int64): TXrtlResult; overload;
+    function QueryInt64(const ASql: string; const AParams: TXrtlDatabaseParameters; out AValue: Int64): TXrtlResult; overload;
+    function QueryRows(const ASql: string; ARows: TXrtlDatabaseResultSet): TXrtlResult; overload;
+    function QueryRows(const ASql: string; const AParams: TXrtlDatabaseParameters; ARows: TXrtlDatabaseResultSet): TXrtlResult; overload;
+    function QueryDataSet(const ASql: string; ADataSet: TXrtlDatabaseDataSet): TXrtlResult; overload;
+    function QueryDataSet(const ASql: string; const AParams: TXrtlDatabaseParameters; ADataSet: TXrtlDatabaseDataSet): TXrtlResult; overload;
+    property ProviderKind: TXrtlDatabaseProviderKind read FProviderKind;
+    property IsOpen: Boolean read GetIsOpen;
+  end;
+
 implementation
 
 uses
@@ -535,6 +606,146 @@ begin
     Exit;
 
   Result := Row.ValueByName(AName, AValue);
+end;
+
+class function TXrtlDatabaseProviderCapabilities.SQLite: TXrtlDatabaseProviderCapabilities;
+begin
+  Result.FProviderKind := xdpSqlite;
+  Result.FName := 'sqlite';
+  Result.FLocalOnly := True;
+  Result.FSupportsTransactions := True;
+  Result.FSupportsParameters := True;
+  Result.FSupportsRawResults := True;
+  Result.FSupportsDataSets := True;
+end;
+
+class function TXrtlDatabaseConnectionConfig.SQLiteFile(const ADatabasePath: string): TXrtlDatabaseConnectionConfig;
+begin
+  Result.FProviderKind := xdpSqlite;
+  Result.FSqliteConfig := TXrtlSqliteConnectionConfig.FileDatabase(ADatabasePath);
+end;
+
+class function TXrtlDatabaseConnectionConfig.SQLiteInMemory: TXrtlDatabaseConnectionConfig;
+begin
+  Result.FProviderKind := xdpSqlite;
+  Result.FSqliteConfig := TXrtlSqliteConnectionConfig.InMemory;
+end;
+
+function TXrtlDatabaseConnectionConfig.IsValid: Boolean;
+begin
+  case FProviderKind of
+    xdpSqlite:
+      Result := FSqliteConfig.IsValid;
+  else
+    Result := False;
+  end;
+end;
+
+constructor TXrtlDatabaseConnection.Create;
+begin
+  inherited Create;
+  FProviderKind := xdpSqlite;
+  FSqliteDatabase := TXrtlSqliteDatabase.Create;
+end;
+
+destructor TXrtlDatabaseConnection.Destroy;
+begin
+  FSqliteDatabase.Free;
+  inherited Destroy;
+end;
+
+function TXrtlDatabaseConnection.GetIsOpen: Boolean;
+begin
+  Result := Assigned(FSqliteDatabase) and FSqliteDatabase.IsOpen;
+end;
+
+function TXrtlDatabaseConnection.Capabilities: TXrtlDatabaseProviderCapabilities;
+begin
+  case FProviderKind of
+    xdpSqlite:
+      Result := TXrtlDatabaseProviderCapabilities.SQLite;
+  end;
+end;
+
+function TXrtlDatabaseConnection.Open(const AConfig: TXrtlDatabaseConnectionConfig): TXrtlResult;
+begin
+  case AConfig.ProviderKind of
+    xdpSqlite:
+      begin
+        FProviderKind := xdpSqlite;
+        Result := FSqliteDatabase.Open(AConfig.SqliteConfig);
+      end;
+  else
+    Result := TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'unsupported_provider',
+      'Database provider is not supported');
+  end;
+end;
+
+function TXrtlDatabaseConnection.Close: TXrtlResult;
+begin
+  Result := FSqliteDatabase.Close;
+end;
+
+function TXrtlDatabaseConnection.BeginTransaction: TXrtlResult;
+begin
+  Result := FSqliteDatabase.BeginTransaction;
+end;
+
+function TXrtlDatabaseConnection.Commit: TXrtlResult;
+begin
+  Result := FSqliteDatabase.Commit;
+end;
+
+function TXrtlDatabaseConnection.Rollback: TXrtlResult;
+begin
+  Result := FSqliteDatabase.Rollback;
+end;
+
+function TXrtlDatabaseConnection.InTransaction: Boolean;
+begin
+  Result := FSqliteDatabase.InTransaction;
+end;
+
+function TXrtlDatabaseConnection.Execute(const ASql: string): TXrtlResult;
+begin
+  Result := FSqliteDatabase.Execute(ASql);
+end;
+
+function TXrtlDatabaseConnection.Execute(const ASql: string; const AParams: TXrtlDatabaseParameters): TXrtlResult;
+begin
+  Result := FSqliteDatabase.Execute(ASql, AParams);
+end;
+
+function TXrtlDatabaseConnection.QueryInt64(const ASql: string; out AValue: Int64): TXrtlResult;
+begin
+  Result := FSqliteDatabase.QueryInt64(ASql, AValue);
+end;
+
+function TXrtlDatabaseConnection.QueryInt64(const ASql: string; const AParams: TXrtlDatabaseParameters; out AValue: Int64): TXrtlResult;
+begin
+  Result := FSqliteDatabase.QueryInt64(ASql, AParams, AValue);
+end;
+
+function TXrtlDatabaseConnection.QueryRows(const ASql: string; ARows: TXrtlDatabaseResultSet): TXrtlResult;
+begin
+  Result := FSqliteDatabase.QueryRows(ASql, ARows);
+end;
+
+function TXrtlDatabaseConnection.QueryRows(const ASql: string; const AParams: TXrtlDatabaseParameters; ARows: TXrtlDatabaseResultSet): TXrtlResult;
+begin
+  Result := FSqliteDatabase.QueryRows(ASql, AParams, ARows);
+end;
+
+function TXrtlDatabaseConnection.QueryDataSet(const ASql: string; ADataSet: TXrtlDatabaseDataSet): TXrtlResult;
+begin
+  Result := FSqliteDatabase.QueryDataSet(ASql, ADataSet);
+end;
+
+function TXrtlDatabaseConnection.QueryDataSet(const ASql: string; const AParams: TXrtlDatabaseParameters; ADataSet: TXrtlDatabaseDataSet): TXrtlResult;
+begin
+  Result := FSqliteDatabase.QueryDataSet(ASql, AParams, ADataSet);
 end;
 
 class function TXrtlSqliteParameter.Text(const AName, AValue: string): TXrtlSqliteParameter;
