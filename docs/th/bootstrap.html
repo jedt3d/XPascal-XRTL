@@ -48,7 +48,7 @@ bash ./tools/run-xpc.sh doctor
   </ul>
 
   <h2>Baseline หลัง Merge</h2>
-  <p>PR #8 merge ฐาน bootstrap เข้า <code>main</code> แล้ว หลังทดสอบสดบน Windows x86_64, macOS Apple Silicon aarch64, และ Ubuntu 26.04 x86_64 ส่วน issue #9 ยังติดตามการ pin SHA256 ของ snapshot Windows/macOS ก่อน release packaging</p>
+  <p>PR #8 merge ฐาน bootstrap เข้า <code>main</code> แล้ว หลังทดสอบสดบน Windows x86_64, macOS Apple Silicon aarch64, และ Ubuntu 26.04 x86_64 ตอนนี้ SHA256 ของ FPC snapshot สำหรับ platform ที่รองรับถูก pin ใน <code>toolchains/fpc-3.3.1.lock</code> และ installer ตรวจสอบก่อนแตกไฟล์</p>
 
   <h2>แต่ละ script ทำอะไร</h2>
   <ul>

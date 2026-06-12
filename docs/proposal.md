@@ -52,7 +52,7 @@ The bootstrap implementation has refined several planning assumptions:
 - The first supported bootstrap targets are Windows x86_64, macOS Apple Silicon aarch64, and Linux x86_64 / Ubuntu 26.04 LTS.
 - macOS Intel x86_64 is intentionally not supported.
 - Windows, macOS Apple Silicon, and Linux x86_64 bootstrap validation have passed.
-- Linux x86_64 uses the direct compiler `ppcx64` before the `fpc` driver, and the Linux FPC snapshot SHA256 is pinned.
+- Windows, macOS Apple Silicon, and Linux FPC snapshot SHA256 values are pinned and verified by installer scripts before extraction.
 - Documentation is split into three early streams:
   - Captain's Log: a timestamped human-readable work journal.
   - Developer Docs EN/TH: HTML-oriented developer documentation, English first and Thai alongside it.

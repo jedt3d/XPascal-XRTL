@@ -55,9 +55,9 @@
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/3">#3 FreePascal 3.3.1 toolchain metadata</a></td>
         <td>Proposal 1.1, 14.1, 14.2</td>
-        <td>Closed as completed after PR #8 merged; checksum follow-up remains #9.</td>
+        <td>Closed as completed after PR #8 merged; checksum follow-up completed by #9.</td>
         <td><code>toolchains/fpc-3.3.1.lock</code>; installer scripts choose platform-specific compiler binaries.</td>
-        <td>Linux SHA256 pinned; Windows and macOS SHA256 finalization is tracked in follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> before release packaging.</td>
+        <td>Windows, macOS Apple Silicon, and Linux SHA256 values are pinned and installer scripts verify archives before extraction.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/4">#4 Initial xpc CLI skeleton</a></td>
@@ -104,8 +104,8 @@
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9 Finalize Windows and macOS FPC 3.3.1 snapshot checksums</a></td>
         <td>#3</td>
-        <td>Replace remaining <code>PENDING</code> checksum values before release packaging.</td>
-        <td>Not a blocker for bootstrap PR #8 because the pending status is explicit and release packaging is non-scope.</td>
+        <td>Replace remaining checksum placeholders before release packaging.</td>
+        <td>Implemented in the checksum finalization PR; closes after merge.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10 Capture exact Linux validation host report</a></td>

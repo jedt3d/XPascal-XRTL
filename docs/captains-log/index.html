@@ -121,5 +121,11 @@
     <p>GitHub auto-closed issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7</a> as completed from the PR body. Follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/10">#10</a> was closed after the Linux host report was committed. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> remains open for Windows/macOS FPC snapshot SHA256 finalization before release packaging.</p>
     <p>After the merge, the operating rule was promoted into repository instructions: start from a GitHub issue, work on a traceable branch/PR, validate the affected platforms, update documentation and the issue map, then compare the completed work back against the issue acceptance criteria before closing.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 07:35 ICT - Supported FPC Checksums Pinned</h2>
+    <p>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a> closed the remaining checksum gap for supported FPC 3.3.1 snapshots. The Windows archive SHA256 is <code>b3bf9859e3130c8196513a04891d5718b62fa637f7a093bb4d37d86863ecece8</code>. The macOS Apple Silicon archive SHA256 is <code>6a7705ce896d5e2e9201f9a58551a2124aa6bfc7b5263c27dd44881a7162897a</code>. Linux was already pinned to <code>b275cb2b1604c79d70c210e3a2360efdc6e0caac0aa6e763f93ff1b5249788bc</code>.</p>
+    <p>Installer scripts now require a SHA256 for FPC archives and verify the archive before extraction. Windows validation passed with <code>tools/install-fpc.ps1</code>, <code>tools/check-toolchain.ps1</code>, <code>tools/build-xpc.ps1</code>, <code>tools/run-xpc.ps1 version</code>, <code>tools/run-xpc.ps1 doctor</code>, and <code>build/hello_xpc.exe</code>. macOS Apple Silicon validation passed with the POSIX install/check/build/run scripts after verifying the aarch64 Darwin archive with <code>shasum -a 256</code>.</p>
+  </section>
 </body>
 </html>
