@@ -47,8 +47,8 @@
 - Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
 - Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
 - Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XRTL.Core v0 `#34` via PR `#35`; dependency provenance `#27` via PR `#36`; XCLI/XRTL epic `#24` via PR `#37`; database/web candidate research `#28` via PR `#38`; refined next-slice scope `#39` via PR `#43`; `XRTL.Database` local SQLite v0 closes in issue `#40`.
-- Current next slices after #48: issue `#41` researches FCL-Web vs `fphttpserver` and fork/credit strategy; issue `#42` designs provider-neutral `XRTL.Web` middleware inspired by Rack and Horse; issue `#47` continues the local-only Database feature stack with raw mapping next.
-- Latest completed implementation slice: issue `#40` adds `XRTL.Database` v0 local SQLite over SQLDB and tests from accepted ADR `0008`; issue `#45` completes the macOS Apple Silicon SQLite validation rerun on merged `main`; issue `#48` adds public transactions and parameter binding from ADR `0009`.
+- Current next slices after #50: issue `#41` researches FCL-Web vs `fphttpserver` and fork/credit strategy; issue `#42` designs provider-neutral `XRTL.Web` middleware inspired by Rack and Horse; issue `#47` continues the local-only Database feature stack with app dataset abstraction next.
+- Latest completed implementation slice: issue `#40` adds `XRTL.Database` v0 local SQLite over SQLDB and tests from accepted ADR `0008`; issue `#45` completes the macOS Apple Silicon SQLite validation rerun on merged `main`; issue `#48` adds public transactions and parameter binding from ADR `0009`; issue `#50` adds detached raw row/field/value mapping from ADR `0010`.
 - XRTL governance gate: PR `#30` defined XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
 - Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
 
@@ -61,6 +61,7 @@
 - Remote validation host details and credentials belong only in `.secrets/validation-hosts.local.md`.
 - Record host, OS, architecture, compiler path/version, commands, and results in `docs/captains-log/index.html`.
 - Temporary-worktree validation is preferred for remote hosts; installer scripts must create their ignored local state directories before writing env files.
+- For remote temporary worktrees, reuse the ignored repo-local `.toolchains` directory with a local symlink when the toolchain is already installed. Running `install-fpc.sh` inside a fresh temporary worktree can redownload the large FPC snapshot and may leave stale download processes after an SSH timeout; clean stale validation processes before retrying.
 
 ## PR Closeout
 
@@ -96,6 +97,7 @@
 - If wrapping open source, document why a wrapper is needed, what is wrapped, why direct use was not chosen, and what license/NOTICE obligations apply.
 - For `XRTL.Database` v0, keep scope to local SQLite through SQLDB. Network database providers are later validation work.
 - For the local-only `XRTL.Database` feature stack, follow issue `#47`: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, then ORM. Do not start ORM before the lower layers are tested.
+- After issue `#50`, raw result-set mapping is available as a detached snapshot. The next Database slice should build app dataset abstraction on top of it instead of exposing SQLDB datasets or jumping directly to ORM.
 - For `XRTL.HTTP`, compare FCL-Web and `fphttpserver` before implementation; if code is forked or modified, preserve upstream credit and document the changed surface.
 - For `XRTL.Web`, design XPascal-owned middleware and routing contracts. Rack and Horse may be credited as design references, but should not become the public API by default.
 - Candidate areas such as database access and web server support require research and provenance notes before implementation.
