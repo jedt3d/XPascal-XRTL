@@ -17,7 +17,7 @@
 <body>
   <p><a href="./">XRTL Home</a> | <a href="architecture.html">Shared Architecture</a> | <a href="testing.html">Test Strategy</a></p>
   <h1>XRTL.Core</h1>
-  <p><strong>Status:</strong> accepted design gate for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a>, revised after a release-note-first FPC research pass. Runtime implementation belongs in a follow-up issue and PR.</p>
+  <p><strong>Status:</strong> implementation in progress through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a>, based on accepted design issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and ADR <code>0006</code>.</p>
 
   <h2>Purpose</h2>
   <p>Core owns the smallest shared runtime primitives that let XRTL libraries communicate without depending on each other. It should be boring, stable, dependency-free inside XRTL, and portable across Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</p>
@@ -156,15 +156,63 @@
   </table>
 
   <h2>Proposed Unit Boundary</h2>
-  <p>The library is named <code>XRTL.Core</code>. The first implementation should use a conservative flat Pascal unit name until FPC <code>3.3.1</code> dotted-unit behavior is proven in this repository.</p>
+  <p>The library is named <code>XRTL.Core</code>. The first implementation uses a conservative flat Pascal unit name until FPC <code>3.3.1</code> dotted-unit behavior is proven in this repository.</p>
   <pre><code>src/xrtl/core/
   xrtl_core.pas
 
 tests/xrtl/core/
   core_smoke.pas
   core_result_tests.pas
-  core_error_tests.pas</code></pre>
+  core_option_tests.pas</code></pre>
   <p>The first unit may contain the whole contract. Split into more units only after the implementation has real pressure to separate error, result, or capability code.</p>
+
+  <h2>Implemented V0 Surface</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type Or Constant</th>
+        <th>Purpose</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>XRTL_CORE_LIBRARY_NAME</code>, <code>XRTL_CORE_CONTRACT_VERSION</code>, <code>XRTL_CORE_ERROR_DOMAIN</code></td>
+        <td>Stable identity for the Core contract and default Core error domain.</td>
+        <td>The contract version is separate from package or compiler version.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlStatus</code> and <code>TXrtlPresence</code></td>
+        <td>Common success/failure and present/missing markers.</td>
+        <td>Helpers keep call sites readable without creating object hierarchies.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlError</code></td>
+        <td>Stable error identity with <code>Domain</code>, <code>Code</code>, and human-readable <code>Message</code>.</td>
+        <td><code>SameIdentity</code> intentionally compares only domain and code.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlResult</code></td>
+        <td>Shared expected-success or expected-failure result shape.</td>
+        <td>Expected failures use return values, not public exception flow.</td>
+      </tr>
+      <tr>
+        <td><code>generic TXrtlOption&lt;T&gt;</code></td>
+        <td>Type-safe optional value wrapper for simple values.</td>
+        <td>Kept because PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a> validated the syntax with FPC <code>3.3.1</code> on Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, and CI.</td>
+      </tr>
+      <tr>
+        <td><code>generic TXrtlValueResult&lt;T&gt;</code></td>
+        <td>Type-safe result plus value shape for APIs that naturally return a value.</td>
+        <td>Same validation gate as <code>TXrtlOption&lt;T&gt;</code>; keep it simple and self-contained.</td>
+      </tr>
+      <tr>
+        <td><code>TXrtlCapability</code></td>
+        <td>Neutral capability marker for future adapters.</td>
+        <td>Does not perform detection; Process, Database, HTTP, or Web libraries own detection behavior.</td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>Error Rules</h2>
   <ul>
@@ -220,10 +268,9 @@ tests/xrtl/core/
 
   <h2>Implementation Gate</h2>
   <ol>
-    <li>Merge the accepted design through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and the design PR.</li>
-    <li>Create a follow-up implementation issue that references this accepted contract and ADR <code>0006</code>.</li>
-    <li>Implement <code>src/xrtl/core/xrtl_core.pas</code> plus focused tests in that follow-up PR.</li>
-    <li>Validate Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, and CI before marking the implementation PR ready.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/33">#33</a> accepted the design gate.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> implements the first runtime unit and executable tests.</li>
+    <li>Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, and CI validation must pass before the implementation PR is marked ready.</li>
   </ol>
 
   <h2>First Tests</h2>
@@ -232,6 +279,8 @@ tests/xrtl/core/
     <li>Unit tests for status success/failure helpers.</li>
     <li>Unit tests for error domain/code/message construction and comparison.</li>
     <li>Unit tests for optional presence markers.</li>
+    <li>Unit tests for generic option/value-result behavior.</li>
+    <li>Unit tests for capability support/detail markers.</li>
     <li>Negative test for invalid or empty error identity values if constructors enforce validation.</li>
   </ul>
 

@@ -209,5 +209,12 @@
     <p>Revisited <code>XRTL.Core</code> after review feedback that compiler research should start from FreePascal release announcements and release-candidate notes, not from source-code guessing or stale wiki summaries. The useful release evidence is that official stable FreePascal remains <code>3.2.2</code>, FPC <code>3.2.4-rc1</code> is a 2025 fixes-branch release candidate, and project-required <code>3.3.1</code> remains a development snapshot that must be validated directly on supported platforms.</p>
     <p>The design now chooses a conservative modern style: flat unit name <code>xrtl_core</code>, ObjFPC advanced records for value-like primitives, simple generics only if they pass Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64, and no anonymous-function or function-reference APIs in Core v0. ADR <code>0006</code> moved from proposed to accepted for the follow-up implementation issue.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 10:08 ICT - XRTL.Core V0 Implementation Starts</h2>
+    <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> for the first runtime implementation of <code>XRTL.Core</code>. The branch <code>codex/xrtl-core-v0</code> adds flat unit <code>xrtl_core</code>, executable tests for Core smoke, result/error behavior, option/value-result behavior, and capability markers, plus build-script integration.</p>
+    <p>Windows validation passed with FPC <code>3.3.1</code>: <code>tools/run-xpc.ps1 build</code> compiled the CLI, smoke executable, and Core tests, then ran <code>core_smoke</code>, <code>core_result_tests</code>, and <code>core_option_tests</code>. The generated-project smoke path also passed after the build scripts moved FPC object/unit output into <code>build/units</code>.</p>
+    <p>macOS Apple Silicon validation passed on Darwin arm64 / macOS <code>26.5.1</code> with the same Core tests. Ubuntu validation passed on Ubuntu <code>26.04 LTS</code> x86_64. GitHub Actions CI run #41 passed for commit <code>f03dc8777dfab369d6e0d2cdb7bfe8d83db086b6</code>. The macOS linker still prints the known non-fatal <code>-macosx_version_min</code> rename warning.</p>
+  </section>
 </body>
 </html>

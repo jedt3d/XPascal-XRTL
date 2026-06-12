@@ -19,7 +19,7 @@ else
   fpc_bin="$(find "${repo_root}/.toolchains/fpc-3.3.1/${platform}" -type f \( -name fpc -o -name 'ppc*' \) -perm -111 2>/dev/null | sort | head -n 1)"
 fi
 
-mkdir -p "${repo_root}/build"
+mkdir -p "${repo_root}/build" "${repo_root}/build/units"
 compiler_args=(-Mobjfpc -Sh)
 
 if [[ -n "${FPC_UNIT_DIR:-}" ]]; then
@@ -37,6 +37,7 @@ if [[ -n "${project_path}" ]]; then
   project_main="${project_root}/src/main.pas"
   project_file="${project_root}/xproject.toml"
   project_build="${project_root}/build"
+  project_unit_build="${project_build}/units"
 
   if [[ ! -f "${project_file}" ]]; then
     echo "Expected xproject.toml in ${project_root}." >&2
@@ -47,15 +48,29 @@ if [[ -n "${project_path}" ]]; then
     exit 1
   fi
 
-  mkdir -p "${project_build}"
+  mkdir -p "${project_build}" "${project_unit_build}"
   rm -f "${project_build}/${project_name}"
-  "${fpc_bin}" "${compiler_args[@]}" -FE"${project_build}" -o"${project_build}/${project_name}" "${project_main}"
+  "${fpc_bin}" "${compiler_args[@]}" -FU"${project_unit_build}" -FE"${project_build}" -o"${project_build}/${project_name}" "${project_main}"
   echo "built: ${project_name}/build/${project_name}"
   exit 0
 fi
 
-"${fpc_bin}" "${compiler_args[@]}" -Fu"${repo_root}" -FE"${repo_root}/build" -o"${repo_root}/build/xpc" "${repo_root}/src/xpc/xpc.pas"
-"${fpc_bin}" "${compiler_args[@]}" -FE"${repo_root}/build" -o"${repo_root}/build/hello_xpc" "${repo_root}/tests/smoke/hello_xpc.pas"
+core_tests=(core_smoke core_result_tests core_option_tests)
+rm -f "${repo_root}/build/xpc" "${repo_root}/build/hello_xpc"
+for test_name in "${core_tests[@]}"; do
+  rm -f "${repo_root}/build/${test_name}"
+done
+
+"${fpc_bin}" "${compiler_args[@]}" -Fu"${repo_root}" -FU"${repo_root}/build/units" -FE"${repo_root}/build" -o"${repo_root}/build/xpc" "${repo_root}/src/xpc/xpc.pas"
+"${fpc_bin}" "${compiler_args[@]}" -FU"${repo_root}/build/units" -FE"${repo_root}/build" -o"${repo_root}/build/hello_xpc" "${repo_root}/tests/smoke/hello_xpc.pas"
+
+for test_name in "${core_tests[@]}"; do
+  "${fpc_bin}" "${compiler_args[@]}" -Fu"${repo_root}/src/xrtl/core" -FU"${repo_root}/build/units" -FE"${repo_root}/build" -o"${repo_root}/build/${test_name}" "${repo_root}/tests/xrtl/core/${test_name}.pas"
+  "${repo_root}/build/${test_name}"
+done
 
 echo "built: build/xpc"
 echo "built: build/hello_xpc"
+for test_name in "${core_tests[@]}"; do
+  echo "built: build/${test_name}"
+done
