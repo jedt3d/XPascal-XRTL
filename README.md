@@ -4,7 +4,7 @@ XPascal is a modern FreePascal-powered application platform for desktop, web, an
 
 The project starts with a CLI-first foundation, pinned FreePascal tooling, CI/CD traceability, and an auditable Codex + GLM collaboration workflow. The long-term direction is documented in [docs/proposal.md](docs/proposal.md).
 
-Bootstrap PR #8 has merged into `main`. Current foundation work now includes the CLI skeleton, project creation, `xpc build`, `XRTL.Core` v0, and the local-only `XRTL.Database` feature stack through ORM mapping primitives. Issue #62 completed the ORM V1 specification; issue #64 implements the first SQLite-only ORM V1 contract. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
+Bootstrap PR #8 has merged into `main`. Current foundation work now includes the CLI skeleton, project creation, `xpc build`, `XRTL.Core` v0, and the local-only `XRTL.Database` feature stack through ORM V1. Issue #62 completed the ORM V1 specification; issue #64 and PR #65 implemented the first SQLite-only ORM V1 contract. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
 
 ## First Slice
 

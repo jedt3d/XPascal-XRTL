@@ -19,7 +19,7 @@
 <body>
   <p><a href="./">XRTL Home</a> | <a href="database.html">XRTL.Database</a> | <a href="../issues/">Issue Map</a></p>
   <h1>XRTL.Database ORM V1 Specification</h1>
-  <p><strong>Status:</strong> accepted specification from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a>, now being implemented by issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a>. This document turns the completed ORM mapping primitives from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> into the staged ORM V1 contract.</p>
+  <p><strong>Status:</strong> accepted specification from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a>, with the first implementation completed by issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/64">#64</a> and PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/65">#65</a>. This document turns the completed ORM mapping primitives from issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> into the staged ORM V1 contract.</p>
 
   <section class="note">
     <p><strong>Product pitch:</strong> XRTL ORM should give Pascal developers the business-app productivity they expect from classic data-aware tooling, but with a clean modern shape: explicit mappings, predictable SQLite persistence, testable sessions, simple repositories, and enough caching to make common CRUD screens feel fast without hiding state behind framework magic.</p>
@@ -438,7 +438,7 @@ Result := Mapper.DeleteByInt64Id(Connection, Schema, Id);</code></pre>
       <tr>
         <td>1</td>
         <td>ORM V1 first implementation</td>
-        <td>Issue #64 implements insert, update, delete, find by id, required-field validation, generated SQL cache, schema cache, repository/session behavior, identity-map snapshots, attachment metadata, and tests over SQLite.</td>
+        <td>Issue #64 and PR #65 implemented insert, update, delete, find by id, required-field validation, generated SQL cache, schema cache, repository/session behavior, identity-map snapshots, attachment metadata, and tests over SQLite.</td>
         <td>#64</td>
       </tr>
       <tr>
