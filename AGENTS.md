@@ -17,13 +17,22 @@
 
 ## Workflow
 
-1. Start from a GitHub issue.
+1. Start from a GitHub issue. No issue, no non-trivial work.
 2. Use a feature branch named `codex/<short-description>`.
 3. Keep changes scoped to the issue.
 4. Run the relevant toolchain, build, and smoke checks.
 5. On macOS/Linux, prefer `bash ./tools/<script>.sh` unless executable bits are known to be preserved.
 6. Open a draft PR until validation is complete.
-7. Record GLM suggestions and Codex review decisions when GLM contributes.
+7. Before marking a PR ready, compare the work back against the linked issue acceptance criteria and validation plan.
+8. Record GLM suggestions and Codex review decisions when GLM contributes.
+
+## Platform Validation
+
+- For platform-affecting changes, validate Windows x86_64, macOS Apple Silicon aarch64, and Linux x86_64 / Ubuntu 26.04.
+- Windows validation runs locally or in CI with the PowerShell scripts.
+- macOS validation targets Apple Silicon only; macOS Intel is intentionally unsupported.
+- Linux validation targets Ubuntu 26.04 x86_64 first.
+- Record host, OS, architecture, compiler path/version, commands, and results in `docs/captains-log/index.html`.
 
 ## Issue Discipline
 
@@ -31,6 +40,7 @@
 - Each issue must explain the relevant proposal section, problem, scope, acceptance criteria, implementation evidence, and validation status.
 - Commits and PR descriptions should reference the issue numbers they advance.
 - Keep issue status current: `planned`, `in progress`, `implemented in PR`, `blocked`, or `done after merge`.
+- Close issues only when their close criteria are satisfied. Prefer PR auto-close keywords when the issue closes at merge time.
 - Do not close bootstrap issues until the implementing PR is merged unless the issue is explicitly marked `not planned`.
 - Update `docs/issues/index.html` when issue scope, status, or relationships change.
 

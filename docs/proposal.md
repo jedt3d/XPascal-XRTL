@@ -60,6 +60,7 @@ The bootstrap implementation has refined several planning assumptions:
 - Codex remains responsible for source-of-truth verification, edits, tests, issues, branches, commits, and PRs.
 - GLM should assist as a documentation drafter/reviewer through task packets saved under `ai/briefs/`, with raw outputs and Codex review notes preserved under `ai/glm-outputs/` and `ai/reviews/`.
 - GitHub issues are treated as project planning artifacts, not throwaway task notes. Each issue should reference relevant proposal sections, define scope and acceptance criteria, and be kept in sync with PR evidence and documentation.
+- The operating rule after the bootstrap merge is: no non-trivial work without a GitHub issue; after implementation, compare the completed work back against that issue's acceptance criteria and validation plan before closing.
 
 ## 2. Product Vision
 
@@ -1785,4 +1786,3 @@ Pascal can feel modern again.
 ## 25. One-Sentence Positioning
 
 XPascal is a modern FreePascal app platform for building desktop, web, and server software with MVVM, HTML components, data-aware business components, batteries-included libraries, excellent bilingual documentation, and workflows designed for CLI, CI/CD, and AI agents from day one.
-
