@@ -36,17 +36,18 @@
 11. Create or update ADRs when architecture, toolchain policy, runtime API shape, supported platforms, or repository governance changes.
 12. For XRTL work, create or update the per-library documentation file in `docs/xrtl/` in the same PR as the library.
 13. Before adopting or wrapping third-party code, update `docs/dependencies.html` with license, activity, attribution, and wrap/direct-use rationale.
-14. Before implementing or extending an XRTL library, check `docs/xrtl/architecture.html` and the target library page for ownership boundaries, shared helpers, and no-duplication rules.
-15. If a proposed helper, type, config policy, diagnostic shape, path/process helper, data contract, or HTTP/Web concept belongs to another XRTL library, use that shared owner or open a refactor issue before adding duplicate code.
+14. Follow ADR `0007` and the status model in `docs/dependencies.html` before copying, vendoring, linking, wrapping, or exposing any third-party dependency.
+15. Before implementing or extending an XRTL library, check `docs/xrtl/architecture.html` and the target library page for ownership boundaries, shared helpers, and no-duplication rules.
+16. If a proposed helper, type, config policy, diagnostic shape, path/process helper, data contract, or HTTP/Web concept belongs to another XRTL library, use that shared owner or open a refactor issue before adding duplicate code.
 
 ## Project Progress
 
 - Keep this section current as issues close, PRs merge, or platform validation status changes.
 - Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
 - Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
-- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XCLI/XRTL epic `#24` remains open with child issues `#27`, `#28`, and `#34`.
-- Current active implementation slice: issue `#34` implements `XRTL.Core` v0 primitives and tests from accepted ADR `0006`.
-- Latest completed implementation slice: issue `#25` adds XCLI project creation through `xpc new <project_name>` and generated project build support.
+- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XRTL.Core v0 `#34` via PR `#35`; XCLI/XRTL epic `#24` remains open with child issues `#27` and `#28`.
+- Current active documentation/governance slice: issue `#27` closes the dependency provenance register and adoption gate before #24 is reassessed.
+- Latest completed implementation slice: issue `#34` adds `XRTL.Core` v0 primitives and tests from accepted ADR `0006`.
 - XRTL governance gate: PR `#30` defined XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
 - Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
 

@@ -17,7 +17,7 @@
 <body>
   <p><a href="./">XRTL Home</a> | <a href="architecture.html">Shared Architecture</a> | <a href="testing.html">Test Strategy</a></p>
   <h1>XRTL.Core</h1>
-  <p><strong>Status:</strong> implementation in progress through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a>, based on accepted design issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and ADR <code>0006</code>.</p>
+  <p><strong>Status:</strong> implemented through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> and PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a>, based on accepted design issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and ADR <code>0006</code>.</p>
 
   <h2>Purpose</h2>
   <p>Core owns the smallest shared runtime primitives that let XRTL libraries communicate without depending on each other. It should be boring, stable, dependency-free inside XRTL, and portable across Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</p>
@@ -269,8 +269,8 @@ tests/xrtl/core/
   <h2>Implementation Gate</h2>
   <ol>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/33">#33</a> accepted the design gate.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> implements the first runtime unit and executable tests.</li>
-    <li>Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, and CI validation must pass before the implementation PR is marked ready.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> and PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a> implemented the first runtime unit and executable tests.</li>
+    <li>Windows x86_64, macOS Apple Silicon aarch64, Ubuntu 26.04 x86_64, and CI validation passed for Core v0.</li>
   </ol>
 
   <h2>First Tests</h2>
@@ -286,7 +286,7 @@ tests/xrtl/core/
 
   <h2>Open Review Questions</h2>
   <ul>
-    <li>None blocking for Core v0. The resolved choices above define the implementation starting point.</li>
+    <li>None blocking for Core v0. The resolved choices above define the implemented starting point.</li>
     <li>Follow-up ADR candidates: dotted unit names, structured error detail, callback/function-reference APIs, and Diagnostics-owned rendering.</li>
   </ul>
 

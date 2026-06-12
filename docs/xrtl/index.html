@@ -29,7 +29,8 @@
     <li>XCLI project creation.</li>
     <li>XRTL planning gate: shared architecture, per-library docs, dependency provenance, and test strategy.</li>
     <li>XRTL.Core accepted design gate.</li>
-    <li>XRTL.Core v0 implementation in a follow-up issue and PR.</li>
+    <li>XRTL.Core v0 implementation.</li>
+    <li>Dependency provenance gate before database/web research.</li>
   </ol>
 
   <h2>Per-Library Documentation Rule</h2>
@@ -48,7 +49,7 @@
       <tr>
         <td><a href="core.html">XRTL.Core</a></td>
         <td>Result/status, error records, option/capability shapes, and shared primitives.</td>
-        <td>Design issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> and ADR <code>0006</code> are accepted. Implementation issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is active with three-platform validation required before merge.</td>
+        <td>Implemented through issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> and PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a> with three-platform validation.</td>
       </tr>
       <tr>
         <td><a href="time.html">XRTL.Time</a></td>
@@ -93,12 +94,12 @@
       <tr>
         <td><a href="database.html">XRTL.Database</a></td>
         <td>SQL connection, transaction, adapter, and driver capability boundaries.</td>
-        <td>Requires Data contracts and dependency provenance for any backend.</td>
+        <td>Requires Data contracts and issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> dependency provenance before any backend adoption.</td>
       </tr>
       <tr>
         <td><a href="http.html">XRTL.HTTP</a></td>
         <td>HTTP request/response, headers, status codes, server/client transport contracts.</td>
-        <td>Requires provider research and loopback smoke tests on all supported platforms.</td>
+        <td>Requires issue #27 provenance plus provider research and loopback smoke tests on all supported platforms.</td>
       </tr>
       <tr>
         <td><a href="web.html">XRTL.Web</a></td>
@@ -152,6 +153,7 @@
   <ul>
     <li>Database access candidates: PostgreSQL, MySQL, SQLite, and Firebird when suitable maintained Pascal/FPC integration options are confirmed.</li>
     <li>Web server candidates: practical Pascal/FPC-compatible HTTP server libraries with cross-platform behavior on Windows, macOS Apple Silicon, and Ubuntu 26.04.</li>
+    <li>Candidate provenance, status, and adoption gates live in <a href="../dependencies.html">Dependency Provenance</a>.</li>
   </ul>
 
   <h2>No-Duplication Rule</h2>

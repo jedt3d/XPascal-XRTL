@@ -5,38 +5,172 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dependency Provenance - XPascal / XRTL</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1080px; padding: 0 1rem; color: #202124; }
-    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1180px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
     table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
     th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
     th { background: #f6f8fa; text-align: left; }
+    .note { border-left: 4px solid #0969da; padding-left: 1rem; }
   </style>
 </head>
 <body>
   <p><a href="./">Documentation Home</a></p>
   <h1>Dependency Provenance Register</h1>
-  <p>This register records third-party projects considered or adopted by XCLI and XRTL. No source should be copied, vendored, linked, or wrapped before license and provenance notes exist.</p>
-  <p>This document is an engineering register, not legal advice. Treat every license note as a prompt for verification against the exact upstream source and version before adoption.</p>
+  <p><strong>Status:</strong> issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> defines this register as the source of truth for third-party dependency and license provenance. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> will perform the deeper database and web candidate research before any adoption decision.</p>
+  <p>This register records third-party projects considered, adopted, wrapped, referenced, or rejected by XCLI and XRTL. No third-party source should be copied, vendored, linked, or wrapped before a provenance record exists and the adoption gate below is satisfied.</p>
+  <p>This document is an engineering register, not legal advice. Treat every license note as a verification checklist against the exact upstream source, release, and artifact before adoption or redistribution.</p>
 
-  <h2>Evaluation Rules</h2>
+  <section class="note">
+    <p><strong>Current dependency posture:</strong> XRTL.Core v0 has no third-party runtime dependency. The project uses the pinned FreePascal <code>3.3.1</code> toolchain, and all Database/HTTP/Web candidates remain research-only until issue #28 records source-backed recommendations.</p>
+  </section>
+
+  <h2>Register Rules</h2>
   <ul>
-    <li>Prefer maintained projects with clear licenses and active upstreams.</li>
-    <li>Check cross-platform behavior for Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</li>
-    <li>Document attribution, copyright, and NOTICE obligations before adoption.</li>
-    <li>Record whether each project is adopted, wrapped, referenced, or only used as design inspiration.</li>
-    <li>When wrapping, document why a wrapper protects XPascal/XRTL better than direct use.</li>
+    <li>Prefer maintained projects with clear licenses, active upstreams, and evidence that they work with FreePascal on Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</li>
+    <li>Record upstream project name, canonical URL, license source, activity signal, feature fit, cross-platform evidence, attribution/NOTICE duties, and wrap/direct-use rationale.</li>
+    <li>Do not rely on GitHub's license badge alone. Link to upstream license files, release notes, package metadata, or project documentation when they are the source of a claim.</li>
+    <li>Do not copy source from a project whose license status is only guessed or inherited through a mirror.</li>
+    <li>Prefer a wrapper when it protects XRTL contracts, keeps future replacement possible, hides unstable upstream APIs, or prevents dependencies from leaking into public types.</li>
+    <li>Prefer direct use only when the upstream API is already the intended public contract and long-term replacement is not a priority.</li>
+    <li>When license obligations are unclear, keep the dependency in <code>research-only</code> status and open a follow-up issue or ADR before adoption.</li>
   </ul>
 
-  <h2>Candidate Register</h2>
+  <h2>Status Model</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Meaning</th>
+        <th>Allowed In Code?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>candidate</code></td>
+        <td>Interesting enough to track, but not researched deeply enough to choose.</td>
+        <td>No.</td>
+      </tr>
+      <tr>
+        <td><code>research-only</code></td>
+        <td>Under active evaluation; source links and license hints exist, but no adoption decision is made.</td>
+        <td>No.</td>
+      </tr>
+      <tr>
+        <td><code>prototype-approved</code></td>
+        <td>May be used in throwaway or branch-local experiments after license source and test scope are recorded.</td>
+        <td>Only in non-merged experiments unless the PR says otherwise.</td>
+      </tr>
+      <tr>
+        <td><code>adopted</code></td>
+        <td>Approved for repository use with documented license, attribution, packaging, and test obligations.</td>
+        <td>Yes.</td>
+      </tr>
+      <tr>
+        <td><code>wrapped</code></td>
+        <td>Approved through an XRTL wrapper that hides upstream API details from public contracts.</td>
+        <td>Yes, behind the wrapper boundary.</td>
+      </tr>
+      <tr>
+        <td><code>inspiration-only</code></td>
+        <td>Useful for design reading, but no source, API, or dependency is adopted.</td>
+        <td>No.</td>
+      </tr>
+      <tr>
+        <td><code>rejected</code></td>
+        <td>Not suitable because of license, maintenance, platform, security, API-shape, or ownership risk.</td>
+        <td>No.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>License Verification States</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>State</th>
+        <th>Required Evidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>unverified</code></td>
+        <td>Only a candidate name or secondary source is known.</td>
+      </tr>
+      <tr>
+        <td><code>source-located</code></td>
+        <td>Canonical upstream repository or package source has been linked.</td>
+      </tr>
+      <tr>
+        <td><code>license-identified</code></td>
+        <td>Upstream license file or authoritative project documentation is linked.</td>
+      </tr>
+      <tr>
+        <td><code>obligations-mapped</code></td>
+        <td>Attribution, NOTICE, source redistribution, dynamic/static linking, and modification duties are summarized for the intended usage.</td>
+      </tr>
+      <tr>
+        <td><code>approved-for-use</code></td>
+        <td>Maintainer accepts the obligations in a PR or ADR, and tests/package impact are recorded.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Adoption Gate</h2>
+  <ol>
+    <li>Open or confirm a GitHub issue for the dependency evaluation.</li>
+    <li>Add or update the candidate row in this register.</li>
+    <li>Link canonical upstream source and license files.</li>
+    <li>Record activity signal: latest release, recent commits, issue/PR activity, maintainer notes, or explicit abandonment risk.</li>
+    <li>Record feature fit and missing capabilities against the XRTL library that would use it.</li>
+    <li>Record cross-platform evidence for Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64.</li>
+    <li>Record attribution, NOTICE, redistribution, and source-modification obligations for the intended use.</li>
+    <li>Choose direct use, wrapper, inspiration-only, reject, or defer; create an ADR if the choice affects public API or architecture.</li>
+    <li>Only then may an implementation PR copy, link, vendor, wrap, or expose the dependency.</li>
+  </ol>
+
+  <h2>Adopted Or Locked Inputs</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Input</th>
+        <th>Role</th>
+        <th>Source Of Truth</th>
+        <th>License / Provenance State</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FreePascal <code>3.3.1</code> snapshot</td>
+        <td>Required compiler/toolchain.</td>
+        <td><code>toolchains/fpc-3.3.1.lock</code> and official FreePascal snapshot/download sources.</td>
+        <td><code>source-located</code>; redistribution/license obligations must be checked against the exact selected snapshot before packaging a release.</td>
+        <td>The project already checksum-verifies platform archives. Runtime library/package license review is still required before redistributing bundled toolchains or third-party FPC packages.</td>
+      </tr>
+      <tr>
+        <td>XRTL.Core v0</td>
+        <td>First XRTL runtime library.</td>
+        <td><a href="./xrtl/core.html">XRTL.Core docs</a>, ADR <a href="./decisions/0006-xrtl-core-contract.md">0006</a>, PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a>.</td>
+        <td>No third-party runtime dependency.</td>
+        <td>Core stays dependency-free so later libraries can depend on it safely.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Initial Candidate Queue</h2>
+  <p>The rows below are a queue for issue #28 and later library-specific issues. They are not adoption decisions.</p>
   <table>
     <thead>
       <tr>
         <th>Area</th>
         <th>Candidate</th>
-        <th>Upstream</th>
-        <th>License Notes</th>
-        <th>Status</th>
-        <th>Current Rationale</th>
+        <th>Upstream Source</th>
+        <th>Preliminary License Signal</th>
+        <th>Feature Fit Signal</th>
+        <th>Provenance Status</th>
+        <th>Next Gate</th>
       </tr>
     </thead>
     <tbody>
@@ -44,80 +178,100 @@
         <td>Database</td>
         <td>FPC SQLDB</td>
         <td><a href="https://www.freepascal.org/docs-html/fcl/sqldb/usingsqldb.html">Free Pascal SQLDB docs</a></td>
-        <td>Part of the FPC/FCL ecosystem; exact package license and linking obligations must be confirmed from the selected FPC snapshot before redistribution.</td>
-        <td>Preferred first prototype backend, not yet adopted as public API.</td>
-        <td>SQLDB provides uniform SQL access and separate connection components for Firebird, PostgreSQL, and MySQL. XRTL.Database should wrap or thin-adapt it behind XRTL.Data contracts rather than expose SQLDB as the XPascal public API.</td>
+        <td>Part of the FPC/FCL ecosystem; verify exact package license and linking obligations from the selected FPC snapshot before redistribution.</td>
+        <td>Uniform SQL access and connection components for multiple database backends make it the likely first prototype baseline.</td>
+        <td><code>source-located</code>; activity and platform evidence pending #28.</td>
+        <td>Issue #28 database research.</td>
       </tr>
       <tr>
         <td>Database</td>
         <td>ZeosLib</td>
-        <td><a href="https://github.com/frones/ZeosLib">GitHub mirror</a>, <a href="https://sourceforge.net/projects/zeoslib/">SourceForge project</a></td>
-        <td>GitHub reports LGPL-2.1 plus an additional unknown <code>COPYING.ZEOS</code> file. License review is required before adoption.</td>
-        <td>Research-only candidate.</td>
-        <td>Broad support across MySQL, MariaDB, PostgreSQL, Firebird/Interbase, SQLite, and more makes it worth reviewing. Do not adopt until license and official-upstream provenance are clear.</td>
+        <td><a href="https://github.com/marsupilami79/zeoslib">GitHub repository</a>, <a href="https://sourceforge.net/projects/zeoslib/">SourceForge project</a></td>
+        <td>License files include project-specific terms; review <code>COPYING</code> and <code>COPYING.ZEOS</code> before any adoption.</td>
+        <td>Broad database support including PostgreSQL, MySQL/MariaDB, Firebird/Interbase, SQLite, and others.</td>
+        <td><code>source-located</code>; license obligations and official-upstream status pending #28.</td>
+        <td>Issue #28 database research.</td>
       </tr>
       <tr>
         <td>Database / HTTP / Web</td>
         <td>mORMot 2</td>
         <td><a href="https://github.com/synopse/mORMot2">GitHub repository</a></td>
-        <td>MPL/GPL/LGPL tri-license according to upstream README; chosen license path and attribution duties must be recorded before adoption.</td>
-        <td>Research-only candidate.</td>
-        <td>Very capable Object Pascal stack for SQL/NoSQL, HTTP, WebSockets, ORM/SOA/MVC, logging, JSON, and more. Main risk is over-adopting a full framework before XRTL's minimal contracts are proven.</td>
+        <td>Upstream documents a multi-license model; choose and record the applicable license path before adoption.</td>
+        <td>Large Object Pascal framework with database, HTTP, JSON, logging, ORM/SOA/MVC, and platform capabilities.</td>
+        <td><code>source-located</code>; high API-surface risk pending #28.</td>
+        <td>Issue #28 research plus ADR if considered for adoption.</td>
       </tr>
       <tr>
         <td>HTTP / Web</td>
         <td>FPC <code>fphttpserver</code></td>
-        <td><a href="https://wiki.freepascal.org/fphttpserver">Free Pascal wiki</a></td>
-        <td>Part of the FPC/Lazarus ecosystem; exact package license and redistribution obligations must be confirmed from the selected snapshot.</td>
-        <td>Preferred baseline HTTP smoke candidate.</td>
-        <td>Good first candidate for loopback server validation because it is close to the toolchain. Needs supported-platform smoke tests before XRTL.HTTP relies on it.</td>
+        <td><a href="https://www.freepascal.org/docs-html/fcl/index.html">Free Pascal FCL docs</a></td>
+        <td>Part of the FPC/FCL ecosystem; verify package license from the selected snapshot before redistribution.</td>
+        <td>Likely first loopback HTTP smoke candidate because it is close to the pinned toolchain.</td>
+        <td><code>source-located</code>; unit availability and platform smoke pending #28.</td>
+        <td>Issue #28 HTTP research.</td>
       </tr>
       <tr>
         <td>Web</td>
         <td>Horse</td>
         <td><a href="https://github.com/HashLoad/horse">GitHub repository</a></td>
-        <td>MIT according to upstream README.</td>
-        <td>Research-only candidate and design reference.</td>
-        <td>Minimal Express-inspired API, Lazarus/FPC quickstart, provider-neutral transport model, and FPC default <code>fphttpserver</code> provider are promising. XRTL.Web should still decide whether to wrap, adapt, or only borrow design ideas.</td>
+        <td>Upstream README states MIT; verify exact license file before adoption.</td>
+        <td>Minimal web framework API and FPC/Lazarus signal make it a useful design/reference candidate.</td>
+        <td><code>source-located</code>; activity, platform, and provider evidence pending #28.</td>
+        <td>Issue #28 web research.</td>
       </tr>
       <tr>
         <td>Web</td>
         <td>Brook</td>
-        <td><a href="https://github.com/risoflora/brookframework">GitHub repository</a></td>
-        <td>LGPL-2.1 according to upstream README.</td>
-        <td>Research-only candidate.</td>
-        <td>Cross-platform Pascal microframework with rich server features. Needs activity, dependency, and license review before any adoption.</td>
+        <td><a href="https://github.com/risoflora/brookframework">GitHub repository</a>, <a href="https://github.com/risoflora/brookfreepascal">Brook Free Pascal repository</a></td>
+        <td>Upstream Free Pascal repository states LGPL; verify exact project license and dependency chain before adoption.</td>
+        <td>Cross-platform Pascal microframework; needs evidence that its current stack fits XRTL's supported platforms and long-term goals.</td>
+        <td><code>source-located</code>; license/dependency/activity review pending #28.</td>
+        <td>Issue #28 web research.</td>
       </tr>
       <tr>
         <td>HTTP / Network</td>
         <td>Indy</td>
         <td><a href="https://github.com/IndySockets/Indy">GitHub repository</a></td>
-        <td>Dual-licensed under Indy Modified BSD or Indy MPL according to upstream README; exact license file compatibility must be reviewed.</td>
-        <td>Research-only candidate.</td>
-        <td>Broad protocol suite and recent release signal. Candidate for lower-level network/HTTP needs only if FPC integration and TLS dependency risks are acceptable.</td>
+        <td>Upstream states dual licensing under Indy Modified BSD or Indy MPL; verify attribution and selected license path before adoption.</td>
+        <td>Broad socket/protocol library. Potential lower-level dependency only if FPC integration, TLS story, and platform support are acceptable.</td>
+        <td><code>source-located</code>; integration risk pending #28 or a networking-specific issue.</td>
+        <td>Issue #28 or future XRTL.Process/HTTP research.</td>
       </tr>
     </tbody>
   </table>
 
-  <h2>Current Recommendations</h2>
-  <ul>
-    <li>Prototype XRTL.Database against FPC SQLDB first, but keep SQLDB behind XRTL.Data and XRTL.Database contracts.</li>
-    <li>Keep ZeosLib and mORMot 2 as research candidates until license, maintenance, platform, and API-shape evidence is stronger.</li>
-    <li>Prototype XRTL.HTTP loopback smoke with FPC <code>fphttpserver</code> if the FPC 3.3.1 snapshot includes the needed units on all supported platforms.</li>
-    <li>Treat Horse as a serious design/reference candidate for XRTL.Web, not a direct public API dependency yet.</li>
-    <li>Treat Brook and Indy as research candidates with explicit license and maintenance review before adoption.</li>
-  </ul>
+  <h2>Per-Dependency Record Template</h2>
+  <pre><code>Project:
+Area:
+Upstream canonical URL:
+Exact source/release/tag:
+License files:
+License verification state:
+Attribution / NOTICE obligations:
+Redistribution obligations:
+Modification obligations:
+Activity signal:
+Supported platform evidence:
+Feature fit:
+Missing capabilities:
+Security or supply-chain risks:
+Decision: candidate | research-only | prototype-approved | adopted | wrapped | inspiration-only | rejected
+Wrap/direct-use rationale:
+Linked issue:
+Linked ADR:
+Verification commands or reports:</code></pre>
 
-  <h2>Provenance Template</h2>
+  <h2>Reference Sources Used For This Register</h2>
   <ul>
-    <li>Project name and upstream URL</li>
-    <li>License and compatibility notes</li>
-    <li>Maintenance signal: recent releases, commits, issue activity, or maintainer status</li>
-    <li>Feature fit and missing capabilities</li>
-    <li>Cross-platform notes</li>
-    <li>Attribution and NOTICE obligations</li>
-    <li>Decision: adopt, wrap, reference, inspire only, reject, or defer</li>
-    <li>Rationale and linked issue/ADR</li>
+    <li><a href="https://www.freepascal.org/docs-html/fcl/sqldb/usingsqldb.html">Free Pascal SQLDB documentation</a></li>
+    <li><a href="https://www.freepascal.org/docs-html/fcl/index.html">Free Pascal FCL documentation</a></li>
+    <li><a href="https://github.com/marsupilami79/zeoslib">ZeosLib GitHub repository</a></li>
+    <li><a href="https://sourceforge.net/projects/zeoslib/">ZeosLib SourceForge project</a></li>
+    <li><a href="https://github.com/synopse/mORMot2">mORMot 2 GitHub repository</a></li>
+    <li><a href="https://github.com/HashLoad/horse">Horse GitHub repository</a></li>
+    <li><a href="https://github.com/risoflora/brookframework">Brook framework GitHub repository</a></li>
+    <li><a href="https://github.com/risoflora/brookfreepascal">Brook Free Pascal GitHub repository</a></li>
+    <li><a href="https://github.com/IndySockets/Indy">Indy GitHub repository</a></li>
   </ul>
 </body>
 </html>

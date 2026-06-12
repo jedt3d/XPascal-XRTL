@@ -903,7 +903,27 @@ XRTL is the modern runtime library layer on top of FPC RTL/FCL.
 
 It should reuse strong existing open-source libraries where appropriate, but expose a clean and consistent developer experience.
 
-### 11.1 XRTL Modules
+### 11.1 Dependency Provenance Gate
+
+XRTL may adopt, wrap, or learn from strong open-source projects, but only after the candidate is recorded in the dependency provenance register.
+
+Before any third-party code is copied, vendored, linked, wrapped, or exposed through a public XRTL API, the project must record:
+
+- canonical upstream location
+- exact source revision, release, or package reference
+- license files and redistribution obligations
+- platform support evidence for Windows, macOS Apple Silicon, and Ubuntu
+- maintenance/activity signal
+- feature fit and known risks
+- decision status
+- rationale for direct use, wrapper use, inspiration-only use, or rejection
+- linked issue, PR, and ADR when the choice affects public behavior
+
+The register lives at `docs/dependencies.html`. Database and web server candidates remain research-only until issue #28 completes and the project accepts a specific adoption decision.
+
+This keeps the platform practical without turning XRTL into an unreviewed bundle of borrowed code.
+
+### 11.2 XRTL Modules
 
 ```text
 X.Core
@@ -933,7 +953,7 @@ X.Desktop
 X.Test
 ```
 
-### 11.2 REST Client
+### 11.3 REST Client
 
 Example:
 
@@ -945,7 +965,7 @@ var Response := XRest
   .Send;
 ```
 
-### 11.3 Server Routing
+### 11.4 Server Routing
 
 FastAPI-inspired, but Pascal-native:
 
@@ -966,7 +986,7 @@ function GetCustomer(Id: Integer): TCustomerDto;
 
 Start explicit. Add attribute magic later.
 
-### 11.4 X.Data
+### 11.5 X.Data
 
 `X.Data` is the business data layer that gives XPascal its Delphi/Lazarus-style productivity without requiring Delphi/Lazarus compatibility.
 
