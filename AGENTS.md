@@ -27,6 +27,15 @@
 6. Open a draft PR until validation is complete.
 7. Before marking a PR ready, compare the work back against the linked issue acceptance criteria and validation plan.
 8. Record GLM suggestions and Codex review decisions when GLM contributes.
+9. Revisit this file whenever an issue is closed or project status changes, and update the project progress notes below.
+
+## Project Progress
+
+- Keep this section current as issues close, PRs merge, or platform validation status changes.
+- Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
+- Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
+- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`.
+- Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
 
 ## Platform Validation
 
@@ -44,6 +53,7 @@
 - After merging, verify that auto-closed issues actually closed.
 - Sync local `main` with `origin/main` after merge.
 - Update Captain's Log when the merge changes project state, validation state, or operating rules.
+- Update the Project Progress section in this file whenever the merge closes an issue or changes roadmap status.
 
 ## Issue Discipline
 
@@ -54,6 +64,7 @@
 - Close issues only when their close criteria are satisfied. Prefer PR auto-close keywords when the issue closes at merge time.
 - Do not close bootstrap issues until the implementing PR is merged unless the issue is explicitly marked `not planned`.
 - Update `docs/issues/index.html` when issue scope, status, or relationships change.
+- When an issue reaches `done after merge`, reflect the progress change in this file during the same closeout pass.
 
 ## Quality Bar
 

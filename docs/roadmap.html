@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roadmap Gantt - XPascal / XRTL</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1120px; padding: 0 1rem; color: #202124; }
+    code, pre { background: #f2f4f7; border-radius: 4px; }
+    code { padding: 0.12rem 0.3rem; }
+    pre { padding: 1rem; overflow: auto; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+    .note { border-left: 4px solid #0969da; padding-left: 1rem; }
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, securityLevel: 'strict' });
+  </script>
+</head>
+<body>
+  <p><a href="./">Documentation Home</a></p>
+  <h1>XPascal / XRTL Roadmap Gantt</h1>
+  <p>This roadmap shows the current phase plan, issue links, and dependency gates. It is a planning aid, not a release promise. Update it whenever a phase changes, an issue closes, or a new platform gate appears.</p>
+
+  <section class="note">
+    <p><strong>Current support focus:</strong> Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel x86_64 is out of scope by decision.</p>
+    <p><strong>Toolchain invariant:</strong> FreePascal must report <code>3.3.1</code> through the bootstrap scripts and CLI doctor path.</p>
+  </section>
+
+  <h2>Mermaid View</h2>
+  <pre class="mermaid">
+gantt
+    title XPascal / XRTL Roadmap Phases
+    dateFormat  YYYY-MM-DD
+    axisFormat  %b %d
+
+    section Foundation Complete
+    Repo bootstrap baseline (#1-#7, PR #8)        :done, boot, 2026-06-12, 1d
+    Post-merge workflow (#11, PR #12)             :done, workflow, after boot, 1d
+    FPC 3.3.1 checksums (#9, PR #13)              :done, fpc, after workflow, 1d
+    Agent harness refresh (#14, PR #15)           :done, harness, after fpc, 1d
+    Linux validation capture (#10)                :done, linuxval, after boot, 1d
+
+    section Roadmap And Planning
+    Roadmap Gantt (#16)                           :active, roadmap, after harness, 1d
+    Create validation follow-up issues            :crit, nextissues, after roadmap, 2d
+
+    section Platform Validation
+    Windows bootstrap validation evidence         :active, winval, after nextissues, 3d
+    macOS Apple Silicon validation evidence       :active, macval, after nextissues, 3d
+    Ubuntu 26.04 validation evidence              :done, ubval, after linuxval, 1d
+    Cross-platform validation summary             :crit, evidence, after winval, 2d
+
+    section CLI And Toolchain
+    Stabilize xpc CLI skeleton                    :cli, after evidence, 1w
+    Harden install/check/build scripts            :scripts, after evidence, 1w
+    Expand CI compiler-version enforcement        :ci, after scripts, 3d
+
+    section XRTL Runtime
+    Define first runtime surface area             :runtime-scope, after cli, 1w
+    Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
+    Add conformance and smoke coverage            :runtime-tests, after runtime-impl, 2w
+
+    section Documentation And Governance
+    Keep issue map current                        :active, issuemap, after harness, 6w
+    Maintain Captain's Log evidence trail         :active, caplog, after linuxval, 6w
+    Architecture decision records                 :adr, after runtime-scope, 2w
+  </pre>
+
+  <h2>Dependency Notes</h2>
+  <ul>
+    <li>Foundation issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/1">#1</a> through <a href="https://github.com/jedt3d/XPascal-XRTL/issues/7">#7</a> are complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/8">#8</a>.</li>
+    <li>Post-merge workflow <a href="https://github.com/jedt3d/XPascal-XRTL/issues/11">#11</a>, FPC checksum finalization <a href="https://github.com/jedt3d/XPascal-XRTL/issues/9">#9</a>, and agent harness refresh <a href="https://github.com/jedt3d/XPascal-XRTL/issues/14">#14</a> are complete.</li>
+    <li>Roadmap issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> bridges completed bootstrap work into explicit next-phase issues.</li>
+    <li>Windows, macOS Apple Silicon, and Ubuntu validation evidence gates deeper CLI/toolchain work. This keeps runtime work from building on an unverified bootstrap surface.</li>
+    <li>Runtime implementation should wait until the first runtime surface area is defined in an issue and, where needed, an architecture decision record.</li>
+  </ul>
+
+  <h2>Next Issues To Create Or Confirm</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Area</th>
+        <th>Purpose</th>
+        <th>Dependency</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Windows validation</td>
+        <td>Capture current Windows manual validation commands and logs after checksum pinning.</td>
+        <td>Roadmap issue #16.</td>
+      </tr>
+      <tr>
+        <td>macOS Apple Silicon validation</td>
+        <td>Capture current macOS Apple Silicon manual validation commands and logs after checksum pinning.</td>
+        <td>Roadmap issue #16.</td>
+      </tr>
+      <tr>
+        <td>Ubuntu 26.04 validation refresh</td>
+        <td>Confirm Linux validation still passes after main branch sync and documentation changes.</td>
+        <td>Roadmap issue #16.</td>
+      </tr>
+      <tr>
+        <td>CLI stabilization</td>
+        <td>Define the next public <code>xpc</code> commands, flags, and error behavior.</td>
+        <td>Cross-platform validation summary.</td>
+      </tr>
+      <tr>
+        <td>Script hardening</td>
+        <td>Make installer/check/build scripts more robust around cache reuse, checksum failures, shell permissions, and platform detection.</td>
+        <td>Cross-platform validation summary.</td>
+      </tr>
+      <tr>
+        <td>First XRTL runtime surface</td>
+        <td>Choose the first units/APIs to implement and the compatibility bar for tests.</td>
+        <td>CLI/toolchain stabilization.</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>
