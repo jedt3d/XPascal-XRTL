@@ -256,5 +256,12 @@
     <p>Ubuntu remote validation reached the host in a temporary worktree and proved the new Core tests still pass, then initially failed at the SQLite open step because <code>libsqlite3.so</code> was missing. Installing <code>libsqlite3-dev</code> fixed the platform dependency; the rerun passed <code>check-toolchain.sh</code>, <code>run-xpc.sh build</code>, <code>database_smoke</code>, <code>database_sqlite_tests</code>, <code>version</code>, and <code>doctor</code>.</p>
     <p>macOS Apple Silicon validation could not start because the SSH port timed out before authentication. Opened follow-up issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45</a> so the host reachability problem and SQLite rerun are tracked separately from the completed Database implementation.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 11:40 ICT - macOS SQLite Validation Completed</h2>
+    <p>Resumed issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45</a> after SSH to the macOS Apple Silicon validation host became reachable again. Validation ran from a temporary worktree on merged <code>main</code> at commit <code>8ced92c</code>.</p>
+    <p>The host reported <code>Darwin 25.5.0 arm64</code>. The FPC compiler was <code>ppca64</code> and reported version <code>3.3.1</code>. The validation passed <code>install-fpc.sh</code>, <code>check-toolchain.sh</code>, <code>run-xpc.sh build</code>, <code>version</code>, and <code>doctor</code>. The build included and passed <code>database_smoke</code> and <code>database_sqlite_tests</code>.</p>
+    <p>The macOS linker still prints the known non-fatal <code>-macosx_version_min</code> rename warning. No tracked documentation includes validation host IPs, passwords, host keys, or usernames.</p>
+  </section>
 </body>
 </html>
