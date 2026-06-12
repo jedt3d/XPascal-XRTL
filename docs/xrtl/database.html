@@ -15,7 +15,8 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> planned. No implementation exists yet.</p>
+  <p><strong>Status:</strong> planned. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research recommends an XRTL-owned API with a first prototype adapter over FPC <code>SQLDB</code>.</p>
+  <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
   <p>Database owns SQL and database adapter behavior while keeping public contracts independent from any single driver stack.</p>
@@ -47,18 +48,18 @@
     <tbody>
       <tr>
         <td>FPC SQLDB</td>
-        <td>Preferred first prototype backend.</td>
-        <td>Built into the FPC ecosystem, provides a uniform SQL access layer, and already names Firebird, PostgreSQL, and MySQL connection components in upstream docs.</td>
+        <td>Recommended first prototype backend behind an XRTL wrapper.</td>
+        <td>Built into the FPC ecosystem, provides a uniform SQL access layer, and includes SQLite, PostgreSQL, MySQL, and Firebird/InterBase connection units in upstream docs.</td>
       </tr>
       <tr>
         <td>ZeosLib</td>
-        <td>Research-only candidate.</td>
-        <td>Broad database support, but license metadata includes LGPL-2.1 plus a separate unknown Zeos license file on the GitHub mirror. Needs deeper license and maintenance review.</td>
+        <td>Deferred fallback/future adapter candidate.</td>
+        <td>Broad database support, but license metadata includes LGPL-2.1 plus a separate Zeos-specific license file on the GitHub mirror. Use only if SQLDB gaps justify another provider.</td>
       </tr>
       <tr>
         <td>mORMot 2</td>
-        <td>Research-only candidate for larger server/data stack.</td>
-        <td>Very broad features and active modern Object Pascal scope. Risk is over-adopting a full framework when XRTL may only need a narrow database adapter.</td>
+        <td>Deferred candidate for larger server/data stack.</td>
+        <td>Very broad features and active modern Object Pascal scope. Risk is over-adopting a full framework when XRTL needs a narrow first database adapter.</td>
       </tr>
     </tbody>
   </table>
@@ -73,8 +74,9 @@
   <ul>
     <li>Driver-neutral connection config validation tests.</li>
     <li>Data contract mapping tests without a live service.</li>
-    <li>SQLite local adapter smoke first if SQLDB support is confirmed with FPC 3.3.1.</li>
-    <li>PostgreSQL, MySQL/MariaDB, and Firebird adapter tests only after service setup and credentials are documented outside tracked files.</li>
+    <li>SQLite local adapter smoke first through SQLDB.</li>
+    <li>PostgreSQL network smoke second.</li>
+    <li>Firebird and MySQL/MariaDB adapter tests only after service setup, native client libraries, and credentials are documented outside tracked files.</li>
   </ul>
 </body>
 </html>

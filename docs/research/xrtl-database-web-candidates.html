@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XRTL Database And Web Candidate Research</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.6; margin: 2rem auto; max-width: 1120px; padding: 0 1rem; color: #202124; }
+    code { background: #f2f4f7; padding: 0.12rem 0.3rem; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d8dee4; padding: 0.55rem; vertical-align: top; }
+    th { background: #f6f8fa; text-align: left; }
+  </style>
+</head>
+<body>
+  <p><a href="../">Documentation Home</a> | <a href="../dependencies.html">Dependency Provenance</a> | <a href="../xrtl/">XRTL Home</a></p>
+  <h1>XRTL Database And Web Candidate Research</h1>
+  <p><strong>Status:</strong> issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research record. No third-party code is adopted, copied, vendored, linked, or exposed by this document.</p>
+  <p><strong>Date:</strong> 2026-06-12. <strong>Scope:</strong> Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64 with pinned FreePascal 3.3.1.</p>
+
+  <h2>Recommendation</h2>
+  <ul>
+    <li><strong>Database:</strong> start <code>XRTL.Database</code> with an XRTL-owned provider-neutral API and a first prototype adapter over FPC <code>SQLDB</code>. Use SQLite first for local smoke, then PostgreSQL, Firebird, and MySQL/MariaDB service tests after credentials and native client libraries are handled outside tracked docs.</li>
+    <li><strong>HTTP:</strong> start <code>XRTL.HTTP</code> with XRTL-owned request/response contracts and a first loopback provider over FPC <code>fcl-web</code>/<code>fphttpserver</code>.</li>
+    <li><strong>Web:</strong> start <code>XRTL.Web</code> with an independent route and middleware contract. Treat Horse as a design reference and possible future adapter, not the first public API.</li>
+    <li><strong>Deferred candidates:</strong> keep ZeosLib, mORMot 2, Brook, and Indy in the provenance register, but do not adopt them until an implementation issue proves license obligations, platform behavior, and integration cost.</li>
+  </ul>
+
+  <h2>Decision Weighting</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Criterion</th>
+        <th>Weight</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Long-term survival</td>
+        <td>Highest</td>
+        <td>XRTL should own stable public contracts and avoid locking early APIs to a third-party framework's lifecycle.</td>
+      </tr>
+      <tr>
+        <td>License clarity</td>
+        <td>High</td>
+        <td>The project must respect upstream copyright, notices, linking terms, and native client library obligations before packaging.</td>
+      </tr>
+      <tr>
+        <td>Supported-platform proof</td>
+        <td>High</td>
+        <td>Every candidate must work on Windows, macOS Apple Silicon, and Ubuntu 26.04 with FPC 3.3.1 before adoption.</td>
+      </tr>
+      <tr>
+        <td>Feature fit</td>
+        <td>Medium</td>
+        <td>Large feature sets are useful only when they do not pull XRTL into an oversized dependency or duplicated architecture.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Database Candidates</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Evidence</th>
+        <th>License Signal</th>
+        <th>Fit</th>
+        <th>Risk</th>
+        <th>Recommendation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FPC SQLDB / fcl-db</td>
+        <td>FPC documents SQLDB as a uniform SQL layer over supported database-specific connection components. Daily FPC docs list fcl-db units including <code>SQLite3Conn</code>, <code>PQConnection</code>, <code>mysql80conn</code>, and <code>IBConnection</code>.</td>
+        <td>FPC home page states packages and runtime library use a modified Library GPL to allow static linking. Native database client libraries still carry their own obligations.</td>
+        <td>Best first baseline because it ships with the toolchain ecosystem and keeps the initial adapter narrow.</td>
+        <td>Potential old-style <code>TDataset</code> surface, provider-specific quirks, and native client library packaging.</td>
+        <td><strong>Use as first prototype backend behind an XRTL wrapper.</strong></td>
+      </tr>
+      <tr>
+        <td>SQLite client library</td>
+        <td>FPC provides SQLite-related packages/units, including <code>SQLite3Conn</code> in fcl-db and lower-level SQLite units.</td>
+        <td>SQLite upstream states SQLite is public domain and does not require a license.</td>
+        <td>Best first local smoke target because it does not need a running service.</td>
+        <td>Native library discovery and version differences across OS packages must be handled by tooling.</td>
+        <td><strong>Use as first local database smoke target.</strong></td>
+      </tr>
+      <tr>
+        <td>PostgreSQL via SQLDB/libpq</td>
+        <td>FPC SQLDB examples document switching from Firebird/InterBase to <code>TPQConnection</code>; daily docs show <code>PQConnection</code> uses <code>postgres3dyn</code>.</td>
+        <td>PostgreSQL upstream describes its license as liberal open source, similar to BSD or MIT.</td>
+        <td>Best first network database service because it is popular, mature, and license-friendly.</td>
+        <td>Requires test service setup and native <code>libpq</code> availability per platform.</td>
+        <td><strong>Use as first network database validation target.</strong></td>
+      </tr>
+      <tr>
+        <td>MySQL/MariaDB via SQLDB</td>
+        <td>FPC fcl-db daily docs list <code>mysql80conn</code>; MariaDB Connector/C documents MySQL/MariaDB client connectivity.</td>
+        <td>Oracle MySQL client licensing has GPL/FOSS-exception complexity; MariaDB documents LGPL client libraries for C, Java, and ODBC.</td>
+        <td>Important business-app target, but less clean than PostgreSQL/SQLite for first validation.</td>
+        <td>Client library selection can change redistribution obligations. Prefer MariaDB Connector/C if it works with FPC SQLDB on all target platforms.</td>
+        <td><strong>Validate after PostgreSQL; prefer MariaDB Connector/C path for license clarity.</strong></td>
+      </tr>
+      <tr>
+        <td>Firebird via SQLDB</td>
+        <td>FPC SQLDB examples use <code>TIBConnection</code> for Firebird/InterBase; daily docs show <code>IBConnection</code> depends on <code>ibase60dyn</code>.</td>
+        <td>Firebird documents IPL and IDPL licenses.</td>
+        <td>Valuable Pascal ecosystem target and should remain in the first research set.</td>
+        <td>Client library packaging and embedded/server mode choices need explicit platform tests.</td>
+        <td><strong>Validate after PostgreSQL and SQLite; keep first-class if platform smoke is clean.</strong></td>
+      </tr>
+      <tr>
+        <td>ZeosLib</td>
+        <td>SourceForge and GitHub mirror describe broad DB support including MySQL, MariaDB, PostgreSQL, Firebird/InterBase, SQLite, Oracle, ODBC, DuckDB, and QuestDB.</td>
+        <td>GitHub mirror reports LGPL-2.1 plus a project-specific <code>COPYING.ZEOS</code> file; official upstream is SourceForge/SVN rather than the mirror.</td>
+        <td>Strong fallback if SQLDB lacks features or compatibility.</td>
+        <td>More code surface, project-specific license file, and official-upstream ambiguity must be resolved before adoption.</td>
+        <td><strong>Defer; keep as fallback/future adapter candidate.</strong></td>
+      </tr>
+      <tr>
+        <td>mORMot 2</td>
+        <td>mORMot 2 documents database, ORM/ODM, HTTP, WebSockets, REST, SOA, MVC, JSON, crypto, logging, and cross-platform FPC support.</td>
+        <td>Upstream documents a disjunctive MPL/GPL/LGPL three-license model.</td>
+        <td>Excellent full-stack candidate for later high-performance server apps.</td>
+        <td>Too much public API surface for the first database layer; could duplicate or dominate XRTL architecture.</td>
+        <td><strong>Defer; evaluate only after XRTL.Database and XRTL.HTTP contracts exist.</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>HTTP And Web Candidates</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Candidate</th>
+        <th>Evidence</th>
+        <th>License Signal</th>
+        <th>Fit</th>
+        <th>Risk</th>
+        <th>Recommendation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>FPC fcl-web / fphttpserver</td>
+        <td>Daily FPC docs list <code>fcl-web</code> units including <code>fphttpserver</code>, <code>fphttpclient</code>, <code>HTTPRoute</code>, WebSocket units, JSON-RPC, REST bridge, and SQLDB REST units.</td>
+        <td>Part of FPC/FCL package licensing; verify selected snapshot files before redistribution.</td>
+        <td>Best first loopback smoke provider because it travels with the FPC ecosystem and is small enough to wrap.</td>
+        <td>May not be the final performance or routing story; TLS/security policy is out of scope for the first HTTP slice.</td>
+        <td><strong>Use as first HTTP loopback provider behind XRTL.HTTP.</strong></td>
+      </tr>
+      <tr>
+        <td>Horse</td>
+        <td>Horse README describes an Express-inspired framework for Delphi and Lazarus with Lazarus quickstart examples.</td>
+        <td>GitHub identifies an MIT license.</td>
+        <td>Very useful API design reference for minimal route/middleware ergonomics.</td>
+        <td>Public XPascal API should not become Horse-specific before XRTL.Web proves its own contracts and provider model.</td>
+        <td><strong>Use as design reference; consider adapter later.</strong></td>
+      </tr>
+      <tr>
+        <td>Brook / Brook for Free Pascal</td>
+        <td>Brook describes a cross-platform Pascal web microframework; Brook for Free Pascal documents Free Pascal/Lazarus system requirements and third-party support.</td>
+        <td>Brook framework states LGPL-2.1; Brook for Free Pascal states GNU Lesser General Public License.</td>
+        <td>Potential microframework candidate, especially for embedded or compact web apps.</td>
+        <td>Dependency chain and current maintenance fit need proof. LGPL obligations and any Sagui/native dependency packaging must be mapped.</td>
+        <td><strong>Defer until Horse/FCL-Web paths are tested.</strong></td>
+      </tr>
+      <tr>
+        <td>mORMot 2</td>
+        <td>mORMot 2 documents a client/server network layer with HTTP/S, WebSockets, OpenAPI/Swagger, REST router, SOA, and MVC.</td>
+        <td>Disjunctive MPL/GPL/LGPL three-license model.</td>
+        <td>Powerful future server provider or full-stack option.</td>
+        <td>Large integration surface and possible overlap with XRTL.Database, XRTL.HTTP, XRTL.Web, Diagnostics, and Config.</td>
+        <td><strong>Defer; revisit after independent XRTL contracts exist.</strong></td>
+      </tr>
+      <tr>
+        <td>Indy</td>
+        <td>Indy repository describes Internet Direct; license page states dual Indy Modified BSD or Indy MPL. Issue/discussion activity exists in 2025-2026.</td>
+        <td>Dual license: Indy Modified BSD or MPL-1.1. BSD path requires attribution.</td>
+        <td>Broad low-level protocol library and possible future network backend.</td>
+        <td>TLS/OpenSSL and FPC integration need dedicated validation. It is lower-level than XRTL.Web.</td>
+        <td><strong>Defer to a networking/TLS-specific issue, not first Web provider.</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Wrapper Policy</h2>
+  <p>Database, HTTP, and Web should expose XRTL contracts first. Adapters may use SQLDB, fcl-web, Horse, ZeosLib, mORMot 2, Brook, Indy, or other providers internally only after the provider passes the dependency provenance gate.</p>
+  <p>Wrapping is justified because XPascal needs stable diagnostics, config, error identity, platform behavior, test harnesses, and generated-project ergonomics independent of any single upstream provider.</p>
+
+  <h2>Next Implementation Issues</h2>
+  <ul>
+    <li><strong>XRTL.Database v0:</strong> define connection config, transaction, command/query, row/value mapping, and SQLite/PostgreSQL smoke plan over SQLDB.</li>
+    <li><strong>XRTL.HTTP v0:</strong> define request/response/header/status contracts and loopback smoke over <code>fphttpserver</code>.</li>
+    <li><strong>XRTL.Web v0:</strong> define route matching, middleware order, context, and error-to-response mapping. Use Horse as ergonomic reference only.</li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ul>
+    <li><a href="https://www.freepascal.org/">Free Pascal home/license</a></li>
+    <li><a href="https://www.freepascal.org/docs.html">Free Pascal documentation index</a></li>
+    <li><a href="https://www.freepascal.org/docs-html/fcl/sqldb/usingsqldb.html">Free Pascal SQLDB documentation</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-db/index.html">Free Pascal daily fcl-db package docs</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-db/sqlite3conn/index.html">FPC SQLite3Conn docs</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-db/pqconnection/index.html">FPC PQConnection docs</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-db/mysql80conn/tmysql80connection.html">FPC TMySQL80Connection docs</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-db/ibconnection/index.html">FPC IBConnection docs</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-web/index.html">Free Pascal daily fcl-web package docs</a></li>
+    <li><a href="https://www.freepascal.org/daily/packages/fcl-web/fphttpserver/index.html">FPC fphttpserver docs</a></li>
+    <li><a href="https://sqlite.org/copyright.html">SQLite copyright</a></li>
+    <li><a href="https://www.postgresql.org/about/licence/">PostgreSQL license</a></li>
+    <li><a href="https://www.mysql.com/about/legal/licensing/foss-exception/">MySQL FOSS License Exception</a></li>
+    <li><a href="https://mariadb.com/docs/general-resources/community/community/faq/licensing-questions/licensing-faq">MariaDB licensing FAQ</a></li>
+    <li><a href="https://firebirdsql.org/manual/qsg2-firebird-licenses.html">Firebird licenses</a></li>
+    <li><a href="https://sourceforge.net/projects/zeoslib/">ZeosLib SourceForge project</a></li>
+    <li><a href="https://github.com/marsupilami79/zeoslib">ZeosLib GitHub mirror</a></li>
+    <li><a href="https://github.com/synopse/mORMot2">mORMot 2 GitHub repository</a></li>
+    <li><a href="https://github.com/HashLoad/horse">Horse GitHub repository</a></li>
+    <li><a href="https://github.com/risoflora/brookframework">Brook framework GitHub repository</a></li>
+    <li><a href="https://github.com/risoflora/brookfreepascal">Brook for Free Pascal GitHub repository</a></li>
+    <li><a href="https://github.com/IndySockets/Indy">Indy GitHub repository</a></li>
+    <li><a href="https://github.com/IndySockets/Indy/blob/master/LICENSE.md">Indy license file</a></li>
+  </ul>
+</body>
+</html>

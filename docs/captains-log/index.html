@@ -234,5 +234,11 @@
     <p>PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/36">#36</a> merged into <code>main</code> with commit <code>c0eeff0c981b29546ab804a74fec4b1b3cc9559a</code>, closing issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a>. CI run #44 passed the Windows bootstrap job, including FPC 3.3.1 install/check, CLI build, CLI smoke checks, and XRTL.Core tests.</p>
     <p>Started closeout for epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a>. The epic now has evidence for project creation, XRTL architecture/test strategy, XRTL.Core v0, and dependency provenance. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> remains next and has not started in this closeout slice.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 10:46 ICT - Database And Web Candidate Research</h2>
+    <p>After PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/37">#37</a> merged and closed issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a>, started issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> on branch <code>codex/xrtl-db-web-candidate-research</code>. The research adds a source-backed document for database, HTTP, and web candidates without adopting third-party code.</p>
+    <p>The recommended next direction is conservative: prototype <code>XRTL.Database</code> over FPC <code>SQLDB</code>, prototype <code>XRTL.HTTP</code> over FPC <code>fcl-web</code>/<code>fphttpserver</code>, and keep <code>XRTL.Web</code> route/middleware contracts provider-neutral. ZeosLib, mORMot 2, Horse, Brook, and Indy remain deferred candidates or design references until implementation-specific proof exists.</p>
+  </section>
 </body>
 </html>
