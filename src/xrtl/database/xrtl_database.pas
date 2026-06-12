@@ -297,6 +297,41 @@ type
     property MetadataTableName: string read FMetadataTableName;
   end;
 
+  TXrtlDatabaseSortDirection = (xsdAscending, xsdDescending);
+
+  TXrtlDatabaseSelectBuilder = class
+  private
+    FTableName: string;
+    FColumns: array of string;
+    FWhereClauses: array of string;
+    FOrderByClauses: array of string;
+    FParameters: array of TXrtlDatabaseParameter;
+    FHasLimit: Boolean;
+    FLimit: Int64;
+    function GetColumnCount: Integer;
+    function GetWhereCount: Integer;
+    function GetOrderByCount: Integer;
+    function GetParameterCount: Integer;
+    function IndexOfParameter(const AName: string): Integer;
+    procedure AddParameter(const AParameter: TXrtlDatabaseParameter);
+  public
+    procedure Clear;
+    function FromTable(const ATableName: string): TXrtlResult;
+    function AddColumn(const AColumnName: string): TXrtlResult;
+    function WhereTextEquals(const AColumnName, AParameterName, AValue: string): TXrtlResult;
+    function WhereInt64Equals(const AColumnName, AParameterName: string; const AValue: Int64): TXrtlResult;
+    function AddOrderBy(const AColumnName: string; const ADirection: TXrtlDatabaseSortDirection): TXrtlResult;
+    function SetLimit(const ARowLimit: Int64): TXrtlResult;
+    function Build(out ASql: string; const AParams: TXrtlDatabaseParameters): TXrtlResult;
+    property TableName: string read FTableName;
+    property ColumnCount: Integer read GetColumnCount;
+    property WhereCount: Integer read GetWhereCount;
+    property OrderByCount: Integer read GetOrderByCount;
+    property ParameterCount: Integer read GetParameterCount;
+    property HasLimit: Boolean read FHasLimit;
+    property RowLimit: Int64 read FLimit;
+  end;
+
 implementation
 
 uses
@@ -305,6 +340,70 @@ uses
 function XrtlSqliteCallMask(const ACurrentMask: TFPUExceptionMask): TFPUExceptionMask;
 begin
   Result := ACurrentMask + [exInvalidOp, exDenormalized, exZeroDivide, exOverflow, exUnderflow, exPrecision];
+end;
+
+function XrtlDatabaseIsIdentifierStart(const AChar: Char): Boolean;
+begin
+  Result := ((AChar >= 'A') and (AChar <= 'Z')) or
+    ((AChar >= 'a') and (AChar <= 'z')) or
+    (AChar = '_');
+end;
+
+function XrtlDatabaseIsIdentifierPart(const AChar: Char): Boolean;
+begin
+  Result := XrtlDatabaseIsIdentifierStart(AChar) or
+    ((AChar >= '0') and (AChar <= '9'));
+end;
+
+function XrtlDatabaseIsValidIdentifier(const AValue: string): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if AValue = '' then
+    Exit;
+  if not XrtlDatabaseIsIdentifierStart(AValue[1]) then
+    Exit;
+  for I := 2 to Length(AValue) do
+    if not XrtlDatabaseIsIdentifierPart(AValue[I]) then
+      Exit;
+  Result := True;
+end;
+
+function XrtlDatabaseIsValidIdentifierPath(const AValue: string): Boolean;
+var
+  I: Integer;
+  PartStart: Integer;
+  Part: string;
+begin
+  Result := False;
+  if AValue = '' then
+    Exit;
+
+  PartStart := 1;
+  for I := 1 to Length(AValue) + 1 do
+    if (I > Length(AValue)) or (AValue[I] = '.') then
+    begin
+      Part := Copy(AValue, PartStart, I - PartStart);
+      if not XrtlDatabaseIsValidIdentifier(Part) then
+        Exit;
+      PartStart := I + 1;
+    end;
+
+  Result := True;
+end;
+
+function XrtlDatabaseJoinStrings(const AItems: array of string; const ASeparator: string): string;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := Low(AItems) to High(AItems) do
+  begin
+    if Result <> '' then
+      Result := Result + ASeparator;
+    Result := Result + AItems[I];
+  end;
 end;
 
 class function TXrtlSqliteValue.Null: TXrtlSqliteValue;
@@ -1100,6 +1199,206 @@ begin
       Result := ApplyMigration(APlan[I], AAppliedCount);
       if Result.Failed then
         Exit;
+    end;
+
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.GetColumnCount: Integer;
+begin
+  Result := Length(FColumns);
+end;
+
+function TXrtlDatabaseSelectBuilder.GetWhereCount: Integer;
+begin
+  Result := Length(FWhereClauses);
+end;
+
+function TXrtlDatabaseSelectBuilder.GetOrderByCount: Integer;
+begin
+  Result := Length(FOrderByClauses);
+end;
+
+function TXrtlDatabaseSelectBuilder.GetParameterCount: Integer;
+begin
+  Result := Length(FParameters);
+end;
+
+function TXrtlDatabaseSelectBuilder.IndexOfParameter(const AName: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to High(FParameters) do
+    if SameText(FParameters[I].Name, AName) then
+      Exit(I);
+end;
+
+procedure TXrtlDatabaseSelectBuilder.AddParameter(const AParameter: TXrtlDatabaseParameter);
+begin
+  SetLength(FParameters, Length(FParameters) + 1);
+  FParameters[High(FParameters)] := AParameter;
+end;
+
+procedure TXrtlDatabaseSelectBuilder.Clear;
+begin
+  FTableName := '';
+  SetLength(FColumns, 0);
+  SetLength(FWhereClauses, 0);
+  SetLength(FOrderByClauses, 0);
+  SetLength(FParameters, 0);
+  FHasLimit := False;
+  FLimit := 0;
+end;
+
+function TXrtlDatabaseSelectBuilder.FromTable(const ATableName: string): TXrtlResult;
+begin
+  if not XrtlDatabaseIsValidIdentifierPath(ATableName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_identifier',
+      'Table identifier is invalid: ' + ATableName));
+
+  FTableName := ATableName;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.AddColumn(const AColumnName: string): TXrtlResult;
+begin
+  if not XrtlDatabaseIsValidIdentifierPath(AColumnName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_identifier',
+      'Column identifier is invalid: ' + AColumnName));
+
+  SetLength(FColumns, Length(FColumns) + 1);
+  FColumns[High(FColumns)] := AColumnName;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.WhereTextEquals(const AColumnName, AParameterName, AValue: string): TXrtlResult;
+begin
+  if not XrtlDatabaseIsValidIdentifierPath(AColumnName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_identifier',
+      'Where column identifier is invalid: ' + AColumnName));
+  if not XrtlDatabaseIsValidIdentifier(AParameterName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameter',
+      'Query parameter identifier is invalid: ' + AParameterName));
+  if IndexOfParameter(AParameterName) >= 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'duplicate_parameter',
+      'Query parameter is duplicated: ' + AParameterName));
+
+  SetLength(FWhereClauses, Length(FWhereClauses) + 1);
+  FWhereClauses[High(FWhereClauses)] := AColumnName + ' = :' + AParameterName;
+  AddParameter(TXrtlDatabaseParameter.Text(AParameterName, AValue));
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.WhereInt64Equals(const AColumnName, AParameterName: string; const AValue: Int64): TXrtlResult;
+begin
+  if not XrtlDatabaseIsValidIdentifierPath(AColumnName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_identifier',
+      'Where column identifier is invalid: ' + AColumnName));
+  if not XrtlDatabaseIsValidIdentifier(AParameterName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameter',
+      'Query parameter identifier is invalid: ' + AParameterName));
+  if IndexOfParameter(AParameterName) >= 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'duplicate_parameter',
+      'Query parameter is duplicated: ' + AParameterName));
+
+  SetLength(FWhereClauses, Length(FWhereClauses) + 1);
+  FWhereClauses[High(FWhereClauses)] := AColumnName + ' = :' + AParameterName;
+  AddParameter(TXrtlDatabaseParameter.Int64Value(AParameterName, AValue));
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.AddOrderBy(const AColumnName: string; const ADirection: TXrtlDatabaseSortDirection): TXrtlResult;
+var
+  DirectionText: string;
+begin
+  if not XrtlDatabaseIsValidIdentifierPath(AColumnName) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_identifier',
+      'Order column identifier is invalid: ' + AColumnName));
+
+  case ADirection of
+    xsdAscending:
+      DirectionText := 'asc';
+    xsdDescending:
+      DirectionText := 'desc';
+  else
+    DirectionText := 'asc';
+  end;
+
+  SetLength(FOrderByClauses, Length(FOrderByClauses) + 1);
+  FOrderByClauses[High(FOrderByClauses)] := AColumnName + ' ' + DirectionText;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.SetLimit(const ARowLimit: Int64): TXrtlResult;
+begin
+  if ARowLimit < 0 then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_limit',
+      'Query row limit must not be negative'));
+
+  FHasLimit := True;
+  FLimit := ARowLimit;
+  Result := TXrtlResult.Ok;
+end;
+
+function TXrtlDatabaseSelectBuilder.Build(out ASql: string; const AParams: TXrtlDatabaseParameters): TXrtlResult;
+var
+  I: Integer;
+begin
+  ASql := '';
+  if not Assigned(AParams) then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_parameters',
+      'Query builder output parameters must not be nil'));
+  if FTableName = '' then
+    Exit(TXrtlResult.Fail(
+      XRTL_DATABASE_ERROR_DOMAIN,
+      'invalid_query',
+      'Query builder table must be set before build'));
+
+  AParams.Clear;
+  if Length(FColumns) = 0 then
+    ASql := 'select *'
+  else
+    ASql := 'select ' + XrtlDatabaseJoinStrings(FColumns, ', ');
+
+  ASql := ASql + ' from ' + FTableName;
+  if Length(FWhereClauses) > 0 then
+    ASql := ASql + ' where ' + XrtlDatabaseJoinStrings(FWhereClauses, ' and ');
+  if Length(FOrderByClauses) > 0 then
+    ASql := ASql + ' order by ' + XrtlDatabaseJoinStrings(FOrderByClauses, ', ');
+  if FHasLimit then
+    ASql := ASql + ' limit ' + IntToStr(FLimit);
+
+  for I := 0 to High(FParameters) do
+    case FParameters[I].Kind of
+      xspNull:
+        AParams.AddNull(FParameters[I].Name);
+      xspText:
+        AParams.AddText(FParameters[I].Name, FParameters[I].TextValue);
+      xspInt64:
+        AParams.AddInt64(FParameters[I].Name, FParameters[I].Int64ValueData);
     end;
 
   Result := TXrtlResult.Ok;
