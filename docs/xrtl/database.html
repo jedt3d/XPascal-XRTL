@@ -15,7 +15,8 @@
 <body>
   <p><a href="./">XRTL Home</a></p>
   <h1>XRTL.Database</h1>
-  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> adds detached raw row/field/value mapping. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> adds a small app dataset abstraction over detached rows. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> adds a SQLite-only provider abstraction facade. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> adds apply-only migration primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> adds SELECT query builder primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> adds ORM mapping primitives and completes the local-only feature stack from issue #47. Network databases remain out of scope.</p>
+  <p><strong>Status:</strong> local SQLite foundation implemented in issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/48">#48</a> adds public transactions and parameter binding. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/50">#50</a> adds detached raw row/field/value mapping. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/52">#52</a> adds a small app dataset abstraction over detached rows. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/54">#54</a> adds a SQLite-only provider abstraction facade. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/56">#56</a> adds apply-only migration primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/58">#58</a> adds SELECT query builder primitives. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/60">#60</a> adds ORM mapping primitives and completes the local-only feature stack from issue #47. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a> defines the next ORM V1 plan. Network databases remain out of scope.</p>
+  <p><a href="database-orm-v1-spec.html">Read the ORM V1 specification</a>.</p>
   <p><a href="../research/xrtl-database-web-candidates.html">Read the database/web candidate research</a>.</p>
 
   <h2>Purpose</h2>
@@ -34,15 +35,17 @@
     <li>Apply-only migration plans over the provider facade with XRTL-owned metadata.</li>
     <li>Deterministic SELECT query generation with validated identifiers and XRTL-owned parameters.</li>
     <li>Explicit ORM schema, field mapping, and read-only row-to-record mapping primitives.</li>
+    <li>ORM V1 planning for SQLite-only CRUD, repositories, sessions, Unit of Work, identity-map caching, and attachment metadata.</li>
     <li>Error results through <code>XRTL.Core</code> result/error contracts.</li>
-    <li>Future ORM surface only after a separate issue defines it.</li>
+    <li>Future ORM implementation only through specific follow-up issues derived from issue #62.</li>
   </ul>
 
   <h2>Non-Responsibilities</h2>
   <ul>
     <li>No editable, observable, UI-bound, or SQLDB-backed dataset behavior.</li>
     <li>No web request lifecycle or route handling.</li>
-    <li>No non-SQLite provider selection, rollback/down migration API, full active-record framework, write lifecycle, relationships, lazy loading, identity map, code generation, or schema introspection in the ORM mapping slice.</li>
+    <li>No non-SQLite provider selection, rollback/down migration API, full active-record framework, automatic lazy loading, code generation, or schema introspection in the first ORM V1 plan.</li>
+    <li>No upload transport, raw file-byte ownership, object-storage SDK, or file-byte cache inside ORM. File attachments are a storage/upload concern connected to ORM through metadata only.</li>
     <li>No PostgreSQL, MySQL/MariaDB, Firebird, or other network database adapters in v0.</li>
   </ul>
 
@@ -152,7 +155,19 @@
     <li><strong>Complete in issue #56:</strong> migration primitives.</li>
     <li><strong>Complete in issue #58:</strong> query builder primitives.</li>
     <li><strong>Complete in issue #60:</strong> ORM mapping primitives.</li>
+    <li><strong>In progress in issue #62:</strong> ORM V1 specification before CRUD/session implementation continues.</li>
   </ol>
+
+  <h2>ORM V1 Direction</h2>
+  <p>ORM V1 should grow from the existing mapping primitives into a practical SQLite-only persistence layer. The accepted direction is Data Mapper plus Repository and explicit Session/Unit of Work behavior, not Active Record as the primary model.</p>
+  <ul>
+    <li><strong>CRUD:</strong> insert, update, delete, and find-by-id over the provider facade.</li>
+    <li><strong>Repository:</strong> application-facing persistence classes that keep SQL and mapper details out of ViewModels.</li>
+    <li><strong>Session:</strong> explicit transaction boundary, pending changes, commit/rollback, and cache ownership.</li>
+    <li><strong>80/20 caching:</strong> immutable schema cache, deterministic generated SQL cache, and session identity map before any global query cache.</li>
+    <li><strong>Attachments:</strong> storage/upload stays outside ORM; ORM maps attachment metadata and ownership relationships only.</li>
+    <li><strong>Benchmark posture:</strong> learn from SQLModel and SQLAlchemy architecture, treat ZeosLib as a provider/component reference, and keep implementation clean-room.</li>
+  </ul>
 
   <h2>Initial Candidate Posture</h2>
   <table>
@@ -173,6 +188,11 @@
         <td>ZeosLib</td>
         <td>Deferred fallback/future adapter candidate.</td>
         <td>Broad database support, but license metadata includes LGPL-2.1 plus a separate Zeos-specific license file on the GitHub mirror. Use only if SQLDB gaps justify another provider.</td>
+      </tr>
+      <tr>
+        <td>SQLModel / SQLAlchemy</td>
+        <td>Inspiration-only ORM benchmark.</td>
+        <td>SQLModel gives the approachable FastAPI-facing model story; SQLAlchemy gives the deeper Core/ORM, Session, Unit of Work, and Identity Map architecture. XRTL may credit these ideas but must not copy code, API text, or examples.</td>
       </tr>
       <tr>
         <td>mORMot 2</td>
@@ -199,6 +219,7 @@
     <li><code>database_migration_tests</code> verifies empty plans, invalid and duplicate ids, transaction guards, idempotent apply, metadata ordering, out-of-order detection, and rollback after failed migration statements.</li>
     <li><code>database_query_builder_tests</code> verifies SELECT SQL generation, output parameters, query execution through the provider facade, default columns, ordering, limits, no-result queries, invalid identifiers, duplicate parameters, and invalid limits.</li>
     <li><code>database_orm_tests</code> verifies schema validation, duplicate fields/columns, find-by-id mapping, missing records, invalid mapper arguments, and mapped field lookup failures.</li>
+    <li>Future ORM V1 tests should cover CRUD mapper writes, generated SQL cache keys, session identity-map behavior, commit/rollback invalidation, repository examples, and attachment metadata without loading file bytes through ORM.</li>
     <li>No PostgreSQL, Firebird, MySQL, or MariaDB tests in v0.</li>
     <li>Network adapters require later issues with service setup, native client libraries, and credentials documented outside tracked files.</li>
   </ul>

@@ -94,7 +94,7 @@
       <tr>
         <td><a href="database.html">XRTL.Database</a></td>
         <td>SQL connection, transaction, adapter, and driver capability boundaries.</td>
-        <td>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> implements local SQLite over SQLDB only. Network databases are deferred.</td>
+        <td>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> implements local SQLite over SQLDB only. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a> defines the ORM V1 specification after the local-only stack completed. Network databases are deferred.</td>
       </tr>
       <tr>
         <td><a href="http.html">XRTL.HTTP</a></td>
@@ -152,6 +152,7 @@
   <h2>Initial Candidate Areas</h2>
   <ul>
     <li>Database access candidates: PostgreSQL, MySQL, SQLite, and Firebird when suitable maintained Pascal/FPC integration options are confirmed.</li>
+    <li>ORM V1 planning: <a href="database-orm-v1-spec.html">XRTL.Database ORM V1 Specification</a> defines the SQLite-only CRUD, repository, session, cache, and attachment metadata direction before further implementation.</li>
     <li>Web server candidates: practical Pascal/FPC-compatible HTTP server libraries with cross-platform behavior on Windows, macOS Apple Silicon, and Ubuntu 26.04.</li>
     <li>Candidate provenance, status, and adoption gates live in <a href="../dependencies.html">Dependency Provenance</a>.</li>
   </ul>

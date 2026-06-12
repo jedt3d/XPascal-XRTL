@@ -313,5 +313,12 @@
     <p>Implemented <code>TXrtlDatabaseOrmSchema</code>, <code>TXrtlDatabaseOrmField</code>, <code>TXrtlDatabaseOrmRecord</code>, and <code>TXrtlDatabaseOrmMapper.FindByInt64Id</code>. The mapper builds on <code>TXrtlDatabaseSelectBuilder</code> and <code>TXrtlDatabaseConnection.QueryRows</code>, then maps detached XRTL values into an application-field record container.</p>
     <p>Added <code>database_orm_tests</code> and wired it into Windows CI and both build scripts. Windows local validation passed <code>tools/run-xpc.ps1 build</code> with the full Core and Database test suite. The exact three-platform validation SHA is recorded in the linked pull request evidence. After this slice merges, issue #47 can close as completed.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 13:30 ICT - ORM V1 Specification Starts</h2>
+    <p>Opened issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/62">#62</a> and branch <code>codex/xrtl-orm-v1-spec</code> to define the next ORM phase before moving to other runtime work. The spec keeps execution SQLite-only and uses SQLModel/SQLAlchemy as clean-room architecture benchmarks while keeping ZeosLib as a provider/component reference rather than an ORM model.</p>
+    <p>The agreed design split is now documented: file upload and storage belong to a future storage/upload layer; ORM owns only attachment metadata and relationships. ORM caching starts with the useful 80/20 set: immutable schema cache, generated SQL cache, and session-scoped identity map. Global query result caching and file-byte caching stay out of V1.</p>
+    <p>Updated the ORM spec, ADR #0016, dependency register, PRD, roadmap, issue map, proposal, XRTL docs, and GLM review packet. No validation host credentials or local-only secret details were added to tracked docs.</p>
+  </section>
 </body>
 </html>

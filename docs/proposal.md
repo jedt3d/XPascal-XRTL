@@ -919,7 +919,7 @@ Before any third-party code is copied, vendored, linked, wrapped, or exposed thr
 - rationale for direct use, wrapper use, inspiration-only use, or rejection
 - linked issue, PR, and ADR when the choice affects public behavior
 
-The register lives at `docs/dependencies.html`. Issue #28 records database and web server candidate research, but candidates remain research-only until a later implementation issue accepts a specific adoption decision. Issue #40 implements the first concrete database slice as local SQLite through SQLDB for `XRTL.Database`. Issue #47 narrows the next Database work to a local-only stack: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, and ORM, in that order. Issues #48, #50, #52, #54, #56, #58, and #60 complete public transactions/parameter binding, detached raw row/field/value mapping, app dataset iteration over detached rows, a SQLite-only provider abstraction facade, apply-only migration primitives, SELECT query builder primitives, and ORM mapping primitives. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope until a future explicit validation issue reopens network databases.
+The register lives at `docs/dependencies.html`. Issue #28 records database and web server candidate research, but candidates remain research-only until a later implementation issue accepts a specific adoption decision. Issue #40 implements the first concrete database slice as local SQLite through SQLDB for `XRTL.Database`. Issue #47 narrows the next Database work to a local-only stack: public transactions, parameter binding, raw mapping data, app dataset abstraction, provider abstraction, migrations, query builder, and ORM, in that order. Issues #48, #50, #52, #54, #56, #58, and #60 complete public transactions/parameter binding, detached raw row/field/value mapping, app dataset iteration over detached rows, a SQLite-only provider abstraction facade, apply-only migration primitives, SELECT query builder primitives, and ORM mapping primitives. Issue #62 defines the next ORM V1 plan: SQLite-only CRUD, repositories, explicit sessions, 80/20 caching, and attachment metadata separated from storage/upload. PostgreSQL, MySQL/MariaDB, and Firebird stay out of scope until a future explicit validation issue reopens network databases.
 
 This keeps the platform practical without turning XRTL into an unreviewed bundle of borrowed code.
 
@@ -1021,6 +1021,8 @@ Orders := XData.Source<TOrder>
 ```
 
 The API should make the common case short, but still allow direct SQL, REST, or custom repository implementations behind the same component-facing contract.
+
+The ORM underneath `X.Data` should not own every data concern. File attachments should be represented in the ORM only as metadata and relationships; upload, storage, byte streaming, hashing, cleanup, and file-byte caching belong to a separate storage/upload layer. ORM caching should start conservatively with schema caches, generated SQL caches, and session identity maps before any global query result cache is considered.
 
 ## 12. Server Framework
 
