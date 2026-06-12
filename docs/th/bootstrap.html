@@ -27,7 +27,7 @@
   <h2>Windows</h2>
   <pre><code>./tools/install-fpc.ps1
 ./tools/check-toolchain.ps1
-./tools/build-xpc.ps1
+./tools/run-xpc.ps1 build
 ./tools/run-xpc.ps1 version
 ./tools/run-xpc.ps1 doctor
 ./build/hello_xpc.exe</code></pre>
@@ -35,7 +35,7 @@
   <h2>macOS Apple Silicon และ Linux</h2>
   <pre><code>bash ./tools/install-fpc.sh
 bash ./tools/check-toolchain.sh
-bash ./tools/build-xpc.sh
+bash ./tools/run-xpc.sh build
 bash ./tools/run-xpc.sh version
 bash ./tools/run-xpc.sh doctor
 ./build/hello_xpc</code></pre>
@@ -54,7 +54,7 @@ bash ./tools/run-xpc.sh doctor
   <ul>
     <li><code>install-fpc</code> ดาวน์โหลดและแตก FPC 3.3.1 snapshot สำหรับ platform ปัจจุบัน</li>
     <li><code>check-toolchain</code> ตรวจว่า compiler รายงาน version เป็น <code>3.3.1</code></li>
-    <li><code>build-xpc</code> build CLI bootstrap และ smoke executable</li>
+    <li><code>run-xpc build</code> build CLI bootstrap และ smoke executable ผ่าน public CLI v0 launcher path</li>
     <li><code>run-xpc</code> รัน CLI พร้อม metadata ของ compiler ที่ตรวจแล้ว</li>
   </ul>
 </body>

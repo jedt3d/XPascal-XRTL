@@ -2,8 +2,13 @@ $ErrorActionPreference = "Stop"
 
 $xpc = Join-Path $PSScriptRoot "..\build\xpc.exe"
 
+if ($args.Count -gt 0 -and $args[0] -eq "build") {
+    & (Join-Path $PSScriptRoot "build-xpc.ps1")
+    exit $LASTEXITCODE
+}
+
 if (-not (Test-Path $xpc)) {
-    throw "build/xpc.exe was not found. Run tools/build-xpc.ps1 first."
+    throw "build/xpc.exe was not found. Run tools/run-xpc.ps1 build first."
 }
 
 if (-not $env:FPC_BIN) {

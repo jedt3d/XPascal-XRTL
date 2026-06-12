@@ -4,8 +4,12 @@ set -euo pipefail
 xpc="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/build/xpc"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+if [[ "${1:-}" == "build" ]]; then
+  exec bash "${repo_root}/tools/build-xpc.sh"
+fi
+
 if [[ ! -x "${xpc}" ]]; then
-  echo "build/xpc was not found or is not executable. Run tools/build-xpc.sh first." >&2
+  echo "build/xpc was not found or is not executable. Run tools/run-xpc.sh build first." >&2
   exit 1
 fi
 

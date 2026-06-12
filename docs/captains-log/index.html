@@ -150,5 +150,12 @@
     <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/20">#20</a> to clean up stale project status after roadmap, PRD, and ADR work merged. Updated the issue map, PRD, and roadmap so issues <a href="https://github.com/jedt3d/XPascal-XRTL/issues/16">#16</a> and <a href="https://github.com/jedt3d/XPascal-XRTL/issues/18">#18</a> are treated as complete and the next major work item is the CLI v0 <code>xpc build</code> command.</p>
     <p>Confirmed validation host credentials remain local-only under ignored <code>.secrets/</code>. Repository documentation must not contain validation host IP addresses, passwords, or host keys.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 07:56 ICT - CLI v0 Build Command Starts</h2>
+    <p>Created issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/22">#22</a> for the first CLI v0 command: <code>xpc build</code>. The bootstrap implementation keeps platform-specific build orchestration in <code>tools/run-xpc.* build</code>, which delegates to the existing build scripts after toolchain verification.</p>
+    <p>Added ADR <code>docs/decisions/0003-cli-v0-build-command.md</code> to record that direct in-process Pascal build orchestration is deferred until project files, target selection, and process execution policy are designed.</p>
+    <p>Validation passed on Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. Each platform ran toolchain verification, <code>run-xpc build</code>, <code>xpc version</code>, <code>xpc doctor</code>, and <code>hello_xpc</code>. Validation host network details stayed local-only in ignored <code>.secrets/</code>.</p>
+  </section>
 </body>
 </html>
