@@ -4,14 +4,17 @@ XPascal is a modern FreePascal-powered application platform for desktop, web, an
 
 The project starts with a CLI-first foundation, pinned FreePascal tooling, CI/CD traceability, and an auditable Codex + GLM collaboration workflow. The long-term direction is documented in [docs/proposal.md](docs/proposal.md).
 
-Bootstrap PR #8 has merged into `main`. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
+Bootstrap PR #8 has merged into `main`. Current foundation work now includes the CLI skeleton, project creation, `xpc build`, `XRTL.Core` v0, and the first `XRTL.Database` local SQLite slice. Start every non-trivial follow-up from a GitHub issue, keep the work traceable through a branch/PR, and compare the result back to the issue acceptance criteria before closing it.
 
 ## First Slice
 
-The current bootstrap focuses on:
+The current foundation focuses on:
 
 - FreePascal 3.3.1 toolchain checks
 - `xpc` CLI skeleton
+- `xpc build` and `xpc new <project_name>`
+- `XRTL.Core` v0 result/error/option primitives
+- `XRTL.Database` v0 local SQLite smoke over FPC SQLDB
 - Windows-first CI
 - manual validation scripts for Windows, macOS, and Ubuntu 26.04 LTS
 - GitHub issue, branch, and draft PR workflow
@@ -31,6 +34,10 @@ Checksum status:
 
 - Git
 - FreePascal 3.3.1
+- SQLite native runtime for `XRTL.Database` tests:
+  - Windows: `sqlite3.dll` on `PATH`
+  - macOS: `libsqlite3.dylib`
+  - Ubuntu: `sudo apt-get install libsqlite3-dev`
 - PowerShell 7+ on Windows, or POSIX shell on macOS/Linux
 
 GitHub CLI is useful for local publishing workflows, but issue and pull request creation can also use the GitHub connector.

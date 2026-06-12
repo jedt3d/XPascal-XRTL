@@ -69,7 +69,7 @@ gantt
     XRTL foundation closeout (#24)                :crit, done, xrtl-foundation, after provenance, 1d
     Database and web research (#28)               :done, research, after xrtl-foundation, 1d
     Refine next XRTL slices (#39)                 :done, refine-scope, after research, 1d
-    XRTL.Database local SQLite (#40)              :runtime-scope, after refine-scope, 1w
+    XRTL.Database local SQLite (#40)              :done, runtime-scope, after refine-scope, 1d
     XRTL.HTTP FCL-Web/fphttpserver research (#41) :http-scope, after refine-scope, 1w
     XRTL.Web middleware design (#42)              :web-scope, after http-scope, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
@@ -92,6 +92,8 @@ gantt
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a>. It added <code>XRTL.Core</code> v0, Core tests, build-script integration, and three-platform validation.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/36">#36</a>. Epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/37">#37</a>. Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> records source-backed Database/Web recommendations without adopting third-party code.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/39">#39</a> refines the next slice: <code>XRTL.Database</code> starts local SQLite-only through SQLDB, network databases are deferred, <code>XRTL.HTTP</code> starts with FCL-Web vs <code>fphttpserver</code> research, and <code>XRTL.Web</code> starts with provider-neutral middleware design inspired by Rack/Horse.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40</a> implements <code>XRTL.Database</code> v0 as local SQLite over SQLDB only, with network databases deferred to later service-validation issues.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45</a> tracks the macOS Apple Silicon rerun for Database SQLite v0 after the validation host timed out before SSH authentication.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -106,13 +108,18 @@ gantt
     <tbody>
       <tr>
         <td>XRTL.Database v0</td>
-        <td>Issue #40 implements local SQLite over SQLDB only. PostgreSQL, MySQL/MariaDB, and Firebird move to later service-validation issues.</td>
-        <td>After #39.</td>
+        <td>Completed by issue #40: local SQLite over SQLDB only, with tests and ADR #0008.</td>
+        <td>Before #41.</td>
       </tr>
       <tr>
-        <td>XRTL.HTTP v0</td>
+        <td>XRTL.HTTP research</td>
         <td>Issue #41 researches FCL-Web vs <code>fphttpserver</code>, chooses the better baseline, and records fork/modification credit rules before implementation.</td>
-        <td>After #39.</td>
+        <td>After #40.</td>
+      </tr>
+      <tr>
+        <td>macOS SQLite validation</td>
+        <td>Issue #45 reruns the Database SQLite v0 validation on macOS Apple Silicon when the validation host is reachable.</td>
+        <td>Follow-up from #40.</td>
       </tr>
       <tr>
         <td>XRTL.Web v0</td>

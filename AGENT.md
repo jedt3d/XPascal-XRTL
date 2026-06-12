@@ -39,15 +39,16 @@
 14. Follow ADR `0007` and the status model in `docs/dependencies.html` before copying, vendoring, linking, wrapping, or exposing any third-party dependency.
 15. Before implementing or extending an XRTL library, check `docs/xrtl/architecture.html` and the target library page for ownership boundaries, shared helpers, and no-duplication rules.
 16. If a proposed helper, type, config policy, diagnostic shape, path/process helper, data contract, or HTTP/Web concept belongs to another XRTL library, use that shared owner or open a refactor issue before adding duplicate code.
+17. When an XRTL library implementation adds tests, update the library page, XRTL test strategy, dependency provenance, issue map, PRD/roadmap when scope changes, and Captain's Log in the same PR.
 
 ## Project Progress
 
 - Keep this section current as issues close, PRs merge, or platform validation status changes.
 - Summarize completed issue ranges, merged PRs, active validation work, and explicit out-of-scope decisions.
 - Do not include credentials, host passwords, IP secrets, or local-only `.secrets` contents.
-- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XRTL.Core v0 `#34` via PR `#35`; dependency provenance `#27` via PR `#36`; XCLI/XRTL epic `#24` via PR `#37`; database/web candidate research `#28` via PR `#38`; refined next-slice scope is issue `#39`.
-- Current next slices after #39: issue `#40` implements `XRTL.Database` v0 as local SQLite over SQLDB only; issue `#41` researches FCL-Web vs `fphttpserver` and fork/credit strategy; issue `#42` designs provider-neutral `XRTL.Web` middleware inspired by Rack and Horse.
-- Latest completed implementation slice: issue `#34` adds `XRTL.Core` v0 primitives and tests from accepted ADR `0006`.
+- Current bootstrap status: issues `#1`-`#7` merged via PR `#8`; post-merge workflow `#11` via PR `#12`; FPC `3.3.1` checksum finalization `#9` via PR `#13`; agent harness refresh `#14` via PR `#15`; Linux validation captured in `#10`; roadmap `#16` via PR `#17`; PRD/ADR cadence `#18` via PR `#19`; status closeout `#20` via PR `#21`; CLI v0 build command `#22` via PR `#23`; XCLI project creation `#25` via PR `#31`; XRTL library architecture `#26` via PR `#30`; XRTL.Core design `#32` via PR `#33`; XRTL.Core v0 `#34` via PR `#35`; dependency provenance `#27` via PR `#36`; XCLI/XRTL epic `#24` via PR `#37`; database/web candidate research `#28` via PR `#38`; refined next-slice scope `#39` via PR `#43`; `XRTL.Database` local SQLite v0 closes in issue `#40`.
+- Current next slices after #40: issue `#41` researches FCL-Web vs `fphttpserver` and fork/credit strategy; issue `#42` designs provider-neutral `XRTL.Web` middleware inspired by Rack and Horse; issue `#45` tracks the macOS Apple Silicon SQLite validation rerun after the validation host timed out.
+- Latest completed implementation slice: issue `#40` adds `XRTL.Database` v0 local SQLite over SQLDB and tests from accepted ADR `0008`.
 - XRTL governance gate: PR `#30` defined XRTL shared architecture, per-library docs, test strategy, and no-duplication rules before meaningful XRTL runtime implementation.
 - Target platforms remain Windows x86_64, macOS Apple Silicon aarch64, and Ubuntu 26.04 x86_64. macOS Intel is out of scope.
 

@@ -80,7 +80,7 @@
       </tr>
       <tr>
         <td>Database</td>
-        <td>Driver-neutral contract tests first; real PostgreSQL, MySQL, SQLite, and Firebird adapters only after service setup is explicit.</td>
+        <td>Local SQLite smoke first through SQLDB: <code>database_smoke</code> and <code>database_sqlite_tests</code>. PostgreSQL, MySQL, Firebird, and other service-backed adapters wait for explicit service setup issues.</td>
       </tr>
       <tr>
         <td>HTTP</td>
@@ -109,6 +109,7 @@ bash ./tools/run-xpc.sh doctor</code></pre>
 
   <h2>Adapter Test Policy</h2>
   <ul>
+    <li>Local embedded adapters such as SQLite may run by default when their native runtime is available on the validation platform.</li>
     <li>Adapter tests must fail loudly when a required local service is intentionally enabled but unavailable.</li>
     <li>Adapter tests must skip with a clear message when no service configuration is provided.</li>
     <li>Credentials, hostnames, and service passwords stay in local ignored files or CI secrets, never in tracked docs.</li>

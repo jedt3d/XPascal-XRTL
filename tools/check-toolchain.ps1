@@ -3,6 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
 function Find-Fpc {
     if ($env:FPC_BIN -and (Test-Path $env:FPC_BIN)) {
@@ -14,7 +15,8 @@ function Find-Fpc {
         return $cmd.Source
     }
 
-    $local = Get-ChildItem -Path ".toolchains" -Recurse -Include "fpc.exe","ppc*.exe" -File -ErrorAction SilentlyContinue |
+    $localToolchains = Join-Path $repoRoot ".toolchains"
+    $local = Get-ChildItem -Path $localToolchains -Recurse -Include "fpc.exe","ppc*.exe" -File -ErrorAction SilentlyContinue |
         Sort-Object Name |
         Select-Object -First 1
     if ($local) {

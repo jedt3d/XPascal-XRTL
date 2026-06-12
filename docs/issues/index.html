@@ -201,7 +201,7 @@
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/40">#40 XRTL.Database v0 local SQLite over SQLDB</a></td>
         <td>#39</td>
         <td>Implement the first Database slice with local SQLite only.</td>
-        <td>Open next implementation issue. Network databases are explicitly deferred.</td>
+        <td>Closed as completed by the Database SQLite v0 PR. Evidence: <code>xrtl_database</code>, SQLite config/open/execute/scalar query tests, build-script integration, ADR #0008, and docs. Network databases remain deferred.</td>
       </tr>
       <tr>
         <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/41">#41 XRTL.HTTP provider research and FCL-Web/fphttpserver fork strategy</a></td>
@@ -214,6 +214,12 @@
         <td>#39 / #41</td>
         <td>Design provider-neutral middleware, routing, context, and error mapping.</td>
         <td>Open design issue. Rack and Horse are credited references, not public API dependencies.</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/jedt3d/XPascal-XRTL/issues/45">#45 Validate XRTL.Database SQLite v0 on macOS Apple Silicon</a></td>
+        <td>#40</td>
+        <td>Rerun the Database SQLite validation on macOS Apple Silicon after the SSH host timed out during PR #44 validation.</td>
+        <td>Open validation follow-up. Windows local, Windows CI, and Ubuntu 26.04 pass for #40; macOS is blocked by host reachability, not by a known build failure.</td>
       </tr>
     </tbody>
   </table>
