@@ -216,5 +216,17 @@
     <p>Windows validation passed with FPC <code>3.3.1</code>: <code>tools/run-xpc.ps1 build</code> compiled the CLI, smoke executable, and Core tests, then ran <code>core_smoke</code>, <code>core_result_tests</code>, and <code>core_option_tests</code>. The generated-project smoke path also passed after the build scripts moved FPC object/unit output into <code>build/units</code>.</p>
     <p>macOS Apple Silicon validation passed on Darwin arm64 / macOS <code>26.5.1</code> with the same Core tests. Ubuntu validation passed on Ubuntu <code>26.04 LTS</code> x86_64. GitHub Actions CI run #41 passed for commit <code>f03dc8777dfab369d6e0d2cdb7bfe8d83db086b6</code>. The macOS linker still prints the known non-fatal <code>-macosx_version_min</code> rename warning.</p>
   </section>
+
+  <section class="entry">
+    <h2>2026-06-12 10:17 ICT - XRTL.Core V0 Merged</h2>
+    <p>Marked PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a> ready after Windows, macOS Apple Silicon, Ubuntu 26.04, and GitHub Actions CI run #42 passed. Merged it into <code>main</code> with merge commit <code>2de0c3770cc3db6c80139851dacedd45e420eff1</code>, closing issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a>.</p>
+    <p>The next agreed sequence is to close issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> first, then reassess epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a>, then start issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research.</p>
+  </section>
+
+  <section class="entry">
+    <h2>2026-06-12 10:24 ICT - Dependency Provenance Gate Starts</h2>
+    <p>Started branch <code>codex/dependency-provenance-register</code> for issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a>. The work formalizes <code>docs/dependencies.html</code> into the dependency provenance source of truth with status values, license verification states, an adoption gate, an adopted/locked input table, and a candidate queue for later database/web research.</p>
+    <p>Added ADR <code>0007</code> so the dependency provenance gate is a durable architecture/governance decision. No database or web dependency is adopted in this slice; issue #28 remains the source-backed research phase.</p>
+  </section>
 </body>
 </html>

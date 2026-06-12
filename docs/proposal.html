@@ -692,7 +692,23 @@ end;</code></pre>
 <h2 id="11-xrtl"><a class="anchor" href="#11-xrtl">#</a> 11. XRTL</h2>
 <p>XRTL is the modern runtime library layer on top of FPC RTL/FCL.</p>
 <p>It should reuse strong existing open-source libraries where appropriate, but expose a clean and consistent developer experience.</p>
-<h3 id="11-1-xrtl-modules"><a class="anchor" href="#11-1-xrtl-modules">#</a> 11.1 XRTL Modules</h3>
+<h3 id="11-1-dependency-provenance-gate"><a class="anchor" href="#11-1-dependency-provenance-gate">#</a> 11.1 Dependency Provenance Gate</h3>
+<p>XRTL may adopt, wrap, or learn from strong open-source projects, but only after the candidate is recorded in the dependency provenance register.</p>
+<p>Before any third-party code is copied, vendored, linked, wrapped, or exposed through a public XRTL API, the project must record:</p>
+<ul>
+<li>canonical upstream location</li>
+<li>exact source revision, release, or package reference</li>
+<li>license files and redistribution obligations</li>
+<li>platform support evidence for Windows, macOS Apple Silicon, and Ubuntu</li>
+<li>maintenance/activity signal</li>
+<li>feature fit and known risks</li>
+<li>decision status</li>
+<li>rationale for direct use, wrapper use, inspiration-only use, or rejection</li>
+<li>linked issue, PR, and ADR when the choice affects public behavior</li>
+</ul>
+<p>The register lives at <a href="./dependencies.html">docs/dependencies.html</a>. Database and web server candidates remain research-only until issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> completes and the project accepts a specific adoption decision.</p>
+<p>This keeps the platform practical without turning XRTL into an unreviewed bundle of borrowed code.</p>
+<h3 id="11-2-xrtl-modules"><a class="anchor" href="#11-2-xrtl-modules">#</a> 11.2 XRTL Modules</h3>
 <pre><code>X.Core
 X.Config
 X.Env
@@ -718,14 +734,14 @@ X.FileSystem
 X.Process
 X.Desktop
 X.Test</code></pre>
-<h3 id="11-2-rest-client"><a class="anchor" href="#11-2-rest-client">#</a> 11.2 REST Client</h3>
+<h3 id="11-3-rest-client"><a class="anchor" href="#11-3-rest-client">#</a> 11.3 REST Client</h3>
 <p>Example:</p>
 <pre><code>var Response := XRest
   .Get(&#x27;https://api.example.com/customers&#x27;)
   .BearerToken(Config.ApiToken)
   .AcceptJson
   .Send;</code></pre>
-<h3 id="11-3-server-routing"><a class="anchor" href="#11-3-server-routing">#</a> 11.3 Server Routing</h3>
+<h3 id="11-4-server-routing"><a class="anchor" href="#11-4-server-routing">#</a> 11.4 Server Routing</h3>
 <p>FastAPI-inspired, but Pascal-native:</p>
 <pre><code>App.Get(&#x27;/customers/:id&#x27;,
   procedure(Ctx: TXContext)
@@ -736,7 +752,7 @@ X.Test</code></pre>
 <pre><code>[Get(&#x27;/customers/:id&#x27;)]
 function GetCustomer(Id: Integer): TCustomerDto;</code></pre>
 <p>Start explicit. Add attribute magic later.</p>
-<h3 id="11-4-x-data"><a class="anchor" href="#11-4-x-data">#</a> 11.4 X.Data</h3>
+<h3 id="11-5-x-data"><a class="anchor" href="#11-5-x-data">#</a> 11.5 X.Data</h3>
 <p><code>X.Data</code> is the business data layer that gives XPascal its Delphi/Lazarus-style productivity without requiring Delphi/Lazarus compatibility.</p>
 <p>It should include:</p>
 <ul>

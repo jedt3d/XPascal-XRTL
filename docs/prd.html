@@ -128,8 +128,13 @@
       </tr>
       <tr>
         <td>First XRTL runtime surface</td>
-        <td>Implementation in progress</td>
-        <td>Issue #32 and PR #33 accepted the <code>XRTL.Core</code> foundation contract. Issue #34 implements <code>xrtl_core</code>, Core tests, build-script integration, and platform validation.</td>
+        <td>Complete</td>
+        <td>Issue #32 and PR #33 accepted the <code>XRTL.Core</code> foundation contract. Issue #34 and PR #35 implement <code>xrtl_core</code>, Core tests, build-script integration, and Windows, macOS Apple Silicon, Ubuntu 26.04, and CI validation.</td>
+      </tr>
+      <tr>
+        <td>Dependency provenance gate</td>
+        <td>In progress</td>
+        <td>Issue #27 formalizes <code>docs/dependencies.html</code> and ADR #0007 as the source-of-truth gate before dependency adoption. Issue #28 remains the deeper database/web research phase.</td>
       </tr>
     </tbody>
   </table>
@@ -138,7 +143,7 @@
   <ul>
     <li>When should <code>xpc build</code> move from launcher-managed build orchestration into the Pascal CLI itself?</li>
     <li>When should <code>XRTL.Core</code> revisit dotted Pascal unit names after flat <code>xrtl_core</code> ships?</li>
-    <li>Should generic option/value-result types remain in Core v0 after three-platform validation, or should they be deferred if compiler behavior is unstable?</li>
+    <li>When should <code>XRTL.Core</code> add structured error detail or nested causes, and should that wait for <code>XRTL.Diagnostics</code>?</li>
     <li>How much of FPC SQLDB should XRTL.Database expose directly versus hide behind XRTL.Data contracts?</li>
     <li>Should XRTL.Web wrap Horse, only use it as design inspiration, or defer Web until HTTP contracts are proven?</li>
     <li>Which validation results must be hosted in CI versus accepted as manual PR evidence during bootstrap?</li>

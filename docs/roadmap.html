@@ -64,9 +64,9 @@ gantt
 
     section XRTL Runtime
     XRTL.Core design (#32, PR #33)                :crit, done, core-design, after xcli, 1d
-    XRTL.Core v0 implementation (#34)             :crit, active, xrtl-core-v0, after core-design, 1w
-    XRTL foundation implementation (#24)          :crit, xrtl-foundation, after xrtl-core-v0, 1w
-    Dependency provenance (#27)                   :crit, provenance, after xrtlplan, 1w
+    XRTL.Core v0 implementation (#34, PR #35)     :crit, done, xrtl-core-v0, after core-design, 1w
+    Dependency provenance (#27)                   :crit, active, provenance, after xrtl-core-v0, 1w
+    XRTL foundation closeout (#24)                :crit, xrtl-foundation, after provenance, 1d
     Database and web research (#28)               :research, after provenance, 1w
     Define first runtime surface area             :runtime-scope, after core-design, 1w
     Implement first XRTL units                    :runtime-impl, after runtime-scope, 3w
@@ -86,7 +86,8 @@ gantt
     <li>Windows, macOS Apple Silicon, and Ubuntu bootstrap validation evidence exists from the bootstrap and checksum closeout passes. The next CLI v0 PR should refresh affected validation logs instead of reopening a standalone platform gate.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/26">#26</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/30">#30</a>. It defines the XRTL planning gate: shared architecture, per-library docs, no-duplication rules, and test strategy before runtime implementation grows.</li>
     <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/32">#32</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/33">#33</a>. It defines flat unit name <code>xrtl_core</code>, Core v0 primitives, and release-note-first FPC research evidence.</li>
-    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is the active implementation slice for <code>XRTL.Core</code> v0 and must refresh Windows, macOS Apple Silicon, Ubuntu 26.04, and CI validation before merge.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/34">#34</a> is complete through PR <a href="https://github.com/jedt3d/XPascal-XRTL/pull/35">#35</a>. It added <code>XRTL.Core</code> v0, Core tests, build-script integration, and three-platform validation.</li>
+    <li>Issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/27">#27</a> is the active provenance gate. It should close before reassessing epic <a href="https://github.com/jedt3d/XPascal-XRTL/issues/24">#24</a> and before starting issue <a href="https://github.com/jedt3d/XPascal-XRTL/issues/28">#28</a> research.</li>
   </ul>
 
   <h2>Next Issues To Create Or Confirm</h2>
@@ -100,34 +101,19 @@ gantt
     </thead>
     <tbody>
       <tr>
-        <td>XCLI project creation</td>
-        <td>Implement <code>xpc new &lt;project_name&gt;</code> and generated project build support.</td>
-        <td>Issue #25.</td>
+        <td>Dependency provenance closeout</td>
+        <td>Close issue #27 by formalizing the dependency register, adoption gate, status model, and ADR #0007.</td>
+        <td>Before reassessing #24 and before #28 database/web research.</td>
       </tr>
       <tr>
-        <td>Windows generated-project validation</td>
-        <td>Capture current Windows validation logs for <code>xpc new</code> and generated project build/run.</td>
-        <td>Issue #25.</td>
+        <td>XRTL foundation epic review</td>
+        <td>Reassess whether issue #24 can close after #27 merges.</td>
+        <td>After #27.</td>
       </tr>
       <tr>
-        <td>macOS Apple Silicon generated-project validation</td>
-        <td>Captured current macOS Apple Silicon validation logs for <code>xpc new</code> and generated project build/run; the retry also hardened POSIX installer behavior for clean temporary worktrees.</td>
-        <td>Issue #25 / PR #31.</td>
-      </tr>
-      <tr>
-        <td>Ubuntu 26.04 generated-project validation</td>
-        <td>Capture current Ubuntu 26.04 validation logs for <code>xpc new</code> and generated project build/run.</td>
-        <td>Issue #25.</td>
-      </tr>
-      <tr>
-        <td>Script hardening</td>
-        <td>Make installer/check/build scripts more robust only where CLI v0 build exposes concrete gaps; macOS clean-worktree validation fixed <code>.toolchains/current.env</code> directory creation in <code>tools/install-fpc.sh</code>.</td>
-        <td>XCLI project creation and generated-project validation.</td>
-      </tr>
-      <tr>
-        <td>First XRTL runtime surface</td>
-        <td>Implement <code>XRTL.Core</code> v0 primitives and tests from the accepted design.</td>
-        <td>Issue #34 after #32 / ADR #0006.</td>
+        <td>Database and web research</td>
+        <td>Start issue #28 only after #24 is reassessed, using the dependency register as the research template.</td>
+        <td>After #27 and #24 review.</td>
       </tr>
     </tbody>
   </table>
